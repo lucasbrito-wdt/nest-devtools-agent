@@ -1,12 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { eventsApi } from '@/lib/api';
-import { EventType } from '@nest-devtools/shared';
+import { EventType, LogEventMeta } from '@nest-devtools/shared';
 
 export default function Logs() {
   const { data, isLoading } = useQuery({
     queryKey: ['events', EventType.LOG],
-    queryFn: () =>
-      eventsApi.list({ type: EventType.LOG }, { page: 1, limit: 100 }),
+    queryFn: () => eventsApi.list({ type: EventType.LOG }, { page: 1, limit: 100 }),
   });
 
   return (
@@ -25,29 +24,31 @@ export default function Logs() {
           ) : data?.data.length === 0 ? (
             <div className="text-center text-gray-500">Nenhum log encontrado</div>
           ) : (
-            data?.data.map((event) => (
-              <div key={event.id} className="py-1">
-                <span className="text-gray-500 dark:text-gray-400">
-                  [{new Date(event.createdAt).toLocaleTimeString()}]
-                </span>{' '}
-                <span
-                  className={`font-semibold ${
-                    event.payload.level === 'error'
-                      ? 'text-red-600'
-                      : event.payload.level === 'warn'
-                      ? 'text-yellow-600'
-                      : 'text-gray-700 dark:text-gray-300'
-                  }`}
-                >
-                  [{event.payload.level.toUpperCase()}]
-                </span>{' '}
-                <span className="text-gray-900 dark:text-white">{event.payload.message}</span>
-              </div>
-            ))
+            data?.data.map((event) => {
+              const meta = event.payload as LogEventMeta;
+              return (
+                <div key={event.id} className="py-1">
+                  <span className="text-gray-500 dark:text-gray-400">
+                    [{new Date(event.createdAt).toLocaleTimeString()}]
+                  </span>{' '}
+                  <span
+                    className={`font-semibold ${
+                      meta.level === 'error'
+                        ? 'text-red-600'
+                        : meta.level === 'warn'
+                          ? 'text-yellow-600'
+                          : 'text-gray-700 dark:text-gray-300'
+                    }`}
+                  >
+                    [{meta.level.toUpperCase()}]
+                  </span>{' '}
+                  <span className="text-gray-900 dark:text-white">{meta.message}</span>
+                </div>
+              );
+            })
           )}
         </div>
       </div>
     </div>
   );
 }
-

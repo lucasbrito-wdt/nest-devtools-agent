@@ -9,24 +9,21 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "pnpm -r build",
-    "dev": "pnpm -r --parallel dev",
-    "dev:agent": "pnpm --filter @nest-devtools/agent dev",
-    "dev:backend": "pnpm --filter @nest-devtools/backend dev",
-    "dev:frontend": "pnpm --filter @nest-devtools/frontend dev",
-    "test": "pnpm -r test",
-    "lint": "pnpm -r lint",
+    "build": "bun run --filter '*' build",
+    "build:backend": "cd packages/shared && bun run build && cd ../backend && bun run build",
+    "dev": "bun run dev:backend",
+    "dev:agent": "cd packages/agent && bun run dev",
+    "dev:backend": "cd packages/backend && bun run dev",
+    "dev:frontend": "cd packages/frontend && bun run dev",
+    "test": "bun test",
+    "lint": "bun run --filter '*' lint",
     "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,json,md}\"",
-    "clean": "pnpm -r clean && rm -rf node_modules",
+    "clean": "rm -rf node_modules packages/*/node_modules packages/*/dist",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
     "docker:logs": "docker-compose logs -f",
-    "typecheck": "pnpm -r typecheck",
-    "release:agent": "pnpm --filter @nest-devtools/agent version",
-    "release:shared": "pnpm --filter @nest-devtools/shared version",
-    "publish:agent": "pnpm --filter @nest-devtools/agent publish",
-    "publish:shared": "pnpm --filter @nest-devtools/shared publish"
+    "typecheck": "bun run --filter '*' typecheck"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
@@ -35,7 +32,6 @@
   },
   "engines": {
     "node": ">=20.0.0",
-    "pnpm": ">=8.0.0"
+    "bun": ">=1.0.0"
   }
 }
-

@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { IconSearch, IconFilter } from '@tabler/icons-react';
+import { IconSearch } from '@tabler/icons-react';
 import { eventsApi } from '@/lib/api';
-import { EventType } from '@nest-devtools/shared';
+import { EventType, RequestEventMeta } from '@nest-devtools/shared';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -115,38 +115,41 @@ export default function Requests() {
                   </td>
                 </tr>
               ) : (
-                data?.data.map((event) => (
-                  <tr
-                    key={event.id}
-                    onClick={() => navigate(`/requests/${event.id}`)}
-                    className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="font-mono text-sm font-medium text-gray-900 dark:text-white">
-                        {event.payload.method}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="text-sm text-gray-600 dark:text-gray-400">
-                        {event.route || event.payload.url}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`badge ${getStatusBadge(event.status!)}`}>
-                        {event.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
-                      {event.payload.duration}ms
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                      {formatDistanceToNow(new Date(event.createdAt), {
-                        addSuffix: true,
-                        locale: ptBR,
-                      })}
-                    </td>
-                  </tr>
-                ))
+                data?.data.map((event) => {
+                  const meta = event.payload as RequestEventMeta;
+                  return (
+                    <tr
+                      key={event.id}
+                      onClick={() => navigate(`/requests/${event.id}`)}
+                      className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="font-mono text-sm font-medium text-gray-900 dark:text-white">
+                          {meta.method}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                          {event.route || meta.url}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`badge ${getStatusBadge(event.status!)}`}>
+                          {event.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+                        {meta.duration}ms
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                        {formatDistanceToNow(new Date(event.createdAt), {
+                          addSuffix: true,
+                          locale: ptBR,
+                        })}
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
@@ -180,4 +183,3 @@ export default function Requests() {
     </div>
   );
 }
-

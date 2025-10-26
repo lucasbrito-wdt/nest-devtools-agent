@@ -1,4 +1,4 @@
-name: 🎨 Deploy Frontend (Railway)
+name: 🎨 Deploy Frontend (Netlify)
 
 on:
   push:
@@ -18,7 +18,7 @@ env:
 
 jobs:
   deploy-frontend:
-    name: Deploy Frontend to Railway
+    name: Deploy Frontend to Netlify
     runs-on: ubuntu-latest
     
     steps:
@@ -58,18 +58,26 @@ jobs:
           npx vite-bundle-visualizer --open false
         continue-on-error: true
 
-      - name: 🚀 Deploy para Railway
-        uses: bervProject/railway-deploy@main
+      - name: 🚀 Deploy para Netlify
+        uses: nwtgck/actions-netlify@v2.1
         with:
-          railway_token: ${{ secrets.RAILWAY_TOKEN }}
-          service: ${{ secrets.RAILWAY_SERVICE_NAME }}
-        timeout-minutes: 15
+          publish-dir: './packages/frontend/dist'
+          production-branch: main
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: "Deploy from GitHub Actions - ${{ github.event.head_commit.message }}"
+          enable-pull-request-comment: true
+          enable-commit-comment: true
+          overwrites-pull-request-comment: true
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        timeout-minutes: 10
 
       - name: ✅ Notificar sucesso
         if: success()
         run: |
           echo "✅ Frontend deployed com sucesso!"
-          echo "🌐 Acesse: ${{ secrets.RAILWAY_URL }}"
+          echo "🌐 URL: https://${{ secrets.NETLIFY_SITE_ID }}.netlify.app"
 
       - name: ❌ Notificar falha
         if: failure()

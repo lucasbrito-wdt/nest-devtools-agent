@@ -1,4 +1,4 @@
-name: 🚀 Deploy Backend (Netlify)
+name: 🚀 Deploy Backend (Railway)
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
       - 'packages/shared/**'
       - 'package.json'
       - 'pnpm-lock.yaml'
-  workflow_dispatch: # Permite executar manualmente
+  workflow_dispatch:
 
 env:
   NODE_VERSION: '20'
@@ -18,7 +18,7 @@ env:
 
 jobs:
   deploy-backend:
-    name: Deploy Backend to Netlify
+    name: Deploy Backend to Railway
     runs-on: ubuntu-latest
     
     steps:
@@ -47,32 +47,24 @@ jobs:
 
       - name: 🧪 Executar testes
         run: pnpm --filter @nest-devtools/backend test
-        continue-on-error: true # Não bloqueia deploy se testes falharem
+        continue-on-error: true
 
       - name: 🔍 Type check
         run: pnpm --filter @nest-devtools/backend typecheck
         continue-on-error: true
 
-      - name: 🚀 Deploy para Netlify
-        uses: nwtgck/actions-netlify@v2.1
+      - name: 🚀 Deploy para Railway
+        uses: bervProject/railway-deploy@main
         with:
-          publish-dir: './packages/backend/dist'
-          production-branch: main
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          deploy-message: "Deploy from GitHub Actions - ${{ github.event.head_commit.message }}"
-          enable-pull-request-comment: true
-          enable-commit-comment: true
-          overwrites-pull-request-comment: true
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-        timeout-minutes: 10
+          railway_token: ${{ secrets.RAILWAY_TOKEN }}
+          service: ${{ secrets.RAILWAY_BACKEND_SERVICE }}
+        timeout-minutes: 15
 
       - name: ✅ Notificar sucesso
         if: success()
         run: |
           echo "✅ Backend deployed com sucesso!"
-          echo "🌐 URL: https://${{ secrets.NETLIFY_SITE_ID }}.netlify.app"
+          echo "🌐 URL: ${{ secrets.RAILWAY_BACKEND_URL }}"
 
       - name: ❌ Notificar falha
         if: failure()

@@ -1,15 +1,15 @@
 # 🚀 Deployment Guide — Production
 
-> Deploy completo para Netlify (Backend), Railway (Frontend) e Supabase (Database)
+> Deploy completo para Railway (Backend), Netlify (Frontend) e Supabase (Database)
 
 ---
 
 ## Arquitetura de Deploy
 
 ```
-Frontend (Railway) ← Users
+Frontend (Netlify CDN) ← Users
          ↓
-Backend (Netlify Functions) ← API
+Backend (Railway NestJS) ← API
          ↓
 Database (Supabase) ← PostgreSQL + Auth
 ```
@@ -48,7 +48,43 @@ postgresql://postgres:[PASSWORD]@[HOST]:5432/postgres
 
 ---
 
-## 2️⃣ Backend: Netlify Functions
+## 2️⃣ Backend: Railway
+
+### Setup
+
+```bash
+# 1. Criar conta em https://railway.app
+# 2. New Project → Deploy from GitHub
+# 3. Selecione o repositório
+# 4. Configure build settings
+
+# OU via CLI
+npm install -g @railway/cli
+railway login
+railway init
+railway up
+```
+
+### Environment Variables (Railway Dashboard)
+
+```
+PORT=4000
+NODE_ENV=production
+DATABASE_URL=postgresql://...@supabase...
+DEVTOOLS_API_KEY=your-secret-key
+CORS_ORIGINS=https://your-frontend.netlify.app
+RETENTION_DAYS=30
+RATE_LIMIT=100
+ENABLE_WEBSOCKET=true
+```
+
+### railway.json
+
+Já configurado na raiz do projeto.
+
+---
+
+## 3️⃣ Frontend: Netlify
 
 ### Setup
 
@@ -59,45 +95,31 @@ npm install -g netlify-cli
 # Login
 netlify login
 
+# Criar site
+netlify sites:create
+
 # Deploy
 netlify deploy --prod
 ```
 
+**Configuração via Dashboard:**
+1. New site → Deploy from GitHub
+2. Selecione o repositório
+3. Configure build:
+   - Base directory: `/`
+   - Build command: `pnpm install && pnpm build`
+   - Publish directory: `packages/frontend/dist`
+
 ### Environment Variables (Netlify UI)
 
 ```
-DATABASE_URL=postgresql://...@supabase...
-DEVTOOLS_API_KEY=your-secret-key
-CORS_ORIGINS=https://your-frontend.up.railway.app
-RETENTION_DAYS=30
-RATE_LIMIT=100
+VITE_API_URL=https://your-backend.up.railway.app/api
+VITE_WS_URL=https://your-backend.up.railway.app
 ```
 
 ### netlify.toml
 
 Já configurado na raiz do projeto.
-
----
-
-## 3️⃣ Frontend: Railway
-
-### Setup
-
-1. Crie conta em https://railway.app
-2. New Project → Deploy from GitHub
-3. Selecione o repositório
-4. Configure build settings
-
-### Environment Variables
-
-```
-VITE_API_URL=https://your-backend.netlify.app/api
-VITE_WS_URL=https://your-backend.netlify.app
-```
-
-### railway.json
-
-Já configurado na raiz.
 
 ---
 
@@ -107,7 +129,7 @@ Já configurado na raiz.
 // Sua app
 DevtoolsModule.forRoot({
   enabled: process.env.NODE_ENV === 'staging', // staging only
-  backendUrl: 'https://your-backend.netlify.app',
+  backendUrl: 'https://your-backend.up.railway.app',
   apiKey: process.env.DEVTOOLS_API_KEY!,
 })
 ```
@@ -143,6 +165,12 @@ DevtoolsModule.forRoot({
 - Functions → Analytics
 - Error logs
 - Build logs
+
+### Netlify
+
+- Analytics tab
+- Build logs
+- Request logs
 
 ### Railway
 
@@ -210,7 +238,7 @@ jobs:
 
 ## 🐛 Troubleshooting
 
-### Backend não conecta no Supabase
+### Backend não conecta
 
 ```bash
 # Teste conexão

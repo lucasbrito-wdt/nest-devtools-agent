@@ -42,18 +42,20 @@ Settings → Secrets and variables → Actions → New repository secret
 
 ## 🌐 Configuração do Netlify
 
-### 1️⃣ Criar Token de Autenticação
+### 1️⃣ Criar Token de Autenticação (Netlify)
 
-```bash
-# Via CLI
-netlify login
-netlify sites:list
-```
-
-Ou pelo painel web:
+**Para Frontend no Netlify:**
 1. Acesse: https://app.netlify.com/user/applications
 2. Clique em **New access token**
-3. Nome: `GitHub Actions CI/CD`
+3. Nome: `GitHub Actions - Frontend Deploy`
+4. Copie o token gerado
+
+### 2️⃣ Criar Token Railway (Backend)
+
+**Para Backend no Railway:**
+1. Acesse: https://railway.app/account/tokens
+2. Clique em **Create Token**
+3. Nome: `GitHub Actions - Backend Deploy`
 4. Copie o token gerado
 
 ### 2️⃣ Obter Site ID
