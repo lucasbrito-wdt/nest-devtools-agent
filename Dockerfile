@@ -38,21 +38,20 @@ FROM oven/bun:1-alpine
 
 WORKDIR /app
 
-# Copia package.json para instalar dependências de produção
+# Copia package.json da raiz
 COPY --from=builder /app/package.json ./
-COPY --from=builder /app/bun.lock ./
 
-# Copia os artefatos compilados
-COPY --from=builder /app/packages/backend/dist ./dist
-COPY --from=builder /app/packages/backend/package.json ./package.json
-COPY --from=builder /app/packages/shared/dist ./shared/dist
-COPY --from=builder /app/packages/shared/package.json ./shared/package.json
+# Copia estrutura completa do workspace para o bun resolver dependências
+COPY --from=builder /app/packages ./packages
 
 # Instala apenas dependências de produção
 RUN bun install --production
+
+# Volta o WORKDIR para o app principal (backend)
+WORKDIR /app/packages/backend
 
 # Expõe a porta da aplicação
 EXPOSE 4000
 
 # Inicia o app com Bun
-CMD ["bun", "dist/main.js"]
+CMD ["bun", "run", "dist/main.js"]
