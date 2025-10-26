@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Param, Res, StreamableFile } from '@nestjs/common';
+import { Controller, Get, Query, Param, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { EventsService } from './events.service';
 import { QueryEventsDto } from './dto/query-events.dto';
@@ -42,9 +42,12 @@ export class EventsController {
   @Get('export/csv')
   async exportCsv(@Query() query: QueryEventsDto, @Res() res: Response) {
     const csv = await this.eventsService.exportToCsv(query);
-    
+
     res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', `attachment; filename="devtools-events-${Date.now()}.csv"`);
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="devtools-events-${Date.now()}.csv"`,
+    );
     res.send(csv);
   }
 
@@ -54,9 +57,12 @@ export class EventsController {
   @Get('export/json')
   async exportJson(@Query() query: QueryEventsDto, @Res() res: Response) {
     const data = await this.eventsService.exportToJson(query);
-    
+
     res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Content-Disposition', `attachment; filename="devtools-events-${Date.now()}.json"`);
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="devtools-events-${Date.now()}.json"`,
+    );
     res.send(JSON.stringify(data, null, 2));
   }
 

@@ -11,16 +11,16 @@ import { EventType } from '@nest-devtools/shared';
 @Index(['createdAt'])
 export class Event {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @Column({
     type: 'enum',
     enum: EventType,
   })
-  type: EventType;
+  type!: EventType;
 
   @Column({ type: 'jsonb' })
-  payload: Record<string, any>;
+  payload!: Record<string, any>;
 
   @Column({ nullable: true })
   route?: string;
@@ -29,6 +29,5 @@ export class Event {
   status?: number;
 
   @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
+  createdAt!: Date;
 }
-

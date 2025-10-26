@@ -1,29 +1,34 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity('projects')
 export class Project {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @Column()
-  name: string;
+  name!: string;
 
   @Column({ nullable: true })
   description?: string;
 
   @Column({ name: 'api_key', unique: true })
-  apiKey: string;
+  apiKey!: string;
 
   @Column({ default: true })
-  active: boolean;
+  active!: boolean;
 
   @Column({ name: 'retention_days', default: 30 })
-  retentionDays: number;
+  retentionDays!: number;
 
   @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Date;
+  updatedAt!: Date;
 }
-

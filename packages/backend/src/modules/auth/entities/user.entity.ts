@@ -1,4 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -9,29 +15,29 @@ export enum UserRole {
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @Column({ unique: true })
-  email: string;
+  email!: string;
 
   @Column({ nullable: true })
   password?: string;
 
   @Column()
-  name: string;
+  name!: string;
 
   @Column({
     type: 'enum',
     enum: UserRole,
     default: UserRole.VIEWER,
   })
-  role: UserRole;
+  role!: UserRole;
 
   @Column({ name: 'project_id', nullable: true })
   projectId?: string;
 
   @Column({ default: true })
-  active: boolean;
+  active!: boolean;
 
   @Column({ name: 'oauth_provider', nullable: true })
   oauthProvider?: string;
@@ -40,9 +46,8 @@ export class User {
   oauthId?: string;
 
   @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
+  createdAt!: Date;
 
   @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Date;
+  updatedAt!: Date;
 }
-

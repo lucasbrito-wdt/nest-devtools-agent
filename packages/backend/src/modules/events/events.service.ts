@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between, In } from 'typeorm';
+import { Repository, Between } from 'typeorm';
 import { Event } from './entities/event.entity';
 import { QueryEventsDto } from './dto/query-events.dto';
 import { PaginatedEventsResponse, DevToolsStats, EventType } from '@nest-devtools/shared';
@@ -52,10 +52,9 @@ export class EventsService {
     }
 
     if (query.search) {
-      qb.andWhere(
-        "(event.route ILIKE :search OR event.payload::text ILIKE :search)",
-        { search: `%${query.search}%` },
-      );
+      qb.andWhere('(event.route ILIKE :search OR event.payload::text ILIKE :search)', {
+        search: `%${query.search}%`,
+      });
     }
 
     // Ordenação
@@ -70,7 +69,7 @@ export class EventsService {
     const [data, total] = await qb.getManyAndCount();
 
     return {
-      data,
+      data: data as any, // TypeORM Event entity to PersistedEvent interface
       meta: {
         total,
         page,
@@ -184,14 +183,17 @@ export class EventsService {
     const { data } = await this.findAll({ ...query, limit: 10000 }); // Max 10k
 
     const headers = ['ID', 'Type', 'Route', 'Status', 'Duration', 'Created At'];
-    const rows = data.map((event) => [
-      event.id,
-      event.type,
-      event.route || '',
-      event.status || '',
-      event.payload.duration || '',
-      event.createdAt.toISOString(),
-    ]);
+    const rows = data.map((event) => {
+      const payload = event.payload as any;
+      return [
+        event.id,
+        event.type,
+        event.route || '',
+        event.status || '',
+        payload?.duration || '',
+        event.createdAt.toISOString(),
+      ];
+    });
 
     const csv = [
       headers.join(','),

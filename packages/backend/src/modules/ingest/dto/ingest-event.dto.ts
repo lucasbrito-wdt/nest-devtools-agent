@@ -6,9 +6,8 @@ import { EventType } from '@nest-devtools/shared';
  */
 export class IngestEventDto {
   @IsEnum(EventType)
-  type: EventType;
+  type!: EventType;
 
   @IsObject()
-  meta: Record<string, any>;
+  meta!: Record<string, any>;
 }
-

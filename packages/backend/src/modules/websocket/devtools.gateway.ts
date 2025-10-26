@@ -23,7 +23,7 @@ import { DevToolsStats } from '@nest-devtools/shared';
 })
 export class DevToolsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
-  server: Server;
+  server!: Server;
 
   private readonly logger = new Logger(DevToolsGateway.name);
   private connectedClients = new Map<string, Socket>();
@@ -31,7 +31,7 @@ export class DevToolsGateway implements OnGatewayConnection, OnGatewayDisconnect
   handleConnection(client: Socket) {
     this.connectedClients.set(client.id, client);
     this.logger.log(`Client connected: ${client.id} (Total: ${this.connectedClients.size})`);
-    
+
     // Envia status inicial
     client.emit('connection-status', {
       connected: true,
@@ -49,10 +49,7 @@ export class DevToolsGateway implements OnGatewayConnection, OnGatewayDisconnect
    * Cliente se inscreve em um projeto específico
    */
   @SubscribeMessage('subscribe-project')
-  handleSubscribeProject(
-    @MessageBody() projectId: string,
-    @ConnectedSocket() client: Socket,
-  ) {
+  handleSubscribeProject(@MessageBody() projectId: string, @ConnectedSocket() client: Socket) {
     client.join(`project:${projectId}`);
     this.logger.log(`Client ${client.id} subscribed to project ${projectId}`);
     return { success: true, projectId };
@@ -62,10 +59,7 @@ export class DevToolsGateway implements OnGatewayConnection, OnGatewayDisconnect
    * Cliente se desinscreve de um projeto
    */
   @SubscribeMessage('unsubscribe-project')
-  handleUnsubscribeProject(
-    @MessageBody() projectId: string,
-    @ConnectedSocket() client: Socket,
-  ) {
+  handleUnsubscribeProject(@MessageBody() projectId: string, @ConnectedSocket() client: Socket) {
     client.leave(`project:${projectId}`);
     this.logger.log(`Client ${client.id} unsubscribed from project ${projectId}`);
     return { success: true, projectId };
@@ -75,7 +69,7 @@ export class DevToolsGateway implements OnGatewayConnection, OnGatewayDisconnect
    * Ping para keep-alive
    */
   @SubscribeMessage('ping')
-  handlePing(@ConnectedSocket() client: Socket) {
+  handlePing() {
     return { pong: true, timestamp: Date.now() };
   }
 
@@ -90,7 +84,7 @@ export class DevToolsGateway implements OnGatewayConnection, OnGatewayDisconnect
       // Emite para todos os clientes
       this.server.emit('new-event', event);
     }
-    
+
     this.logger.debug(`Emitted new-event: ${event.id} (type: ${event.type})`);
   }
 
@@ -103,19 +97,22 @@ export class DevToolsGateway implements OnGatewayConnection, OnGatewayDisconnect
     } else {
       this.server.emit('stats-update', stats);
     }
-    
+
     this.logger.debug('Emitted stats-update');
   }
 
   /**
    * Emite alerta em tempo real
    */
-  emitAlert(alert: {
-    type: 'error' | 'warning' | 'info';
-    title: string;
-    message: string;
-    timestamp: string;
-  }, projectId?: string) {
+  emitAlert(
+    alert: {
+      type: 'error' | 'warning' | 'info';
+      title: string;
+      message: string;
+      timestamp: string;
+    },
+    projectId?: string,
+  ) {
     if (projectId) {
       this.server.to(`project:${projectId}`).emit('alert', alert);
     } else {
