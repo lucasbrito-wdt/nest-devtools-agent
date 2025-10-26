@@ -114,10 +114,12 @@ Valor: <seu-token-npm>
 ### 1. Deploy Backend (`deploy-backend.yml`)
 
 **Quando roda:**
+
 - Push para `main`, `master` ou `staging`
 - Mudanças em `packages/backend/**` ou `packages/shared/**`
 
 **O que faz:**
+
 - ✅ Instala dependências com Bun
 - ✅ Build do shared
 - ✅ Build do backend
@@ -128,10 +130,12 @@ Valor: <seu-token-npm>
 ### 2. Deploy Frontend (`deploy-frontend.yml`)
 
 **Quando roda:**
+
 - Push para `main`, `master` ou `staging`
 - Mudanças em `packages/frontend/**` ou `packages/shared/**`
 
 **O que faz:**
+
 - ✅ Instala dependências com Bun
 - ✅ Build do shared
 - ✅ Build do frontend
@@ -141,10 +145,12 @@ Valor: <seu-token-npm>
 ### 3. CI - Testes e Linting (`ci.yml`)
 
 **Quando roda:**
+
 - Pull requests para `main`, `master` ou `develop`
 - Push para `develop`
 
 **O que faz:**
+
 - ✅ Linting (ESLint + Prettier)
 - ✅ Type check (todos os pacotes)
 - ✅ Testes backend (com PostgreSQL)
@@ -153,10 +159,12 @@ Valor: <seu-token-npm>
 ### 4. Release (`release.yml`)
 
 **Quando roda:**
+
 - Push de tags `v*` (ex: `v1.0.0`)
 - Dispatch manual
 
 **O que faz:**
+
 - ✅ Cria GitHub Release
 - ✅ Gera changelog
 - ✅ Publica no NPM
@@ -175,6 +183,7 @@ git push origin main
 ```
 
 GitHub Actions vai:
+
 1. Detectar mudanças
 2. Rodar build e testes
 3. Deploy automático ✅
@@ -202,6 +211,7 @@ git push origin v1.0.0
 ```
 
 GitHub Actions vai:
+
 1. Criar release no GitHub
 2. Publicar pacotes no NPM
 
@@ -232,6 +242,7 @@ GitHub Actions vai:
 **Problema:** Push não triggou o workflow
 
 **Soluções:**
+
 1. ✅ Verifique o nome do branch (`main` vs `master`)
 2. ✅ Verifique os paths modificados
 3. ✅ Verifique permissões: Settings → Actions → General → Workflow permissions
@@ -241,6 +252,7 @@ GitHub Actions vai:
 **Problema:** Deploy do backend/frontend falha
 
 **Soluções:**
+
 1. ✅ Verifique se os secrets estão configurados
 2. ✅ Teste o build localmente: `bun run build`
 3. ✅ Verifique logs do workflow
@@ -251,6 +263,7 @@ GitHub Actions vai:
 **Problema:** CI falha nos testes
 
 **Soluções:**
+
 1. ✅ Rode localmente: `bun test`
 2. ✅ Verifique PostgreSQL no workflow
 3. ✅ Verifique variáveis de ambiente
@@ -260,6 +273,7 @@ GitHub Actions vai:
 **Problema:** `Error: Secret XXX not found`
 
 **Soluções:**
+
 1. ✅ Verifique o nome do secret (case-sensitive)
 2. ✅ Adicione o secret: Settings → Secrets → Actions
 3. ✅ Verifique se está no repositório correto
@@ -291,6 +305,7 @@ GitHub Actions vai:
 ## ✅ Pronto!
 
 Agora seu monorepo tem CI/CD completo:
+
 - ✅ Deploy automático no Railway e Netlify
 - ✅ Testes em PRs
 - ✅ Type checking
@@ -298,4 +313,3 @@ Agora seu monorepo tem CI/CD completo:
 - ✅ Releases automáticas
 
 **Faça um push e veja a mágica acontecer!** 🚀
-

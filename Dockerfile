@@ -7,6 +7,7 @@ WORKDIR /app
 
 # Copia os manifests do monorepo
 COPY package.json bun.lockb* ./
+COPY tsconfig.json ./
 
 # Copia os manifests de cada pacote
 COPY packages/shared/package.json packages/shared/
