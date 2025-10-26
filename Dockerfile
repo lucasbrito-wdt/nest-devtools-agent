@@ -34,16 +34,21 @@ FROM oven/bun:1-alpine
 
 WORKDIR /app
 
-# Copia apenas os artefatos necessários
-COPY --from=builder /app/packages/backend/dist ./dist
-COPY --from=builder /app/packages/backend/package.json ./
-COPY --from=builder /app/packages/shared/dist ../shared/dist
+# Copia package.json para instalar dependências de produção
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/bun.lockb ./
 
-# Copia os node_modules do builder
-COPY --from=builder /app/node_modules ./node_modules
+# Copia os artefatos compilados
+COPY --from=builder /app/packages/backend/dist ./dist
+COPY --from=builder /app/packages/backend/package.json ./package.json
+COPY --from=builder /app/packages/shared/dist ./shared/dist
+COPY --from=builder /app/packages/shared/package.json ./shared/package.json
+
+# Instala apenas dependências de produção
+RUN bun install --production --frozen-lockfile
 
 # Expõe a porta da aplicação
 EXPOSE 4000
 
-# Inicia o app com Node.js (NestJS precisa do Node runtime)
-CMD ["node", "dist/main.js"]
+# Inicia o app com Bun
+CMD ["bun", "dist/main.js"]
