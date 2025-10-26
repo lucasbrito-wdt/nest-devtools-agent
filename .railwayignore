@@ -1,0 +1,24 @@
+# Arquivos do Railpack (força o uso do Dockerfile)
+railpack.toml
+.railpack
+
+# Node modules
+node_modules/
+packages/*/node_modules/
+
+# Build outputs
+packages/frontend/dist/
+packages/agent/dist/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
