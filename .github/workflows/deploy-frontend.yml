@@ -20,7 +20,7 @@ jobs:
   deploy-frontend:
     name: Deploy Frontend to Netlify
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: 📥 Checkout código
         uses: actions/checkout@v4
@@ -58,7 +58,7 @@ jobs:
           publish-dir: './packages/frontend/dist'
           production-branch: main
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          deploy-message: "Deploy from GitHub Actions - ${{ github.event.head_commit.message }}"
+          deploy-message: 'Deploy from GitHub Actions - ${{ github.event.head_commit.message }}'
           enable-pull-request-comment: true
           enable-commit-comment: true
           overwrites-pull-request-comment: true

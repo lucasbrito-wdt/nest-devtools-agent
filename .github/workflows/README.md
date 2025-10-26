@@ -7,6 +7,7 @@ Pipelines de CI/CD para o monorepo Nest DevTools.
 ### 1. 🚀 Deploy Backend (`deploy-backend.yml`)
 
 **Trigger:**
+
 - Push para `main`, `master` ou `staging`
 - Mudanças em:
   - `packages/backend/**`
@@ -15,6 +16,7 @@ Pipelines de CI/CD para o monorepo Nest DevTools.
   - `railway.toml`
 
 **Ações:**
+
 - ✅ Build do shared package
 - ✅ Build do backend
 - ✅ Testes (se disponíveis)
@@ -24,12 +26,14 @@ Pipelines de CI/CD para o monorepo Nest DevTools.
 ### 2. 🎨 Deploy Frontend (`deploy-frontend.yml`)
 
 **Trigger:**
+
 - Push para `main`, `master` ou `staging`
 - Mudanças em:
   - `packages/frontend/**`
   - `packages/shared/**`
 
 **Ações:**
+
 - ✅ Build do shared package
 - ✅ Build do frontend
 - ✅ Type check
@@ -38,10 +42,12 @@ Pipelines de CI/CD para o monorepo Nest DevTools.
 ### 3. 🔍 CI - Testes e Linting (`ci.yml`)
 
 **Trigger:**
+
 - Pull requests para `main`, `master` ou `develop`
 - Push para `develop`
 
 **Jobs:**
+
 - **Linting**: ESLint + Prettier
 - **Type Check**: TypeScript em todos os pacotes
 - **Testes Backend**: Jest com PostgreSQL
@@ -50,10 +56,12 @@ Pipelines de CI/CD para o monorepo Nest DevTools.
 ### 4. 📦 Release (`release.yml`)
 
 **Trigger:**
+
 - Push de tags (`v*`)
 - Dispatch manual
 
 **Ações:**
+
 - ✅ Cria GitHub Release
 - ✅ Publica pacotes no NPM
 - ✅ Gera changelog automático
@@ -65,23 +73,27 @@ Pipelines de CI/CD para o monorepo Nest DevTools.
 Configure em: **Settings** → **Secrets and variables** → **Actions**
 
 ### Railway (Backend):
+
 ```
 RAILWAY_TOKEN=<seu-token-railway>
 ```
 
 ### Netlify (Frontend):
+
 ```
 NETLIFY_AUTH_TOKEN=<seu-token-netlify>
 NETLIFY_SITE_ID=<seu-site-id>
 ```
 
 ### Variáveis de Build:
+
 ```
 VITE_API_URL=https://seu-backend.railway.app
 VITE_WS_URL=wss://seu-backend.railway.app
 ```
 
 ### NPM (Release):
+
 ```
 NPM_TOKEN=<seu-token-npm>
 ```
@@ -131,7 +143,7 @@ Edite o `env.BUN_VERSION` nos workflows:
 
 ```yaml
 env:
-  BUN_VERSION: '1.1.0'  # Nova versão
+  BUN_VERSION: '1.1.0' # Nova versão
 ```
 
 ### Adicionar novo workflow:
@@ -170,4 +182,3 @@ env:
 - [Bun CI](https://bun.sh/docs/test/ci)
 - [Railway Deploy](https://docs.railway.app/deploy/github-actions)
 - [Netlify Deploy](https://docs.netlify.com/site-deploys/create-deploys/)
-

@@ -18,7 +18,7 @@ jobs:
   lint:
     name: 🎨 Linting
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: 📥 Checkout código
         uses: actions/checkout@v4
@@ -50,7 +50,7 @@ jobs:
   typecheck:
     name: 🔍 Type Check
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: 📥 Checkout código
         uses: actions/checkout@v4
@@ -86,7 +86,7 @@ jobs:
   test-backend:
     name: 🧪 Testes Backend
     runs-on: ubuntu-latest
-    
+
     services:
       postgres:
         image: postgres:15-alpine
@@ -101,7 +101,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-    
+
     steps:
       - name: 📥 Checkout código
         uses: actions/checkout@v4
@@ -130,7 +130,7 @@ jobs:
   build-check:
     name: 🏗️ Build Check
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: 📥 Checkout código
         uses: actions/checkout@v4
