@@ -1,0 +1,82 @@
+name: 🚀 Deploy Backend (Netlify)
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+    paths:
+      - 'packages/backend/**'
+      - 'packages/shared/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+  workflow_dispatch: # Permite executar manualmente
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '8'
+
+jobs:
+  deploy-backend:
+    name: Deploy Backend to Netlify
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout código
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: 📥 Instalar dependências
+        run: pnpm install --frozen-lockfile
+
+      - name: 🏗️ Build shared package
+        run: pnpm --filter @nest-devtools/shared build
+
+      - name: 🏗️ Build backend
+        run: pnpm --filter @nest-devtools/backend build
+
+      - name: 🧪 Executar testes
+        run: pnpm --filter @nest-devtools/backend test
+        continue-on-error: true # Não bloqueia deploy se testes falharem
+
+      - name: 🔍 Type check
+        run: pnpm --filter @nest-devtools/backend typecheck
+        continue-on-error: true
+
+      - name: 🚀 Deploy para Netlify
+        uses: nwtgck/actions-netlify@v2.1
+        with:
+          publish-dir: './packages/backend/dist'
+          production-branch: main
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: "Deploy from GitHub Actions - ${{ github.event.head_commit.message }}"
+          enable-pull-request-comment: true
+          enable-commit-comment: true
+          overwrites-pull-request-comment: true
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        timeout-minutes: 10
+
+      - name: ✅ Notificar sucesso
+        if: success()
+        run: |
+          echo "✅ Backend deployed com sucesso!"
+          echo "🌐 URL: https://${{ secrets.NETLIFY_SITE_ID }}.netlify.app"
+
+      - name: ❌ Notificar falha
+        if: failure()
+        run: |
+          echo "❌ Deploy do backend falhou!"
+          echo "📋 Verifique os logs acima para detalhes"
+

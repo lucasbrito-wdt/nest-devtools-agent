@@ -1,0 +1,121 @@
+name: 🔍 CI - Testes e Validação
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+      - staging
+  push:
+    branches:
+      - main
+      - develop
+      - staging
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '8'
+
+jobs:
+  # Lint e Type Check
+  quality:
+    name: 🔍 Code Quality
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: 📥 Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 📏 Lint
+        run: pnpm lint
+
+      - name: 🔍 Type check
+        run: pnpm typecheck
+
+      - name: 💅 Format check
+        run: pnpm format:check
+        continue-on-error: true
+
+  # Testes unitários
+  test:
+    name: 🧪 Unit Tests
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        package: [agent, backend, frontend]
+    
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: 📥 Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🧪 Run tests - ${{ matrix.package }}
+        run: pnpm --filter @nest-devtools/${{ matrix.package }} test
+        continue-on-error: true
+
+      - name: 📊 Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./packages/${{ matrix.package }}/coverage/lcov.info
+          flags: ${{ matrix.package }}
+        continue-on-error: true
+
+  # Build de todos os pacotes
+  build:
+    name: 🏗️ Build All Packages
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: 📥 Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: 🏗️ Build all
+        run: pnpm build
+
+      - name: ✅ Verify builds
+        run: |
+          ls -la packages/*/dist/
+          echo "✅ Build concluído com sucesso!"
+

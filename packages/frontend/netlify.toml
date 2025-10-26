@@ -1,0 +1,17 @@
+# Netlify configuration for Frontend
+
+[build]
+  command = "pnpm install && pnpm build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+  PNPM_VERSION = "8"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# SPA routing support
+

@@ -1,0 +1,81 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: devtools-postgres
+    environment:
+      POSTGRES_DB: nest_devtools
+      POSTGRES_USER: devtools
+      POSTGRES_PASSWORD: devtools
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U devtools']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis (opcional, para cache)
+  redis:
+    image: redis:7-alpine
+    container_name: devtools-redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API
+  backend:
+    build:
+      context: ./packages/backend
+      dockerfile: Dockerfile
+    container_name: devtools-backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PORT: 4000
+      NODE_ENV: development
+      DATABASE_URL: postgresql://devtools:devtools@postgres:5432/nest_devtools
+      REDIS_URL: redis://redis:6379
+      DEVTOOLS_API_KEY: ${DEVTOOLS_API_KEY:-changeme-secret-key}
+      CORS_ORIGINS: http://localhost:3000,http://localhost:5173
+      RETENTION_DAYS: 7
+      RATE_LIMIT: 100
+      ENABLE_WEBSOCKET: true
+    ports:
+      - '4000:4000'
+    volumes:
+      - ./packages/backend/src:/app/src
+      - /app/node_modules
+    command: pnpm dev
+
+  # Frontend UI
+  frontend:
+    build:
+      context: ./packages/frontend
+      dockerfile: Dockerfile
+    container_name: devtools-frontend
+    depends_on:
+      - backend
+    environment:
+      VITE_API_URL: http://localhost:4000/api
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./packages/frontend/src:/app/src
+      - /app/node_modules
+    command: pnpm dev
+
+volumes:
+  postgres_data:
+  redis_data:
+

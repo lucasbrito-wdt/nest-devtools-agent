@@ -1,0 +1,96 @@
+name: 🐛 Bug Report
+description: Reporte um bug ou problema
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado por reportar o bug! Por favor, preencha as informações abaixo.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: 📝 Descrição do Bug
+      description: Descreva claramente o problema encontrado
+      placeholder: O que aconteceu?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 🔄 Passos para Reproduzir
+      description: Como podemos reproduzir o problema?
+      placeholder: |
+        1. Vá para '...'
+        2. Clique em '...'
+        3. Veja o erro
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: ✅ Comportamento Esperado
+      description: O que você esperava que acontecesse?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: ❌ Comportamento Atual
+      description: O que realmente aconteceu?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: package
+    attributes:
+      label: 📦 Pacote Afetado
+      multiple: true
+      options:
+        - "@nest-devtools/agent"
+        - "@nest-devtools/backend"
+        - "@nest-devtools/frontend"
+        - "@nest-devtools/shared"
+        - "Não sei"
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: 🏷️ Versão
+      description: Qual versão está usando?
+      placeholder: "v0.1.0"
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: 🖥️ Ambiente
+      description: Informações sobre seu ambiente
+      value: |
+        - OS: [e.g. Ubuntu 22.04, macOS 13, Windows 11]
+        - Node.js: [e.g. 20.10.0]
+        - pnpm: [e.g. 8.15.0]
+        - NestJS: [e.g. 10.3.0]
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 📋 Logs
+      description: Cole aqui os logs relevantes
+      render: shell
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: 📎 Informações Adicionais
+      description: Qualquer outra informação relevante
+

@@ -1,0 +1,41 @@
+{
+  "name": "nest-devtools-telescope",
+  "version": "0.1.0",
+  "private": true,
+  "description": "DevTools tipo Laravel Telescope para NestJS - rastreamento de requisições, exceções, logs e queries",
+  "author": "Lucas",
+  "license": "MIT",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "pnpm -r build",
+    "dev": "pnpm -r --parallel dev",
+    "dev:agent": "pnpm --filter @nest-devtools/agent dev",
+    "dev:backend": "pnpm --filter @nest-devtools/backend dev",
+    "dev:frontend": "pnpm --filter @nest-devtools/frontend dev",
+    "test": "pnpm -r test",
+    "lint": "pnpm -r lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,json,md}\"",
+    "clean": "pnpm -r clean && rm -rf node_modules",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "typecheck": "pnpm -r typecheck",
+    "release:agent": "pnpm --filter @nest-devtools/agent version",
+    "release:shared": "pnpm --filter @nest-devtools/shared version",
+    "publish:agent": "pnpm --filter @nest-devtools/agent publish",
+    "publish:shared": "pnpm --filter @nest-devtools/shared publish"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "prettier": "^3.2.4",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=8.0.0"
+  }
+}
+

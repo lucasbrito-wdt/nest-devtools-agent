@@ -1,0 +1,79 @@
+name: 🎨 Deploy Frontend (Railway)
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+    paths:
+      - 'packages/frontend/**'
+      - 'packages/shared/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '8'
+
+jobs:
+  deploy-frontend:
+    name: Deploy Frontend to Railway
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout código
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: 📥 Instalar dependências
+        run: pnpm install --frozen-lockfile
+
+      - name: 🏗️ Build shared package
+        run: pnpm --filter @nest-devtools/shared build
+
+      - name: 🏗️ Build frontend
+        run: pnpm --filter @nest-devtools/frontend build
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          VITE_WS_URL: ${{ secrets.VITE_WS_URL }}
+
+      - name: 🔍 Type check
+        run: pnpm --filter @nest-devtools/frontend typecheck
+        continue-on-error: true
+
+      - name: 📊 Análise de bundle
+        run: |
+          cd packages/frontend
+          npx vite-bundle-visualizer --open false
+        continue-on-error: true
+
+      - name: 🚀 Deploy para Railway
+        uses: bervProject/railway-deploy@main
+        with:
+          railway_token: ${{ secrets.RAILWAY_TOKEN }}
+          service: ${{ secrets.RAILWAY_SERVICE_NAME }}
+        timeout-minutes: 15
+
+      - name: ✅ Notificar sucesso
+        if: success()
+        run: |
+          echo "✅ Frontend deployed com sucesso!"
+          echo "🌐 Acesse: ${{ secrets.RAILWAY_URL }}"
+
+      - name: ❌ Notificar falha
+        if: failure()
+        run: |
+          echo "❌ Deploy do frontend falhou!"
+          echo "📋 Verifique os logs acima"
+

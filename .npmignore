@@ -1,0 +1,58 @@
+# Arquivos de desenvolvimento
+*.test.ts
+*.spec.ts
+*.test.tsx
+*.spec.tsx
+__tests__/
+__mocks__/
+coverage/
+.nyc_output/
+
+# Configuração
+tsconfig.json
+tsconfig.*.json
+.eslintrc*
+.prettierrc*
+.editorconfig
+jest.config.*
+
+# Build
+src/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+
+# Docs (não incluir em pacotes npm)
+docs/
+examples/
+*.md
+!README.md
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Outros
+.env*
+!.env.example
+

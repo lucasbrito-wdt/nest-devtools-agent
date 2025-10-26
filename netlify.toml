@@ -1,0 +1,25 @@
+# Netlify configuration for Backend deployment
+
+[build]
+  command = "cd packages/backend && pnpm install && pnpm build"
+  publish = "packages/backend/dist"
+  functions = "packages/backend/dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+  PNPM_VERSION = "8"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+[functions]
+  node_bundler = "esbuild"
+  directory = "packages/backend/dist"
+
+# Environment variables (configure in Netlify UI):
+# DATABASE_URL - Supabase connection string
+# DEVTOOLS_API_KEY - Your API key
+# CORS_ORIGINS - Frontend URLs
+

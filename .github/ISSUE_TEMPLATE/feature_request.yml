@@ -1,0 +1,75 @@
+name: 🚀 Feature Request
+description: Sugira uma nova funcionalidade
+title: "[Feature]: "
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado por sugerir uma melhoria! Por favor, descreva sua ideia.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: 🎯 Problema a Resolver
+      description: Qual problema esta feature resolve?
+      placeholder: Estou sempre frustrado quando...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: 💡 Solução Proposta
+      description: Como você imagina que isso funcione?
+      placeholder: Descreva a solução ideal
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 🔄 Alternativas Consideradas
+      description: Você pensou em outras formas de resolver isso?
+      placeholder: Alternativa 1, Alternativa 2...
+
+  - type: dropdown
+    id: package
+    attributes:
+      label: 📦 Pacote Relevante
+      multiple: true
+      options:
+        - "@nest-devtools/agent"
+        - "@nest-devtools/backend"
+        - "@nest-devtools/frontend"
+        - "@nest-devtools/shared"
+        - "Novo pacote"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: ⚡ Prioridade
+      options:
+        - "🔴 Alta - Bloqueador"
+        - "🟡 Média - Importante"
+        - "🟢 Baixa - Nice to have"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: 🤝 Contribuição
+      options:
+        - label: Estou disposto a implementar esta feature
+        - label: Posso ajudar com a documentação
+        - label: Posso ajudar com testes
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: 📎 Contexto Adicional
+      description: Screenshots, mockups, links, etc.
+

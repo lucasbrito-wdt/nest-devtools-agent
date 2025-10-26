@@ -1,0 +1,66 @@
+name: 🗄️ Deploy Supabase (Migrations)
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'supabase/migrations/**'
+      - 'init.sql'
+  workflow_dispatch:
+
+env:
+  SUPABASE_CLI_VERSION: '1.127.4'
+
+jobs:
+  deploy-migrations:
+    name: Deploy Database Migrations
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout código
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: ${{ env.SUPABASE_CLI_VERSION }}
+
+      - name: 🔗 Link ao projeto Supabase
+        run: |
+          supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: 🔍 Verificar status do banco
+        run: supabase db diff
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        continue-on-error: true
+
+      - name: 🚀 Aplicar migrations
+        run: supabase db push
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: ✅ Verificar migrations aplicadas
+        run: |
+          echo "✅ Migrations aplicadas com sucesso!"
+          supabase migration list
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: 📊 Gerar types TypeScript
+        run: |
+          supabase gen types typescript --local > packages/shared/src/types/database.types.ts
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        continue-on-error: true
+
+      - name: 💾 Commit types gerados
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update database types from Supabase [skip ci]"
+          file_pattern: "packages/shared/src/types/database.types.ts"
+        continue-on-error: true
+
