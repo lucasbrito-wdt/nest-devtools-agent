@@ -5,6 +5,7 @@ import { EventType } from '@nest-devtools/shared';
  * Entidade que representa um evento capturado pelo DevTools
  */
 @Entity('events')
+@Index(['projectId'])
 @Index(['type'])
 @Index(['route'])
 @Index(['status'])
@@ -12,6 +13,9 @@ import { EventType } from '@nest-devtools/shared';
 export class Event {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
+
+  @Column({ name: 'project_id', nullable: true })
+  projectId?: string;
 
   @Column({
     type: 'enum',
