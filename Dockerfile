@@ -22,10 +22,10 @@ COPY packages/backend packages/backend
 
 # Build dos pacotes necessários
 WORKDIR /app/packages/shared
-RUN bun run build
+RUN bunx tsc
 
 WORKDIR /app/packages/backend
-RUN bun run build
+RUN bunx tsc
 
 # ================================
 # 🚀 STAGE 2 — Production
