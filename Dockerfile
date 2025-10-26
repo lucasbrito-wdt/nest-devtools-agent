@@ -21,8 +21,9 @@ COPY packages/shared packages/shared
 COPY packages/backend packages/backend
 
 # Build dos pacotes necessários
+WORKDIR /app
 RUN bun run --filter '@nest-devtools/shared' build
-RUN bun run --filter '@nest-devtools/backend' build
+RUN cd packages/backend && tsc
 
 # ================================
 # 🚀 STAGE 2 — Production
