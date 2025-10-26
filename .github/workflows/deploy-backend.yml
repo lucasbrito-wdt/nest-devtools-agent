@@ -4,17 +4,19 @@ on:
   push:
     branches:
       - main
+      - master
       - staging
     paths:
       - 'packages/backend/**'
       - 'packages/shared/**'
+      - 'Dockerfile'
+      - 'railway.toml'
       - 'package.json'
-      - 'pnpm-lock.yaml'
+      - 'bun.lockb'
   workflow_dispatch:
 
 env:
-  NODE_VERSION: '20'
-  PNPM_VERSION: '8'
+  BUN_VERSION: '1.0.0'
 
 jobs:
   deploy-backend:
@@ -25,50 +27,51 @@ jobs:
       - name: 📥 Checkout código
         uses: actions/checkout@v4
 
-      - name: 📦 Setup pnpm
-        uses: pnpm/action-setup@v2
+      - name: 🥟 Setup Bun
+        uses: oven-sh/setup-bun@v1
         with:
-          version: ${{ env.PNPM_VERSION }}
-
-      - name: 🔧 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
+          bun-version: ${{ env.BUN_VERSION }}
 
       - name: 📥 Instalar dependências
-        run: pnpm install --frozen-lockfile
+        run: bun install --frozen-lockfile
 
       - name: 🏗️ Build shared package
-        run: pnpm --filter @nest-devtools/shared build
+        run: |
+          cd packages/shared
+          bun run build
 
       - name: 🏗️ Build backend
-        run: pnpm --filter @nest-devtools/backend build
+        run: |
+          cd packages/backend
+          bun run build
 
       - name: 🧪 Executar testes
-        run: pnpm --filter @nest-devtools/backend test
+        run: |
+          cd packages/backend
+          bun test
         continue-on-error: true
 
       - name: 🔍 Type check
-        run: pnpm --filter @nest-devtools/backend typecheck
+        run: |
+          cd packages/backend
+          bun run typecheck
         continue-on-error: true
 
       - name: 🚀 Deploy para Railway
-        uses: bervProject/railway-deploy@main
-        with:
-          railway_token: ${{ secrets.RAILWAY_TOKEN }}
-          service: ${{ secrets.RAILWAY_BACKEND_SERVICE }}
-        timeout-minutes: 15
+        run: |
+          echo "✅ Build completo! Railway vai fazer deploy automaticamente via GitHub integration"
+          echo "🌐 Acesse: https://railway.app/dashboard"
+          echo "📋 O Railway detecta automaticamente os pushes no branch master/main"
 
       - name: ✅ Notificar sucesso
         if: success()
         run: |
-          echo "✅ Backend deployed com sucesso!"
-          echo "🌐 URL: ${{ secrets.RAILWAY_BACKEND_URL }}"
+          echo "✅ Backend build com sucesso!"
+          echo "🚂 Railway vai fazer deploy automaticamente"
+          echo "📋 Configure a integração GitHub no Railway Dashboard"
 
       - name: ❌ Notificar falha
         if: failure()
         run: |
-          echo "❌ Deploy do backend falhou!"
+          echo "❌ Build do backend falhou!"
           echo "📋 Verifique os logs acima para detalhes"
-

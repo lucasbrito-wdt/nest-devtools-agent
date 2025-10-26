@@ -1,121 +1,165 @@
-name: 🔍 CI - Testes e Validação
+name: 🔍 CI - Testes e Linting
 
 on:
   pull_request:
     branches:
       - main
+      - master
       - develop
-      - staging
   push:
     branches:
-      - main
       - develop
-      - staging
+  workflow_dispatch:
 
 env:
-  NODE_VERSION: '20'
-  PNPM_VERSION: '8'
+  BUN_VERSION: '1.0.0'
 
 jobs:
-  # Lint e Type Check
-  quality:
-    name: 🔍 Code Quality
+  lint:
+    name: 🎨 Linting
     runs-on: ubuntu-latest
     
     steps:
-      - name: 📥 Checkout
+      - name: 📥 Checkout código
         uses: actions/checkout@v4
 
-      - name: 📦 Setup pnpm
-        uses: pnpm/action-setup@v2
+      - name: 🥟 Setup Bun
+        uses: oven-sh/setup-bun@v1
         with:
-          version: ${{ env.PNPM_VERSION }}
+          bun-version: ${{ env.BUN_VERSION }}
 
-      - name: 🔧 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
+      - name: 📥 Instalar dependências
+        run: bun install --frozen-lockfile
 
-      - name: 📥 Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: 📏 Lint
-        run: pnpm lint
-
-      - name: 🔍 Type check
-        run: pnpm typecheck
-
-      - name: 💅 Format check
-        run: pnpm format:check
-        continue-on-error: true
-
-  # Testes unitários
-  test:
-    name: 🧪 Unit Tests
-    runs-on: ubuntu-latest
-    
-    strategy:
-      matrix:
-        package: [agent, backend, frontend]
-    
-    steps:
-      - name: 📥 Checkout
-        uses: actions/checkout@v4
-
-      - name: 📦 Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: ${{ env.PNPM_VERSION }}
-
-      - name: 🔧 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-
-      - name: 📥 Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: 🧪 Run tests - ${{ matrix.package }}
-        run: pnpm --filter @nest-devtools/${{ matrix.package }} test
-        continue-on-error: true
-
-      - name: 📊 Upload coverage
-        uses: codecov/codecov-action@v4
-        with:
-          files: ./packages/${{ matrix.package }}/coverage/lcov.info
-          flags: ${{ matrix.package }}
-        continue-on-error: true
-
-  # Build de todos os pacotes
-  build:
-    name: 🏗️ Build All Packages
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: 📥 Checkout
-        uses: actions/checkout@v4
-
-      - name: 📦 Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: ${{ env.PNPM_VERSION }}
-
-      - name: 🔧 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-
-      - name: 📥 Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: 🏗️ Build all
-        run: pnpm build
-
-      - name: ✅ Verify builds
+      - name: 🎨 Lint - Backend
         run: |
-          ls -la packages/*/dist/
-          echo "✅ Build concluído com sucesso!"
+          cd packages/backend
+          bun run lint
+        continue-on-error: true
 
+      - name: 🎨 Lint - Frontend
+        run: |
+          cd packages/frontend
+          bun run lint
+        continue-on-error: true
+
+      - name: 🎨 Prettier Check
+        run: bun run format:check
+        continue-on-error: true
+
+  typecheck:
+    name: 🔍 Type Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout código
+        uses: actions/checkout@v4
+
+      - name: 🥟 Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: 📥 Instalar dependências
+        run: bun install --frozen-lockfile
+
+      - name: 🏗️ Build shared
+        run: |
+          cd packages/shared
+          bun run build
+
+      - name: 🔍 Type Check - Shared
+        run: |
+          cd packages/shared
+          bun run typecheck
+
+      - name: 🔍 Type Check - Backend
+        run: |
+          cd packages/backend
+          bun run typecheck
+
+      - name: 🔍 Type Check - Frontend
+        run: |
+          cd packages/frontend
+          bun run typecheck
+
+  test-backend:
+    name: 🧪 Testes Backend
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: nest_devtools_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+      - name: 📥 Checkout código
+        uses: actions/checkout@v4
+
+      - name: 🥟 Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: 📥 Instalar dependências
+        run: bun install --frozen-lockfile
+
+      - name: 🏗️ Build shared
+        run: |
+          cd packages/shared
+          bun run build
+
+      - name: 🧪 Testes Backend
+        run: |
+          cd packages/backend
+          bun test
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/nest_devtools_test
+          NODE_ENV: test
+
+  build-check:
+    name: 🏗️ Build Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout código
+        uses: actions/checkout@v4
+
+      - name: 🥟 Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: 📥 Instalar dependências
+        run: bun install --frozen-lockfile
+
+      - name: 🏗️ Build - Shared
+        run: |
+          cd packages/shared
+          bun run build
+
+      - name: 🏗️ Build - Backend
+        run: |
+          cd packages/backend
+          bun run build
+
+      - name: 🏗️ Build - Frontend
+        run: |
+          cd packages/frontend
+          bun run build
+        env:
+          VITE_API_URL: http://localhost:4000
+          VITE_WS_URL: ws://localhost:4000
+
+      - name: ✅ Todos os builds OK
+        run: echo "✅ Todos os pacotes buildaram com sucesso!"

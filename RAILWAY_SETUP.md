@@ -22,11 +22,13 @@
 Após criar o projeto, vá em **Settings**:
 
 #### 🐳 Builder
+
 - **Builder**: `Dockerfile`
 - **Dockerfile Path**: `Dockerfile`
 - **Build Context**: `.` (raiz do projeto)
 
 #### 📦 Root Directory
+
 - Deixe vazio (ou `/`)
 
 ---
@@ -80,9 +82,11 @@ DEVTOOLS_API_KEY=sua-chave-secreta-aqui
 ## 📊 Monitorar Deploy
 
 ### Logs:
+
 - **Deployments** → Clique no deploy → **View Logs**
 
 ### Status:
+
 - ✅ **Building**: Buildando com Dockerfile
 - ✅ **Deploying**: Subindo o container
 - ✅ **Active**: Deploy completo!
@@ -117,6 +121,7 @@ O Railway deve mostrar:
 ### Problema: Railway usa Railpack
 
 **Solução:**
+
 1. Delete o serviço atual
 2. Crie um novo projeto
 3. Configure **Builder: Dockerfile** ANTES do primeiro deploy
@@ -124,6 +129,7 @@ O Railway deve mostrar:
 ### Problema: Build falha
 
 **Solução:**
+
 1. Verifique os logs: **Deployments** → **View Logs**
 2. Confirme que o Dockerfile está na raiz
 3. Verifique se o `railway.toml` está commitado
@@ -131,6 +137,7 @@ O Railway deve mostrar:
 ### Problema: Variáveis de ambiente não funcionam
 
 **Solução:**
+
 1. Vá em **Variables**
 2. Adicione as variáveis necessárias
 3. Clique em **Redeploy**
@@ -161,4 +168,3 @@ O Railway deve mostrar:
 ## ✅ Pronto!
 
 Agora todo `git push` vai fazer deploy automático no Railway usando o Dockerfile com Bun! 🚀
-

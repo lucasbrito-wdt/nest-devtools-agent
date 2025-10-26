@@ -4,17 +4,17 @@ on:
   push:
     branches:
       - main
+      - master
       - staging
     paths:
       - 'packages/frontend/**'
       - 'packages/shared/**'
       - 'package.json'
-      - 'pnpm-lock.yaml'
+      - 'bun.lockb'
   workflow_dispatch:
 
 env:
-  NODE_VERSION: '20'
-  PNPM_VERSION: '8'
+  BUN_VERSION: '1.0.0'
 
 jobs:
   deploy-frontend:
@@ -25,37 +25,31 @@ jobs:
       - name: 📥 Checkout código
         uses: actions/checkout@v4
 
-      - name: 📦 Setup pnpm
-        uses: pnpm/action-setup@v2
+      - name: 🥟 Setup Bun
+        uses: oven-sh/setup-bun@v1
         with:
-          version: ${{ env.PNPM_VERSION }}
-
-      - name: 🔧 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
+          bun-version: ${{ env.BUN_VERSION }}
 
       - name: 📥 Instalar dependências
-        run: pnpm install --frozen-lockfile
+        run: bun install --frozen-lockfile
 
       - name: 🏗️ Build shared package
-        run: pnpm --filter @nest-devtools/shared build
+        run: |
+          cd packages/shared
+          bun run build
 
       - name: 🏗️ Build frontend
-        run: pnpm --filter @nest-devtools/frontend build
+        run: |
+          cd packages/frontend
+          bun run build
         env:
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
           VITE_WS_URL: ${{ secrets.VITE_WS_URL }}
 
       - name: 🔍 Type check
-        run: pnpm --filter @nest-devtools/frontend typecheck
-        continue-on-error: true
-
-      - name: 📊 Análise de bundle
         run: |
           cd packages/frontend
-          npx vite-bundle-visualizer --open false
+          bun run typecheck
         continue-on-error: true
 
       - name: 🚀 Deploy para Netlify
@@ -84,4 +78,3 @@ jobs:
         run: |
           echo "❌ Deploy do frontend falhou!"
           echo "📋 Verifique os logs acima"
-
