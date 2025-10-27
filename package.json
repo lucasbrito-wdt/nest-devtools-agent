@@ -11,7 +11,6 @@
   "scripts": {
     "build": "bun run --filter '*' build",
     "build:backend": "cd packages/shared && bun run build && cd ../backend && bun run build",
-    "build:netlify": "bun install && cd packages/shared && bun run build && cd ../frontend && bun run build",
     "dev": "bun run dev:backend",
     "dev:agent": "cd packages/agent && bun run dev",
     "dev:backend": "cd packages/backend && bun run dev",
