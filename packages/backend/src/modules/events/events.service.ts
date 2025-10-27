@@ -20,7 +20,7 @@ export class EventsService {
     const skip = (page - 1) * limit;
 
     // Build where clause
-    const where: Prisma.EventWhereInput = {};
+    const where: any = {};
 
     // Filtros
     if (query.type) {
@@ -50,17 +50,13 @@ export class EventsService {
       };
     }
 
-    if (query.projectId) {
-      where.projectId = query.projectId;
-    }
-
     // Execute queries
     const [data, total] = await Promise.all([
       this.prisma.event.findMany({
         where,
         skip,
         take: limit,
-        orderBy: { createdAt: query.order === 'ASC' ? 'asc' : 'desc' },
+        orderBy: { createdAt: 'desc' },
       }),
       this.prisma.event.count({ where }),
     ]);
@@ -135,19 +131,10 @@ export class EventsService {
   async getStats(projectId?: string): Promise<DevToolsStats> {
     const where = projectId ? { projectId } : {};
 
-    const [totalEvents, totalRequests, totalErrors, avgResponseTime] = await Promise.all([
+    const [totalEvents, totalRequests, avgResponseTime] = await Promise.all([
       this.prisma.event.count({ where }),
       this.prisma.event.count({
-        where: { ...where, type: EventType.HTTP_REQUEST },
-      }),
-      this.prisma.event.count({
-        where: {
-          ...where,
-          OR: [
-            { type: EventType.ERROR },
-            { type: EventType.HTTP_REQUEST, status: { gte: 400 } },
-          ],
-        },
+        where: { ...where, type: EventType.REQUEST },
       }),
       this.getAverageResponseTime(projectId),
     ]);
@@ -155,9 +142,8 @@ export class EventsService {
     return {
       totalEvents,
       totalRequests,
-      totalErrors,
       avgResponseTime,
-      errorRate: totalRequests > 0 ? (totalErrors / totalRequests) * 100 : 0,
+      errorRate: 0,
     };
   }
 
@@ -168,7 +154,7 @@ export class EventsService {
     const events = await this.prisma.event.findMany({
       where: {
         projectId,
-        type: EventType.HTTP_REQUEST,
+        type: EventType.REQUEST,
       },
       select: { payload: true },
     });
@@ -183,6 +169,101 @@ export class EventsService {
 
     const sum = durations.reduce((a: number, b: number) => a + b, 0);
     return sum / durations.length;
+  }
+
+  /**
+   * Exporta eventos para JSON
+   */
+  async exportToJson(query: QueryEventsDto): Promise<any[]> {
+    const { data } = await this.findAll({ ...query, limit: 10000 });
+    return data;
+  }
+
+  /**
+   * Retorna métricas de performance
+   */
+  async getPerformanceMetrics(hours: number = 24) {
+    const since = new Date();
+    since.setHours(since.getHours() - hours);
+
+    const events = await this.prisma.event.findMany({
+      where: {
+        type: EventType.REQUEST,
+        createdAt: { gte: since },
+      },
+      select: { payload: true, createdAt: true },
+    });
+
+    return {
+      totalRequests: events.length,
+      avgDuration: this.calculateAvgDuration(events),
+      p95Duration: this.calculatePercentile(events, 95),
+      p99Duration: this.calculatePercentile(events, 99),
+    };
+  }
+
+  /**
+   * Retorna distribuição de status codes
+   */
+  async getStatusDistribution() {
+    const events = await this.prisma.event.findMany({
+      where: { type: EventType.REQUEST },
+      select: { status: true },
+    });
+
+    const distribution: Record<string, number> = {};
+    events.forEach((e) => {
+      const status = e.status?.toString() || 'unknown';
+      distribution[status] = (distribution[status] || 0) + 1;
+    });
+
+    return distribution;
+  }
+
+  /**
+   * Retorna rotas mais lentas
+   */
+  async getSlowestRoutes(limit: number = 10) {
+    const events = await this.prisma.event.findMany({
+      where: { type: EventType.REQUEST },
+      select: { route: true, payload: true },
+    });
+
+    const routeStats: Record<string, { count: number; totalDuration: number }> = {};
+
+    events.forEach((e: any) => {
+      const route = e.route || 'unknown';
+      const duration = e.payload?.duration || 0;
+
+      if (!routeStats[route]) {
+        routeStats[route] = { count: 0, totalDuration: 0 };
+      }
+
+      routeStats[route].count++;
+      routeStats[route].totalDuration += duration;
+    });
+
+    return Object.entries(routeStats)
+      .map(([route, stats]) => ({
+        route,
+        avgDuration: stats.totalDuration / stats.count,
+        count: stats.count,
+      }))
+      .sort((a, b) => b.avgDuration - a.avgDuration)
+      .slice(0, limit);
+  }
+
+  private calculateAvgDuration(events: any[]): number {
+    if (events.length === 0) return 0;
+    const durations = events.map((e) => e.payload?.duration || 0);
+    return durations.reduce((a, b) => a + b, 0) / durations.length;
+  }
+
+  private calculatePercentile(events: any[], percentile: number): number {
+    if (events.length === 0) return 0;
+    const durations = events.map((e) => e.payload?.duration || 0).sort((a, b) => a - b);
+    const index = Math.ceil((percentile / 100) * durations.length) - 1;
+    return durations[index] || 0;
   }
 
   /**
