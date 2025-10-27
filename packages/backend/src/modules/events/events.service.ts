@@ -1,7 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { QueryEventsDto } from './dto/query-events.dto';
-import { PaginatedEventsResponse, DevToolsStats, EventType } from 'nest-devtools-shared';
+import {
+  PaginatedEventsResponse,
+  DevToolsStats,
+  EventType,
+  PersistedEvent,
+} from 'nest-devtools-shared';
 
 /**
  * Serviço de consulta e gerenciamento de eventos (Prisma)
@@ -74,7 +79,7 @@ export class EventsService {
   /**
    * Busca evento por ID
    */
-  async findOne(id: string) {
+  async findOne(id: string): Promise<PersistedEvent> {
     const event = await this.prisma.event.findUnique({
       where: { id },
     });
@@ -83,7 +88,7 @@ export class EventsService {
       throw new NotFoundException(`Event with ID ${id} not found`);
     }
 
-    return event;
+    return event as PersistedEvent;
   }
 
   /**
