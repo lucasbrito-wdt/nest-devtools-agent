@@ -33,7 +33,7 @@ export default function Logs() {
           ) : data?.data.length === 0 ? (
             <div className="text-center text-gray-500">Nenhum log encontrado</div>
           ) : (
-            data?.data.map((event) => {
+            data?.data.map((event: any) => {
               const meta = event.payload as LogEventMeta;
               return (
                 <div key={event.id} className="py-1">

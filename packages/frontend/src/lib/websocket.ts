@@ -1,5 +1,5 @@
 import { io, Socket } from 'socket.io-client';
-import { PersistedEvent, DevToolsStats } from '@nest-devtools/shared';
+import { PersistedEvent, DevToolsStats } from 'nest-devtools-shared';
 
 let socket: Socket | null = null;
 

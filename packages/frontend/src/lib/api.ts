@@ -4,7 +4,7 @@ import {
   DevToolsStats,
   EventsQueryFilters,
   PaginationParams,
-} from '@nest-devtools/shared';
+} from 'nest-devtools-shared';
 
 const api = axios.create({
   baseURL: '/api',

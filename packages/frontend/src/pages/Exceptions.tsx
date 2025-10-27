@@ -25,7 +25,7 @@ export default function Exceptions() {
         ) : data?.data.length === 0 ? (
           <div className="card text-center text-gray-500">Nenhuma exceção encontrada</div>
         ) : (
-          data?.data.map((event) => {
+          data?.data.map((event: any) => {
             const meta = event.payload as ExceptionEventMeta;
             return (
               <div key={event.id} className="card">

@@ -124,7 +124,7 @@ export default function Requests() {
                   </td>
                 </tr>
               ) : (
-                data?.data.map((event) => {
+                data?.data.map((event: any) => {
                   const meta = event.payload as RequestEventMeta;
                   return (
                     <tr
