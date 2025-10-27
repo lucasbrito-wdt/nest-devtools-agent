@@ -1,7 +1,7 @@
 import { EventSubscriber, EntitySubscriberInterface } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { DevtoolsService } from '../devtools.service';
-import { EventType, QueryEventMeta } from 'nest-devtools-shared';
+import { EventType, QueryEventMeta } from '../shared/types';
 
 /**
  * Subscriber do TypeORM para capturar queries SQL

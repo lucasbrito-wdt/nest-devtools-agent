@@ -1,5 +1,5 @@
 import { DevtoolsService } from '../devtools.service';
-import { EventType, QueryEventMeta } from 'nest-devtools-shared';
+import { EventType, QueryEventMeta } from '../shared/types';
 
 /**
  * Tipo de middleware do Prisma

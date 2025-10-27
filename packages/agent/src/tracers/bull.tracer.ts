@@ -2,7 +2,7 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import type { Queue } from 'bull';
 import { DevtoolsService } from '../devtools.service';
-import { EventType, JobEventMeta } from 'nest-devtools-shared';
+import { EventType, JobEventMeta } from '../shared/types';
 
 /**
  * Tracer para filas Bull
