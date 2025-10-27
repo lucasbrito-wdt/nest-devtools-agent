@@ -61,5 +61,5 @@ WORKDIR /app/packages/backend
 # Expõe a porta da aplicação
 EXPOSE 4000
 
-# Gera Prisma Client em runtime (se necessário) e inicia o app
-CMD ["sh", "-c", "cd /app/packages/backend && ../../node_modules/.bin/prisma generate && cd /app/packages/backend && ../../node_modules/.bin/prisma migrate deploy && cd /app/packages/backend && bun run dist/main.js"]
+# Gera Prisma Client, executa migrations e inicia o app
+CMD ["sh", "-c", "../../node_modules/.bin/prisma generate && ../../node_modules/.bin/prisma migrate deploy && bun run dist/main.js"]
