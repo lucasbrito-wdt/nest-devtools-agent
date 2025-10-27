@@ -54,10 +54,10 @@ RUN bun install --production
 
 # Gera Prisma Client em produção (necessário para runtime)
 WORKDIR /app/packages/backend
-RUN bunx prisma generate
+RUN ../../node_modules/.bin/prisma generate
 
 # Expõe a porta da aplicação
 EXPOSE 4000
 
 # Inicia o app com Bun (migrations são executadas via prisma migrate deploy antes do start)
-CMD ["sh", "-c", "cd /app/packages/backend && bunx prisma migrate deploy && cd /app/packages/backend && bun run dist/main.js"]
+CMD ["sh", "-c", "cd /app/packages/backend && ../../node_modules/.bin/prisma migrate deploy && cd /app/packages/backend && bun run dist/main.js"]
