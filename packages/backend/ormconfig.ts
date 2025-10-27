@@ -12,4 +12,3 @@ export default new DataSource({
   synchronize: false,
   ssl: process.env.DATABASE_URL?.includes('supabase') ? { rejectUnauthorized: false } : false,
 });
-
