@@ -130,18 +130,67 @@ export class EventsService {
   async getStats(projectId?: string): Promise<DevToolsStats> {
     const where = projectId ? { projectId } : {};
 
-    const [totalEvents, totalRequests, avgResponseTime] = await Promise.all([
+    // Data de 24 horas atrás
+    const last24HoursDate = new Date();
+    last24HoursDate.setHours(last24HoursDate.getHours() - 24);
+
+    const [
+      totalEvents,
+      totalRequests,
+      totalExceptions,
+      totalLogs,
+      avgResponseTime,
+      successfulRequests,
+      last24HoursRequests,
+      last24HoursExceptions,
+    ] = await Promise.all([
       this.prisma.event.count({ where }),
       this.prisma.event.count({
         where: { ...where, type: EventType.REQUEST },
       }),
+      this.prisma.event.count({
+        where: { ...where, type: EventType.EXCEPTION },
+      }),
+      this.prisma.event.count({
+        where: { ...where, type: EventType.LOG },
+      }),
       this.getAverageResponseTime(projectId),
+      this.prisma.event.count({
+        where: {
+          ...where,
+          type: EventType.REQUEST,
+          status: { gte: 200, lt: 400 },
+        },
+      }),
+      this.prisma.event.count({
+        where: {
+          ...where,
+          type: EventType.REQUEST,
+          createdAt: { gte: last24HoursDate },
+        },
+      }),
+      this.prisma.event.count({
+        where: {
+          ...where,
+          type: EventType.EXCEPTION,
+          createdAt: { gte: last24HoursDate },
+        },
+      }),
     ]);
+
+    const successRate = totalRequests > 0 ? (successfulRequests / totalRequests) * 100 : 0;
 
     return {
       totalEvents,
       totalRequests,
+      totalExceptions,
+      totalLogs,
       averageResponseTime: avgResponseTime,
+      successRate,
+      last24Hours: {
+        requests: last24HoursRequests,
+        exceptions: last24HoursExceptions,
+      },
     };
   }
 
