@@ -1,4 +1,4 @@
-import { Module, DynamicModule, Global, Provider } from '@nestjs/common';
+import { Module, DynamicModule, Global, Provider, Logger } from '@nestjs/common';
 import { APP_INTERCEPTOR, APP_FILTER } from '@nestjs/core';
 import { DevToolsAgentConfig } from './shared/types/config';
 import { DevtoolsService } from './devtools.service';
@@ -30,6 +30,8 @@ export const DEVTOOLS_CONFIG = 'DEVTOOLS_CONFIG';
 @Global()
 @Module({})
 export class DevtoolsModule {
+  private static readonly logger = new Logger(DevtoolsModule.name);
+
   static forRoot(config: DevToolsAgentConfig): DynamicModule {
     // Validação básica da configuração
     if (!config) {
@@ -42,26 +44,11 @@ export class DevtoolsModule {
       throw new Error('[DevtoolsModule] backendUrl is required when DevTools is enabled');
     }
 
-    const configProvider: Provider = {
-      provide: DEVTOOLS_CONFIG,
-      useValue: config,
-    };
+    const providers = this.buildProviders(config);
 
-    const providers: Provider[] = [configProvider, DevtoolsService];
-
-    // Só registra interceptors/filters se estiver habilitado
-    if (config.enabled) {
-      providers.push(
-        {
-          provide: APP_INTERCEPTOR,
-          useClass: DevtoolsRequestInterceptor,
-        },
-        {
-          provide: APP_FILTER,
-          useClass: DevtoolsExceptionFilter,
-        },
-      );
-    }
+    this.logger.log(
+      `DevtoolsModule registrado em modo ${config.enabled ? 'habilitado' : 'desabilitado'}`,
+    );
 
     return {
       module: DevtoolsModule,
@@ -81,28 +68,7 @@ export class DevtoolsModule {
       throw new Error('[DevtoolsModule] useFactory is required for forRootAsync');
     }
 
-    const configProvider: Provider = {
-      provide: DEVTOOLS_CONFIG,
-      useFactory: options.useFactory,
-      inject: options.inject || [],
-    };
-
-    const providers: Provider[] = [configProvider, DevtoolsService];
-
-    const isEnabled = options.enabled ?? true;
-
-    if (isEnabled) {
-      providers.push(
-        {
-          provide: APP_INTERCEPTOR,
-          useClass: DevtoolsRequestInterceptor,
-        },
-        {
-          provide: APP_FILTER,
-          useClass: DevtoolsExceptionFilter,
-        },
-      );
-    }
+    const providers = this.buildAsyncProviders(options);
 
     return {
       module: DevtoolsModule,
@@ -115,5 +81,80 @@ export class DevtoolsModule {
   constructor() {
     // Este construtor nunca deve ser chamado diretamente
     // Se você está vendo este erro, certifique-se de usar .forRoot() ou .forRootAsync()
+  }
+
+  private static buildProviders(config: DevToolsAgentConfig): Provider[] {
+    const providers: Provider[] = [
+      {
+        provide: DEVTOOLS_CONFIG,
+        useValue: config,
+      },
+      DevtoolsService,
+    ];
+
+    if (!config.enabled) {
+      this.logger.warn(
+        'DevtoolsModule está desabilitado. Os interceptors e filters não serão registrados e o DevtoolsService trabalhará em modo silencioso.',
+      );
+      return providers;
+    }
+
+    providers.push(
+      {
+        provide: APP_INTERCEPTOR,
+        useClass: DevtoolsRequestInterceptor,
+      },
+      {
+        provide: APP_FILTER,
+        useClass: DevtoolsExceptionFilter,
+      },
+    );
+
+    return providers;
+  }
+
+  private static buildAsyncProviders(options: {
+    useFactory: (...args: any[]) => Promise<DevToolsAgentConfig> | DevToolsAgentConfig;
+    inject?: any[];
+    enabled?: boolean;
+  }): Provider[] {
+    const providers: Provider[] = [
+      {
+        provide: DEVTOOLS_CONFIG,
+        useFactory: async (...args: any[]) => {
+          const config = await options.useFactory(...args);
+          if (!config) {
+            throw new Error(
+              '[DevtoolsModule] useFactory must resolve a valid configuration object',
+            );
+          }
+          return config;
+        },
+        inject: options.inject || [],
+      },
+      DevtoolsService,
+    ];
+
+    const isEnabled = options.enabled ?? true;
+
+    if (!isEnabled) {
+      this.logger.warn(
+        'DevtoolsModule.forRootAsync() foi registrado com enabled=false. Interceptors e filters permanecerão inativos.',
+      );
+      return providers;
+    }
+
+    providers.push(
+      {
+        provide: APP_INTERCEPTOR,
+        useClass: DevtoolsRequestInterceptor,
+      },
+      {
+        provide: APP_FILTER,
+        useClass: DevtoolsExceptionFilter,
+      },
+    );
+
+    return providers;
   }
 }

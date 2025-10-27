@@ -1,4 +1,4 @@
-import { Injectable, Inject, Logger } from '@nestjs/common';
+import { Injectable, Inject, Logger, Optional } from '@nestjs/common';
 import axios, { AxiosInstance } from 'axios';
 import { DevToolsAgentConfig, DevToolsEvent, EventMeta } from './shared/types';
 import { DEVTOOLS_CONFIG } from './devtools.module';
@@ -10,19 +10,29 @@ import { sanitizePayload } from './utils/sanitizer';
 @Injectable()
 export class DevtoolsService {
   private readonly logger = new Logger(DevtoolsService.name);
+  private readonly config: DevToolsAgentConfig;
   private readonly httpClient: AxiosInstance;
   private readonly buffer: DevToolsEvent[] = [];
 
   constructor(
+    @Optional()
     @Inject(DEVTOOLS_CONFIG)
-    private readonly config: DevToolsAgentConfig,
+    config?: DevToolsAgentConfig,
   ) {
+    if (!config) {
+      this.logger.warn(
+        'Nenhuma configuração do DevtoolsModule foi encontrada. Verifique se você chamou DevtoolsModule.forRoot() ou DevtoolsModule.forRootAsync(). O módulo será desabilitado automaticamente.',
+      );
+    }
+
+    this.config = config ?? this.getDisabledConfig();
+
     // Configura cliente HTTP com timeout e retry
     this.httpClient = axios.create({
-      baseURL: config.backendUrl,
-      timeout: config.timeout || 5000,
+      baseURL: this.config.backendUrl,
+      timeout: this.config.timeout || 5000,
       headers: {
-        'x-api-key': config.apiKey,
+        'x-api-key': this.config.apiKey,
         'Content-Type': 'application/json',
       },
     });
@@ -43,6 +53,20 @@ export class DevtoolsService {
         return Promise.reject(error);
       },
     );
+  }
+
+  private getDisabledConfig(): DevToolsAgentConfig {
+    return {
+      enabled: false,
+      backendUrl: '',
+      apiKey: '',
+      maxRetries: 0,
+      enableBuffer: false,
+      maxBufferSize: 0,
+      captureHeaders: false,
+      captureBody: false,
+      captureResponse: false,
+    };
   }
 
   /**
