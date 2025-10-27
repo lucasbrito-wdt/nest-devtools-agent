@@ -57,4 +57,3 @@ export class ReplayService {
     return sanitized;
   }
 }
-

@@ -42,12 +42,15 @@ export class IngestService {
 
     // Se for exceção, emite alerta
     if (saved.type === EventType.EXCEPTION) {
-      this.wsGateway.emitAlert({
-        type: 'error',
-        title: 'Nova Exceção',
-        message: (dto.meta as any).message || 'Exceção capturada',
-        timestamp: new Date().toISOString(),
-      }, projectId);
+      this.wsGateway.emitAlert(
+        {
+          type: 'error',
+          title: 'Nova Exceção',
+          message: (dto.meta as any).message || 'Exceção capturada',
+          timestamp: new Date().toISOString(),
+        },
+        projectId,
+      );
     }
 
     return saved;
