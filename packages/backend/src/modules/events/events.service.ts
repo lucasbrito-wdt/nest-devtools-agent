@@ -88,7 +88,14 @@ export class EventsService {
       throw new NotFoundException(`Event with ID ${id} not found`);
     }
 
-    return event as PersistedEvent;
+    return {
+      id: event.id,
+      type: event.type as any,
+      payload: event.payload as any,
+      route: event.route,
+      status: event.status,
+      createdAt: event.createdAt,
+    };
   }
 
   /**
