@@ -13,20 +13,20 @@ COPY tsconfig.json ./
 COPY packages/shared/package.json packages/shared/
 COPY packages/backend/package.json packages/backend/
 
-# Instala todas as dependências
-RUN bun install
-
-# Copia o restante do código-fonte
+# Copia o restante do código-fonte (incluindo schema.prisma)
 COPY packages/shared packages/shared
 COPY packages/backend packages/backend
 
-# Build dos pacotes necessários
-WORKDIR /app
-RUN bun run --filter '@nest-devtools/shared' build
+# Instala todas as dependências
+RUN bun install
 
 # Gera Prisma Client
 WORKDIR /app/packages/backend
 RUN ../../node_modules/.bin/prisma generate
+
+# Build dos pacotes necessários
+WORKDIR /app
+RUN bun run --filter '@nest-devtools/shared' build
 
 # Instala @nestjs/cli na raiz temporariamente para build
 WORKDIR /app
