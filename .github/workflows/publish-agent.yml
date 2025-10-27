@@ -3,28 +3,13 @@ name: 📦 Publish Agent Package
 on:
   push:
     branches:
+      - master
       - main
     paths:
       - 'packages/agent/**'
       - 'packages/shared/**'
   release:
     types: [published]
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Versão a ser publicada (ex: 1.0.0)'
-        required: false
-        type: string
-      tag:
-        description: 'Tag npm (latest, beta, next)'
-        required: false
-        default: 'latest'
-        type: choice
-        options:
-          - latest
-          - beta
-          - next
-          - alpha
 
 env:
   NODE_VERSION: '20'
@@ -82,7 +67,7 @@ jobs:
     name: Publish to npm
     needs: build-and-test
     runs-on: ubuntu-latest
-    if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'release'
 
     steps:
       - name: 📥 Checkout código
@@ -102,11 +87,10 @@ jobs:
       - name: 🏗️ Build agent
         run: cd packages/agent && bun run build
 
-      - name: 📝 Atualizar versão (se especificada)
-        if: github.event.inputs.version != ''
+      - name: 📝 Preparar versão
         run: |
           cd packages/agent
-          npm version ${{ github.event.inputs.version }} --no-git-tag-version
+          echo "Publishing version from package.json"
 
       - name: 🔐 Setup npm registry
         run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
@@ -114,34 +98,28 @@ jobs:
       - name: 🚀 Publicar @nest-devtools/agent
         run: |
           cd packages/agent
-          TAG="${{ github.event.inputs.tag || 'latest' }}"
-          npm publish --access public --tag $TAG
+          npm publish --access public --tag latest
 
       - name: 📊 Informações da publicação
         run: |
           echo "✅ Pacote publicado com sucesso!"
           echo "📦 @nest-devtools/agent"
-          echo "🏷️ Tag: ${{ github.event.inputs.tag || 'latest' }}"
+          echo "🏷️ Tag: latest"
 
-      - name: 💬 Comentar no PR (se aplicável)
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: '✅ **Pacote publicado com sucesso!**\n\n📦 `@nest-devtools/agent`\n🏷️ Tag: `${{ github.event.inputs.tag || 'latest' }}`'
-            })
+      - name: 📝 Atualizar versão automaticamente
+        if: github.event_name == 'release'
+        run: |
+          cd packages/agent
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          npm version $VERSION --no-git-tag-version
+          cd ..
 
   # Job 3: Publicar GitHub Release
   create-github-release:
     name: Create GitHub Release
     needs: publish-npm
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' && github.event.inputs.version != ''
+    if: false  # Desabilitado - releases devem ser criadas manualmente
 
     steps:
       - name: 📥 Checkout código
