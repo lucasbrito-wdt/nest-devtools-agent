@@ -2,8 +2,8 @@
 
 [build]
   base = "."
-  command = "bun install && cd packages/shared && bun run build && cd ../frontend && bun run build"
-  publish = "packages/frontend/dist"
+  command = "cd /opt/build/repo && bun install && cd packages/shared && bun run build && cd ../frontend && bun run build"
+  publish = "/opt/build/repo/packages/frontend/dist"
 
 [build.environment]
   NODE_VERSION = "20"
