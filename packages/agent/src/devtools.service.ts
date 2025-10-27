@@ -108,7 +108,7 @@ export class DevtoolsService {
       // Sanitiza payload antes de enviar
       const sanitized = this.sanitizeEvent(event);
 
-      this.logger.verbose(`  ├─ URL destino: ${this.config.backendUrl}/ingest`);
+      this.logger.verbose(`  ├─ URL destino: ${this.config.backendUrl}/api/ingest`);
       this.logger.verbose(`  ├─ Tipo: ${eventType}`);
       this.logger.verbose(
         `  └─ Payload sanitizado: ${JSON.stringify(sanitized).substring(0, 100)}...`,
@@ -116,7 +116,7 @@ export class DevtoolsService {
 
       // Tenta enviar
       const startTime = Date.now();
-      await this.httpClient.post('/ingest', sanitized);
+      await this.httpClient.post('/api/ingest', sanitized);
       const duration = Date.now() - startTime;
 
       this.logger.log(`✅ Evento enviado com sucesso em ${duration}ms: ${eventInfo}`);
@@ -139,7 +139,7 @@ export class DevtoolsService {
         );
       } else if (axiosError.request) {
         this.logger.error(`  ├─ Sem resposta do servidor`);
-        this.logger.error(`  ├─ URL tentada: ${this.config.backendUrl}/ingest`);
+        this.logger.error(`  ├─ URL tentada: ${this.config.backendUrl}/api/ingest`);
       }
 
       this.logger.error(`  └─ Stack: ${axiosError.stack?.split('\n')[0]}`);
