@@ -38,6 +38,7 @@ Clique em "Create new project"
 4. Copie a URL que começa com `postgresql://`
 
 Exemplo:
+
 ```
 postgresql://postgres.[ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres
 ```
@@ -103,6 +104,7 @@ O arquivo já está configurado para usar `DATABASE_URL`:
 ```
 
 ✅ Está correto! A configuração já usa:
+
 - `url`: `DATABASE_URL` da variável de ambiente
 - `synchronize`: false em produção
 - `migrations`: prontas para uso
@@ -289,6 +291,7 @@ Settings → Database → Database Settings → Restore from backup
 ### Erro: "Connection refused"
 
 ✅ Verifique:
+
 - URL de conexão está correta?
 - Senha está correta?
 - Firewall/Security do Supabase permite seu IP?
@@ -296,12 +299,14 @@ Settings → Database → Database Settings → Restore from backup
 ### Erro: "Table doesn't exist"
 
 ✅ Verifique:
+
 - Migrações foram executadas?
 - Schema correto está sendo usado?
 
 ### Erro: "Invalid enum type"
 
 ✅ Verifique:
+
 - Criar enum manualmente no PostgreSQL
 - Ou usar TEXT com constraint
 
@@ -318,4 +323,3 @@ Settings → Database → Database Settings → Restore from backup
 - [Documentação Supabase](https://supabase.com/docs)
 - [TypeORM Documentation](https://typeorm.io/)
 - [Railway Docs](https://docs.railway.app/)
-
