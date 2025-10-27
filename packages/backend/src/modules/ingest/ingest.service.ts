@@ -1,54 +1,51 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Event } from '../events/entities/event.entity';
+import { PrismaService } from '../../prisma/prisma.service';
 import { IngestEventDto } from './dto/ingest-event.dto';
 import { EventType } from '@nest-devtools/shared';
 import { DevToolsGateway } from '../websocket/devtools.gateway';
 
 /**
- * Serviço de ingestão de eventos
+ * Serviço de ingestão de eventos (Prisma)
  */
 @Injectable()
 export class IngestService {
   private readonly logger = new Logger(IngestService.name);
 
   constructor(
-    @InjectRepository(Event)
-    private readonly eventRepository: Repository<Event>,
+    private readonly prisma: PrismaService,
     private readonly wsGateway: DevToolsGateway,
   ) {}
 
   /**
    * Ingere um evento e persiste no banco
    */
-  async ingestEvent(dto: IngestEventDto, projectId?: string): Promise<Event> {
+  async ingestEvent(dto: IngestEventDto, projectId?: string) {
     // Extrai route e status do payload para indexação
     const route = this.extractRoute(dto);
     const status = this.extractStatus(dto);
 
-    // Cria entidade
-    const event = this.eventRepository.create({
-      type: dto.type,
-      payload: dto.meta,
-      route,
-      status,
+    // Cria e persiste evento
+    const saved = await this.prisma.event.create({
+      data: {
+        type: dto.type,
+        payload: dto.meta as any,
+        route,
+        status,
+        projectId,
+      },
     });
-
-    // Persiste
-    const saved = await this.eventRepository.save(event);
 
     this.logger.debug(`Event ingested: ${saved.id} (${saved.type})`);
 
     // Emite evento WebSocket em tempo real
-    this.wsGateway.emitNewEvent(saved, projectId);
+    this.wsGateway.emitNewEvent(saved as any, projectId);
 
     // Se for exceção, emite alerta
     if (saved.type === EventType.EXCEPTION) {
       this.wsGateway.emitAlert({
         type: 'error',
         title: 'Nova Exceção',
-        message: dto.meta.message || 'Exceção capturada',
+        message: (dto.meta as any).message || 'Exceção capturada',
         timestamp: new Date().toISOString(),
       }, projectId);
     }

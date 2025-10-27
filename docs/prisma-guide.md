@@ -51,7 +51,7 @@ model Project {
   name          String
   apiKey        String   @unique
   // ...
-  
+
   events Event[]
   users  User[]
 }
@@ -62,7 +62,7 @@ model User {
   name      String
   role      UserRole @default(VIEWER)
   // ...
-  
+
   project Project? @relation(fields: [projectId], references: [id])
 }
 
@@ -71,7 +71,7 @@ model Event {
   type      String
   payload   Json     @db.JsonB
   // ...
-  
+
   project Project? @relation(fields: [projectId], references: [id])
 }
 ```
@@ -87,7 +87,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 @Injectable()
 export class MyService {
   constructor(private prisma: PrismaService) {}
-  
+
   async findAll() {
     return this.prisma.event.findMany();
   }
@@ -102,26 +102,26 @@ const events = await this.prisma.event.findMany();
 
 // Buscar um
 const event = await this.prisma.event.findUnique({
-  where: { id: '...' }
+  where: { id: '...' },
 });
 
 // Criar
 const newEvent = await this.prisma.event.create({
   data: {
     type: 'HTTP_REQUEST',
-    payload: { method: 'GET' }
-  }
+    payload: { method: 'GET' },
+  },
 });
 
 // Atualizar
 const updated = await this.prisma.event.update({
   where: { id: '...' },
-  data: { status: 200 }
+  data: { status: 200 },
 });
 
 // Deletar
 await this.prisma.event.delete({
-  where: { id: '...' }
+  where: { id: '...' },
 });
 ```
 
@@ -134,28 +134,28 @@ const events = await this.prisma.event.findMany({
     type: 'HTTP_REQUEST',
     status: { gte: 400 },
     createdAt: {
-      gte: new Date('2024-01-01')
-    }
+      gte: new Date('2024-01-01'),
+    },
   },
   skip: 0,
   take: 50,
   orderBy: { createdAt: 'desc' },
-  include: { project: true } // JOIN
+  include: { project: true }, // JOIN
 });
 
 // Agregações
 const count = await this.prisma.event.count({
-  where: { type: 'ERROR' }
+  where: { type: 'ERROR' },
 });
 
 const avg = await this.prisma.event.aggregate({
-  _avg: { status: true }
+  _avg: { status: true },
 });
 
 // Group by
 const grouped = await this.prisma.event.groupBy({
   by: ['type'],
-  _count: { id: true }
+  _count: { id: true },
 });
 ```
 
@@ -164,15 +164,15 @@ const grouped = await this.prisma.event.groupBy({
 ```typescript
 await this.prisma.$transaction(async (tx) => {
   const project = await tx.project.create({
-    data: { name: 'Test', apiKey: 'key' }
+    data: { name: 'Test', apiKey: 'key' },
   });
-  
+
   await tx.event.create({
     data: {
       type: 'LOG',
       payload: {},
-      projectId: project.id
-    }
+      projectId: project.id,
+    },
   });
 });
 ```
@@ -235,7 +235,7 @@ Definir índices no schema:
 ```prisma
 model Event {
   // ...
-  
+
   @@index([projectId])
   @@index([type])
   @@index([createdAt])
@@ -249,13 +249,13 @@ model Event {
 const events = await this.prisma.event.findMany();
 for (const event of events) {
   const project = await this.prisma.project.findUnique({
-    where: { id: event.projectId }
+    where: { id: event.projectId },
   });
 }
 
 // Bom: 1 query com JOIN
 const events = await this.prisma.event.findMany({
-  include: { project: true }
+  include: { project: true },
 });
 ```
 
@@ -264,7 +264,7 @@ const events = await this.prisma.event.findMany({
 ```typescript
 // Log de queries
 const prisma = new PrismaClient({
-  log: ['query', 'info', 'warn', 'error']
+  log: ['query', 'info', 'warn', 'error'],
 });
 ```
 
@@ -286,4 +286,3 @@ const prisma = new PrismaClient({
 - [ ] IngestService migrado
 - [ ] HealthModule migrado
 - [ ] Outros módulos migrados
-
