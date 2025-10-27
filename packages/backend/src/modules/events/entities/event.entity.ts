@@ -26,7 +26,7 @@ export class Event {
   @Column({ type: 'jsonb' })
   payload!: Record<string, any>;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', length: 500, nullable: true })
   route?: string;
 
   @Column({ type: 'int', nullable: true })

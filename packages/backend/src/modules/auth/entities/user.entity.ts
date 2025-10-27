@@ -17,13 +17,13 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ unique: true })
+  @Column({ type: 'text', unique: true })
   email!: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'text', nullable: true })
   password?: string;
 
-  @Column()
+  @Column({ type: 'text' })
   name!: string;
 
   @Column({
@@ -33,16 +33,16 @@ export class User {
   })
   role!: UserRole;
 
-  @Column({ name: 'project_id', nullable: true })
+  @Column({ name: 'project_id', type: 'uuid', nullable: true })
   projectId?: string;
 
-  @Column({ default: true })
+  @Column({ type: 'boolean', default: true })
   active!: boolean;
 
-  @Column({ name: 'oauth_provider', nullable: true })
+  @Column({ name: 'oauth_provider', type: 'text', nullable: true })
   oauthProvider?: string;
 
-  @Column({ name: 'oauth_id', nullable: true })
+  @Column({ name: 'oauth_id', type: 'text', nullable: true })
   oauthId?: string;
 
   @CreateDateColumn({ name: 'created_at' })

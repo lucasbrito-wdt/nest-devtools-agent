@@ -11,19 +11,19 @@ export class Project {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column()
+  @Column({ type: 'text' })
   name!: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'text', nullable: true })
   description?: string;
 
-  @Column({ name: 'api_key', unique: true })
+  @Column({ name: 'api_key', type: 'text', unique: true })
   apiKey!: string;
 
-  @Column({ default: true })
+  @Column({ type: 'boolean', default: true })
   active!: boolean;
 
-  @Column({ name: 'retention_days', default: 30 })
+  @Column({ name: 'retention_days', type: 'int', default: 30 })
   retentionDays!: number;
 
   @CreateDateColumn({ name: 'created_at' })
