@@ -1,7 +1,7 @@
 # Backend Dockerfile para Nest DevTools Telescope
 # Build context: raiz do projeto
 
-FROM node:20-alpine
+FROM node:25-alpine
 
 # Instalar pnpm
 RUN npm install -g pnpm
