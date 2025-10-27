@@ -22,7 +22,7 @@ RUN bun install
 
 # Gera Prisma Client
 WORKDIR /app/packages/backend
-RUN ../../node_modules/.bin/prisma generate
+RUN bunx prisma generate
 
 # Build dos pacotes necessários
 WORKDIR /app
