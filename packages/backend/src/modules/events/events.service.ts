@@ -142,7 +142,6 @@ export class EventsService {
       totalEvents,
       totalRequests,
       averageResponseTime: avgResponseTime,
-      errorRate: 0,
     };
   }
 
