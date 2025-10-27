@@ -1,0 +1,64 @@
+name: 🌐 Deploy SaaS (Frontend & Backend)
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  pull_request:
+    branches:
+      - master
+      - main
+
+jobs:
+  deploy-frontend:
+    name: Deploy Frontend to Netlify
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: 🔧 Install dependencies
+        run: bun install
+
+      - name: 🏗️ Build frontend
+        run: |
+          cd packages/shared && bun run build
+          cd ../frontend && bun run build
+
+      - name: 📤 Deploy to Netlify
+        uses: netlify/actions/cli@master
+        with:
+          args: deploy --dir=packages/frontend/dist --prod
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+
+      - name: ✅ Frontend deployed
+        run: echo "🌐 Frontend SaaS deployed!"
+
+  deploy-backend:
+    name: Deploy Backend to Railway
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Railway CLI
+        run: |
+          curl -fsSL https://railway.app/install.sh | sh
+
+      - name: 📤 Deploy to Railway
+        run: railway up
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+
+      - name: ✅ Backend deployed
+        run: echo "⚙️ Backend SaaS deployed!"
