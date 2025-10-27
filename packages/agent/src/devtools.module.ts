@@ -31,6 +31,17 @@ export const DEVTOOLS_CONFIG = 'DEVTOOLS_CONFIG';
 @Module({})
 export class DevtoolsModule {
   static forRoot(config: DevToolsAgentConfig): DynamicModule {
+    // Validação básica da configuração
+    if (!config) {
+      throw new Error(
+        '[DevtoolsModule] Configuration is required. Use DevtoolsModule.forRoot({ enabled: true, backendUrl: "...", apiKey: "..." })',
+      );
+    }
+
+    if (config.enabled && !config.backendUrl) {
+      throw new Error('[DevtoolsModule] backendUrl is required when DevTools is enabled');
+    }
+
     const configProvider: Provider = {
       provide: DEVTOOLS_CONFIG,
       useValue: config,
@@ -62,8 +73,14 @@ export class DevtoolsModule {
   static forRootAsync(options: {
     useFactory: (...args: any[]) => Promise<DevToolsAgentConfig> | DevToolsAgentConfig;
     inject?: any[];
+    imports?: any[];
     enabled?: boolean;
   }): DynamicModule {
+    // Validação básica
+    if (!options.useFactory) {
+      throw new Error('[DevtoolsModule] useFactory is required for forRootAsync');
+    }
+
     const configProvider: Provider = {
       provide: DEVTOOLS_CONFIG,
       useFactory: options.useFactory,
@@ -89,8 +106,14 @@ export class DevtoolsModule {
 
     return {
       module: DevtoolsModule,
+      imports: options.imports || [],
       providers,
       exports: [DevtoolsService],
     };
+  }
+
+  constructor() {
+    // Este construtor nunca deve ser chamado diretamente
+    // Se você está vendo este erro, certifique-se de usar .forRoot() ou .forRootAsync()
   }
 }

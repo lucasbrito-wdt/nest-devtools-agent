@@ -6,3 +6,6 @@ export * from './filters/exception.filter';
 export * from './subscribers/typeorm.subscriber';
 export * from './middleware/prisma.middleware';
 export * from './utils/sanitizer';
+
+// Exportar tipos compartilhados para uso externo
+export * from './shared';

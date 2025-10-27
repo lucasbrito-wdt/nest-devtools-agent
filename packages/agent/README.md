@@ -313,6 +313,49 @@ NODE_ENV=test pnpm test
 
 ## 🔧 Troubleshooting
 
+### ❌ Erro: "Nest can't resolve dependencies of the DevtoolsService"
+
+**Causa**: O módulo não está sendo importado corretamente ou você esqueceu de usar `.forRoot()` ou `.forRootAsync()`.
+
+**Solução**:
+
+```typescript
+// ❌ ERRADO - Não importe o módulo diretamente
+@Module({
+  imports: [DevtoolsModule], // ❌ ISSO CAUSARÁ O ERRO!
+})
+export class AppModule {}
+
+// ✅ CORRETO - Use forRoot() ou forRootAsync()
+@Module({
+  imports: [
+    DevtoolsModule.forRoot({
+      enabled: process.env.NODE_ENV !== 'production',
+      backendUrl: process.env.DEVTOOLS_BACKEND_URL || 'http://localhost:4000',
+      apiKey: process.env.DEVTOOLS_API_KEY,
+    }),
+  ],
+})
+export class AppModule {}
+
+// ✅ CORRETO - Com ConfigService (assíncrono)
+@Module({
+  imports: [
+    ConfigModule.forRoot(),
+    DevtoolsModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        enabled: config.get('NODE_ENV') !== 'production',
+        backendUrl: config.get('DEVTOOLS_BACKEND_URL'),
+        apiKey: config.get('DEVTOOLS_API_KEY'),
+      }),
+    }),
+  ],
+})
+export class AppModule {}
+```
+
 ### Agent não está capturando eventos
 
 1. Verifique se `enabled: true`
@@ -345,10 +388,10 @@ NODE_ENV=test pnpm test
 
 ## 📚 Documentação Completa
 
-- [Guia de Deploy](https://github.com/SEU-USUARIO/nest-devtools-agent/blob/main/docs/deployment.md)
-- [Configuração Avançada](https://github.com/SEU-USUARIO/nest-devtools-agent/blob/main/docs/configuration.md)
-- [Segurança](https://github.com/SEU-USUARIO/nest-devtools-agent/blob/main/docs/security.md)
-- [API Reference](https://github.com/SEU-USUARIO/nest-devtools-agent/blob/main/docs/api.md)
+- [📦 Guia de Instalação Detalhado](./INSTALLATION.md) - Instalação passo a passo com troubleshooting
+- [📖 Exemplos de Uso](./USAGE_EXAMPLE.md) - 10+ exemplos práticos de configuração
+- [🔧 Troubleshooting](./README.md#-troubleshooting) - Soluções para problemas comuns
+- [🔒 Guia de Segurança](./README.md#-segurança) - Boas práticas de segurança
 
 ---
 
