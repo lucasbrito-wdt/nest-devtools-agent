@@ -1,7 +1,8 @@
 # Netlify configuration for Frontend deployment
 
 [build]
-  command = "npm install -g pnpm@8 && pnpm install && cd packages/shared && pnpm run build && cd ../frontend && pnpm run build"
+  base = "."
+  command = "bun install && cd packages/shared && bun run build && cd ../frontend && bun run build"
   publish = "packages/frontend/dist"
 
 [build.environment]
