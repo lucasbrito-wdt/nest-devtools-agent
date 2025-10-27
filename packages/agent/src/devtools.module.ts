@@ -1,6 +1,6 @@
 import { Module, DynamicModule, Global, Provider } from '@nestjs/common';
 import { APP_INTERCEPTOR, APP_FILTER } from '@nestjs/core';
-import { DevToolsAgentConfig } from 'nest-devtools-shared';
+import { DevToolsAgentConfig } from './shared/types/config';
 import { DevtoolsService } from './devtools.service';
 import { DevtoolsRequestInterceptor } from './interceptors/request.interceptor';
 import { DevtoolsExceptionFilter } from './filters/exception.filter';

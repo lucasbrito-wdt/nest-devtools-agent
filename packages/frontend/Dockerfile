@@ -1,39 +1,33 @@
-# Build stage
-FROM node:20-alpine AS builder
+# Frontend Dockerfile para Nest DevTools Telescope
+# Build context: raiz do projeto
+# Usando Bun como package manager
 
-RUN npm install -g pnpm
+FROM oven/bun:1-alpine
 
 WORKDIR /app
 
-# Copia arquivos de dependências
-COPY package.json pnpm-lock.yaml* ./
-COPY packages/frontend/package.json ./packages/frontend/
-COPY packages/shared/package.json ./packages/shared/
+# Copiar manifestos do workspace
+COPY package.json bun.lock ./
+COPY tsconfig.json ./
 
-# Instala dependências
-RUN pnpm install --frozen-lockfile
+# Copiar package.json de todos os pacotes necessários
+COPY packages/shared/package.json packages/shared/package.json
+COPY packages/frontend/package.json packages/frontend/package.json
 
-# Copia código fonte
-COPY packages/frontend ./packages/frontend
-COPY packages/shared ./packages/shared
+# Instalar dependências
+RUN bun install
 
-# Build
+# Copiar código fonte completo dos pacotes necessários
+COPY packages/shared packages/shared
+COPY packages/frontend packages/frontend
+
+# Construir shared primeiro
 WORKDIR /app/packages/shared
-RUN pnpm build
+RUN bun run build
 
+# Expor a porta
+EXPOSE 3000
+
+# Comando para desenvolvimento com hot reload
 WORKDIR /app/packages/frontend
-RUN pnpm build
-
-# Production stage
-FROM nginx:alpine
-
-# Copia arquivos buildados
-COPY --from=builder /app/packages/frontend/dist /usr/share/nginx/html
-
-# Copia configuração do nginx
-COPY packages/frontend/nginx.conf /etc/nginx/conf.d/default.conf
-
-EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"]
-
+CMD ["bun", "dev"]

@@ -55,7 +55,6 @@
     "@prisma/client": ">=5.0.0"
   },
   "dependencies": {
-    "nest-devtools-shared": "workspace:*",
     "axios": "^1.6.5"
   },
   "devDependencies": {

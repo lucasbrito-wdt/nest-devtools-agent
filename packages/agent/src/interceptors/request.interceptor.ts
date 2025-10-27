@@ -2,7 +2,7 @@ import { Injectable, NestInterceptor, ExecutionContext, CallHandler, Inject } fr
 import { Observable } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { Request, Response } from 'express';
-import { DevToolsAgentConfig, EventType, RequestEventMeta } from 'nest-devtools-shared';
+import { DevToolsAgentConfig, EventType, RequestEventMeta } from '../shared/types';
 import { DevtoolsService } from '../devtools.service';
 import { DEVTOOLS_CONFIG } from '../devtools.module';
 import { truncatePayload } from '../utils/sanitizer';

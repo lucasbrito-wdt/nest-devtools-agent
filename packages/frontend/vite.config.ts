@@ -10,13 +10,17 @@ export default defineConfig({
     },
   },
   server: {
+    host: '0.0.0.0', // Permite acesso de fora do container
     port: 3000,
+    strictPort: true,
+    watch: {
+      usePolling: true, // Necessário para hot reload no Docker
+    },
     proxy: {
       '/api': {
-        target: 'http://localhost:4000',
+        target: 'http://backend:4001',
         changeOrigin: true,
       },
     },
   },
 });
-

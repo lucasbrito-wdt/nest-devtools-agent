@@ -1,41 +1,39 @@
 # Backend Dockerfile para Nest DevTools Telescope
 # Build context: raiz do projeto
+# Usando Bun como package manager
 
-FROM node:20-alpine
-
-# Instalar pnpm
-RUN npm install -g pnpm
+FROM oven/bun:1-alpine
 
 WORKDIR /app
 
 # Copiar manifestos do workspace
-COPY package.json pnpm-workspace.yaml tsconfig.json ./
+COPY package.json bun.lock ./
+COPY tsconfig.json ./
 
-# Copiar manifestos dos pacotes necessários
+# Copiar package.json de todos os pacotes necessários
 COPY packages/shared/package.json packages/shared/package.json
 COPY packages/backend/package.json packages/backend/package.json
+COPY packages/agent/package.json packages/agent/package.json
 
-# Instalar dependências (desenvolvimento para ter hot reload)
-RUN pnpm install --frozen-lockfile
+# Instalar dependências
+RUN bun install
 
-# Copiar código fonte dos pacotes necessários
+# Copiar código fonte completo dos pacotes necessários
 COPY packages/shared packages/shared
-COPY packages/backend/src packages/backend/src
-COPY packages/backend/prisma packages/backend/prisma
-COPY packages/backend/nest-cli.json packages/backend/nest-cli.json
+COPY packages/backend packages/backend
 
 # Construir shared primeiro (dependência do backend)
 WORKDIR /app/packages/shared
-RUN pnpm build
+RUN bun run build
 
 # Gerar Prisma Client e build do backend
 WORKDIR /app/packages/backend
-RUN pnpm prisma:generate
-RUN pnpm build
+RUN bunx prisma generate
+RUN bun run build
 
-# Expoe a porta
+# Expor a porta
 EXPOSE 4001
 
 # Comando para desenvolvimento com hot reload
 WORKDIR /app/packages/backend
-CMD ["pnpm", "dev"]
+CMD ["bun", "dev"]

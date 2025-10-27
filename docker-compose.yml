@@ -38,6 +38,7 @@ services:
       context: .
       dockerfile: packages/backend/Dockerfile
     container_name: devtools-backend
+    hostname: backend
     depends_on:
       postgres:
         condition: service_healthy
@@ -58,7 +59,7 @@ services:
       - ./packages/shared:/app/packages/shared/src
       - /app/node_modules
     working_dir: /app/packages/backend
-    command: pnpm dev
+    command: bun dev
 
   # Frontend UI
   frontend:
@@ -69,14 +70,17 @@ services:
     depends_on:
       - backend
     environment:
-      VITE_API_URL: http://localhost:4001/api
+      - VITE_API_URL=http://localhost:4001/api
+      - HOST=0.0.0.0
+      - PORT=3000
     ports:
       - '3001:3000'
     volumes:
       - ./packages/frontend/src:/app/packages/frontend/src
+      - ./packages/shared:/app/packages/shared
       - /app/node_modules
     working_dir: /app/packages/frontend
-    command: pnpm dev
+    command: bun dev -- --host 0.0.0.0
 
 volumes:
   postgres_data:

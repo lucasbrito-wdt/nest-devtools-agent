@@ -1,6 +1,6 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import axios, { AxiosInstance } from 'axios';
-import { DevToolsAgentConfig, DevToolsEvent, EventMeta } from 'nest-devtools-shared';
+import { DevToolsAgentConfig, DevToolsEvent, EventMeta } from './shared/types';
 import { DEVTOOLS_CONFIG } from './devtools.module';
 import { sanitizePayload } from './utils/sanitizer';
 
