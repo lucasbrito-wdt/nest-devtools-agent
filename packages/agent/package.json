@@ -34,13 +34,13 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/SEU-USUARIO/nest-devtools-agent.git",
+    "url": "https://github.com/lucasbrito-wdt/nest-devtools-agent.git",
     "directory": "packages/agent"
   },
   "bugs": {
-    "url": "https://github.com/SEU-USUARIO/nest-devtools-agent/issues"
+    "url": "https://github.com/lucasbrito-wdt/nest-devtools-agent/issues"
   },
-  "homepage": "https://github.com/SEU-USUARIO/nest-devtools-agent#readme",
+  "homepage": "https://github.com/lucasbrito-wdt/nest-devtools-agent#readme",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"

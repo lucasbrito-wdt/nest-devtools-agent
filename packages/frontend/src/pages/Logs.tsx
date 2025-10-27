@@ -3,17 +3,26 @@ import { eventsApi } from '@/lib/api';
 import { EventType, LogEventMeta } from '@nest-devtools/shared';
 
 export default function Logs() {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ['events', EventType.LOG],
     queryFn: () => eventsApi.list({ type: EventType.LOG }, { page: 1, limit: 100 }),
+    retry: false,
   });
+
+  if (error) {
+    return (
+      <div className="text-center text-red-500 dark:text-red-400">
+        Erro ao carregar logs. Verifique se o backend está rodando.
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Logs</h1>
         <p className="mt-2 text-gray-600 dark:text-gray-400">
-          {data?.meta.total || 0} logs capturados
+          {data?.meta?.total || 0} logs capturados
         </p>
       </div>
 

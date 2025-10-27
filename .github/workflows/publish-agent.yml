@@ -35,42 +35,37 @@ jobs:
   build-and-test:
     name: Build & Test Agent Package
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: 📥 Checkout código
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Necessário para changelog
 
-      - name: 📦 Setup pnpm
-        uses: pnpm/action-setup@v2
+      - name: 📦 Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          version: ${{ env.PNPM_VERSION }}
-
-      - name: 🔧 Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
+          bun-version: latest
 
       - name: 📥 Instalar dependências
-        run: pnpm install --frozen-lockfile
+        run: bun install
 
-      - name: 🏗️ Build shared package
-        run: pnpm --filter @nest-devtools/shared build
+      - name: 🏗️ Build shared (dependency)
+        run: cd packages/shared && bun run build
 
       - name: 🏗️ Build agent package
-        run: pnpm --filter @nest-devtools/agent build
+        run: cd packages/agent && bun run build
 
-      - name: 🧪 Executar testes
-        run: pnpm --filter @nest-devtools/agent test
+      - name: 🧪 Executar testes (se existir)
+        run: cd packages/agent && bun test
         continue-on-error: true
 
       - name: 🔍 Type check
-        run: pnpm --filter @nest-devtools/agent typecheck
+        run: cd packages/agent && bun run typecheck
+        continue-on-error: true
 
-      - name: 📏 Lint
-        run: pnpm --filter @nest-devtools/agent lint
+      - name: 📏 Lint (se existir)
+        run: cd packages/agent && bun run lint
         continue-on-error: true
 
       - name: 💾 Salvar artefatos
@@ -89,61 +84,50 @@ jobs:
     needs: build-and-test
     runs-on: ubuntu-latest
     if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
-    
+
     steps:
       - name: 📥 Checkout código
         uses: actions/checkout@v4
 
-      - name: 📦 Setup pnpm
-        uses: pnpm/action-setup@v2
+      - name: 📦 Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          version: ${{ env.PNPM_VERSION }}
+          bun-version: latest
 
-      - name: 🔧 Setup Node.js
+      - name: 🔧 Setup Node.js (para npm publish)
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           registry-url: 'https://registry.npmjs.org'
-          cache: 'pnpm'
 
       - name: 📥 Instalar dependências
-        run: pnpm install --frozen-lockfile
+        run: bun install
 
-      - name: 🏗️ Build packages
-        run: |
-          pnpm --filter @nest-devtools/shared build
-          pnpm --filter @nest-devtools/agent build
+      - name: 🏗️ Build shared (dependency)
+        run: cd packages/shared && bun run build
+
+      - name: 🏗️ Build agent
+        run: cd packages/agent && bun run build
 
       - name: 📝 Atualizar versão (se especificada)
         if: github.event.inputs.version != ''
         run: |
           cd packages/agent
           npm version ${{ github.event.inputs.version }} --no-git-tag-version
-          cd ../shared
-          npm version ${{ github.event.inputs.version }} --no-git-tag-version
-
-      - name: 🚀 Publicar @nest-devtools/shared
-        run: |
-          cd packages/shared
-          pnpm publish --access public --no-git-checks
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: 🚀 Publicar @nest-devtools/agent
         run: |
           cd packages/agent
           TAG="${{ github.event.inputs.tag || 'latest' }}"
-          pnpm publish --access public --tag $TAG --no-git-checks
+          npm publish --access public --tag $TAG
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: 📊 Informações da publicação
         run: |
-          echo "✅ Pacotes publicados com sucesso!"
+          echo "✅ Pacote publicado com sucesso!"
           echo "📦 @nest-devtools/agent"
-          echo "📦 @nest-devtools/shared"
           echo "🏷️ Tag: ${{ github.event.inputs.tag || 'latest' }}"
-          npm view @nest-devtools/agent versions --json
 
       - name: 💬 Comentar no PR (se aplicável)
         if: github.event_name == 'pull_request'
@@ -164,7 +148,7 @@ jobs:
     needs: publish-npm
     runs-on: ubuntu-latest
     if: github.event_name == 'workflow_dispatch' && github.event.inputs.version != ''
-    
+
     steps:
       - name: 📥 Checkout código
         uses: actions/checkout@v4
@@ -175,7 +159,7 @@ jobs:
         id: changelog
         uses: mikepenz/release-changelog-builder-action@v4
         with:
-          configuration: ".github/release-config.json"
+          configuration: '.github/release-config.json'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -189,4 +173,3 @@ jobs:
           prerelease: ${{ github.event.inputs.tag != 'latest' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-

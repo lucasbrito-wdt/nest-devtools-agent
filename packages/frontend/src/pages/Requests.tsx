@@ -13,7 +13,7 @@ export default function Requests() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('');
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ['events', EventType.REQUEST, page, search, statusFilter],
     queryFn: () =>
       eventsApi.list(
@@ -24,7 +24,16 @@ export default function Requests() {
         },
         { page, limit: 20 },
       ),
+    retry: false,
   });
+
+  if (error) {
+    return (
+      <div className="text-center text-red-500 dark:text-red-400 p-8">
+        Erro ao carregar requisições. Verifique se o backend está rodando.
+      </div>
+    );
+  }
 
   const getStatusBadge = (status: number) => {
     if (status >= 200 && status < 300) return 'badge-success';
@@ -39,7 +48,7 @@ export default function Requests() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">HTTP Requests</h1>
           <p className="mt-2 text-gray-600 dark:text-gray-400">
-            {data?.meta.total || 0} requisições capturadas
+            {data?.meta?.total || 0} requisições capturadas
           </p>
         </div>
       </div>
@@ -156,7 +165,7 @@ export default function Requests() {
         </div>
 
         {/* Paginação */}
-        {data && data.meta.totalPages > 1 && (
+        {data && data.meta && data.meta.totalPages > 1 && (
           <div className="flex items-center justify-between border-t border-gray-200 dark:border-gray-700 px-6 py-4">
             <div className="text-sm text-gray-600 dark:text-gray-400">
               Página {data.meta.page} de {data.meta.totalPages}
