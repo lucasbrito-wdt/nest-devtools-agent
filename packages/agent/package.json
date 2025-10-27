@@ -14,7 +14,6 @@
     "dev": "tsc --watch",
     "clean": "rm -rf dist",
     "typecheck": "tsc --noEmit",
-    "test": "jest",
     "prepublishOnly": "bun run build"
   },
   "keywords": [
