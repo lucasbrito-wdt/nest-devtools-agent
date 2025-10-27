@@ -1,6 +1,6 @@
 import { ExceptionFilter, Catch, ArgumentsHost, HttpException, Inject } from '@nestjs/common';
 import { Request } from 'express';
-import { DevToolsAgentConfig, EventType, ExceptionEventMeta } from '@nest-devtools/shared';
+import { DevToolsAgentConfig, EventType, ExceptionEventMeta } from 'nest-devtools-shared';
 import { DevtoolsService } from '../devtools.service';
 import { DEVTOOLS_CONFIG } from '../devtools.module';
 
@@ -112,4 +112,3 @@ export class DevtoolsExceptionFilter implements ExceptionFilter {
     );
   }
 }
-

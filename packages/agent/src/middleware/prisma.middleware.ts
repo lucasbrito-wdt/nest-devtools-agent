@@ -1,17 +1,14 @@
 import { DevtoolsService } from '../devtools.service';
-import { EventType, QueryEventMeta } from '@nest-devtools/shared';
+import { EventType, QueryEventMeta } from 'nest-devtools-shared';
 
 /**
  * Tipo de middleware do Prisma
  */
-type PrismaMiddleware = (
-  params: any,
-  next: (params: any) => Promise<any>
-) => Promise<any>;
+type PrismaMiddleware = (params: any, next: (params: any) => Promise<any>) => Promise<any>;
 
 /**
  * Middleware do Prisma para capturar queries
- * 
+ *
  * @example
  * ```typescript
  * // No seu prisma.service.ts
@@ -24,9 +21,7 @@ type PrismaMiddleware = (
  * }
  * ```
  */
-export function createPrismaDevtoolsMiddleware(
-  devtoolsService: DevtoolsService,
-): PrismaMiddleware {
+export function createPrismaDevtoolsMiddleware(devtoolsService: DevtoolsService): PrismaMiddleware {
   return async (params, next) => {
     const startTime = Date.now();
 
@@ -73,4 +68,3 @@ export function createPrismaDevtoolsMiddleware(
     }
   };
 }
-

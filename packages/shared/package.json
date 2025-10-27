@@ -1,5 +1,5 @@
 {
-  "name": "@nest-devtools/shared",
+  "name": "nest-devtools-shared",
   "version": "0.1.0",
   "description": "Tipos TypeScript compartilhados para Nest DevTools Telescope",
   "type": "module",

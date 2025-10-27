@@ -3,7 +3,7 @@ import { Throttle } from '@nestjs/throttler';
 import { IngestService } from './ingest.service';
 import { ApiKeyGuard } from '@/common/guards/api-key.guard';
 import { IngestEventDto } from './dto/ingest-event.dto';
-import { IngestEventResponse } from '@nest-devtools/shared';
+import { IngestEventResponse } from 'nest-devtools-shared';
 
 /**
  * Controller responsável pela ingestão de eventos

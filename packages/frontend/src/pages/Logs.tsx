@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { eventsApi } from '@/lib/api';
-import { EventType, LogEventMeta } from '@nest-devtools/shared';
+import { EventType, LogEventMeta } from 'nest-devtools-shared';
 
 export default function Logs() {
   const { data, isLoading, error } = useQuery({

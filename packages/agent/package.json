@@ -1,5 +1,5 @@
 {
-  "name": "@nest-devtools/agent",
+  "name": "nest-devtools-agent",
   "version": "0.1.0",
   "description": "Agent de instrumentação NestJS para DevTools Telescope - rastreie requisições, exceções e logs em tempo real",
   "main": "dist/index.js",
@@ -55,7 +55,7 @@
     "@prisma/client": ">=5.0.0"
   },
   "dependencies": {
-    "@nest-devtools/shared": "workspace:*",
+    "nest-devtools-shared": "workspace:*",
     "axios": "^1.6.5"
   },
   "devDependencies": {

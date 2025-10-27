@@ -1,7 +1,7 @@
 import { EventSubscriber, EntitySubscriberInterface } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { DevtoolsService } from '../devtools.service';
-import { EventType, QueryEventMeta } from '@nest-devtools/shared';
+import { EventType, QueryEventMeta } from 'nest-devtools-shared';
 
 /**
  * Subscriber do TypeORM para capturar queries SQL
@@ -27,7 +27,7 @@ export class DevtoolsTypeOrmSubscriber implements EntitySubscriberInterface {
   afterQuery(event: any): void {
     const queryId = this.generateQueryId(event);
     const startTime = this.queryStartTimes.get(queryId);
-    
+
     if (!startTime) return;
 
     const duration = Date.now() - startTime;
@@ -56,4 +56,3 @@ export class DevtoolsTypeOrmSubscriber implements EntitySubscriberInterface {
     return `${event.query}-${Date.now()}`;
   }
 }
-

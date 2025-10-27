@@ -1,6 +1,6 @@
 import { IsOptional, IsEnum, IsString, IsInt, Min, Max, IsDateString } from 'class-validator';
 import { Type } from 'class-transformer';
-import { EventType } from '@nest-devtools/shared';
+import { EventType } from 'nest-devtools-shared';
 
 /**
  * DTO para query de eventos

@@ -9,7 +9,7 @@ import {
 } from '@nestjs/websockets';
 import { Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
-import { DevToolsStats } from '@nest-devtools/shared';
+import { DevToolsStats } from 'nest-devtools-shared';
 
 /**
  * Gateway WebSocket para updates em tempo real

@@ -2,11 +2,11 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import type { Queue } from 'bull';
 import { DevtoolsService } from '../devtools.service';
-import { EventType, JobEventMeta } from '@nest-devtools/shared';
+import { EventType, JobEventMeta } from 'nest-devtools-shared';
 
 /**
  * Tracer para filas Bull
- * 
+ *
  * @example
  * ```typescript
  * @Module({
@@ -53,12 +53,27 @@ export class DevtoolsBullTracer implements OnModuleInit {
 
     // Job completou com sucesso
     queue.on('completed', async (job, result) => {
-      this.sendJobEvent(queueName, String(job.id), 'completed', job.data, undefined, job.returnvalue);
+      this.sendJobEvent(
+        queueName,
+        String(job.id),
+        'completed',
+        job.data,
+        undefined,
+        job.returnvalue,
+      );
     });
 
     // Job falhou
     queue.on('failed', async (job, error) => {
-      this.sendJobEvent(queueName, String(job.id), 'failed', job.data, error.message, undefined, job?.attemptsMade);
+      this.sendJobEvent(
+        queueName,
+        String(job.id),
+        'failed',
+        job.data,
+        error.message,
+        undefined,
+        job?.attemptsMade,
+      );
     });
   }
 
@@ -105,4 +120,3 @@ export class DevtoolsBullTracer implements OnModuleInit {
     }
   }
 }
-

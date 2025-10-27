@@ -1,6 +1,6 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import axios, { AxiosInstance } from 'axios';
-import { DevToolsAgentConfig, DevToolsEvent, EventMeta } from '@nest-devtools/shared';
+import { DevToolsAgentConfig, DevToolsEvent, EventMeta } from 'nest-devtools-shared';
 import { DEVTOOLS_CONFIG } from './devtools.module';
 import { sanitizePayload } from './utils/sanitizer';
 
@@ -61,7 +61,9 @@ export class DevtoolsService {
       await this.httpClient.post('/ingest', sanitized);
     } catch (error) {
       // Fail-silent: não queremos que o DevTools quebre a aplicação
-      this.logger.debug(`Failed to send event: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      this.logger.debug(
+        `Failed to send event: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
 
       // Se buffer está habilitado, adiciona ao buffer
       if (this.config.enableBuffer) {
@@ -143,4 +145,3 @@ export class DevtoolsService {
     };
   }
 }
-

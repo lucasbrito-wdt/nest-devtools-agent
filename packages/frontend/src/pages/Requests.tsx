@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { IconSearch } from '@tabler/icons-react';
 import { eventsApi } from '@/lib/api';
-import { EventType, RequestEventMeta } from '@nest-devtools/shared';
+import { EventType, RequestEventMeta } from 'nest-devtools-shared';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 

@@ -1,5 +1,5 @@
 import { IsEnum, IsObject } from 'class-validator';
-import { EventType } from '@nest-devtools/shared';
+import { EventType } from 'nest-devtools-shared';
 
 /**
  * DTO para ingestão de evento

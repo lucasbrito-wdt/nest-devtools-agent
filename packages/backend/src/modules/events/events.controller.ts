@@ -2,7 +2,7 @@ import { Controller, Get, Query, Param, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { EventsService } from './events.service';
 import { QueryEventsDto } from './dto/query-events.dto';
-import { PaginatedEventsResponse, DevToolsStats } from '@nest-devtools/shared';
+import { PaginatedEventsResponse, DevToolsStats } from 'nest-devtools-shared';
 
 /**
  * Controller para consulta de eventos

@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { IngestEventDto } from './dto/ingest-event.dto';
-import { EventType } from '@nest-devtools/shared';
+import { EventType } from 'nest-devtools-shared';
 import { DevToolsGateway } from '../websocket/devtools.gateway';
 
 /**

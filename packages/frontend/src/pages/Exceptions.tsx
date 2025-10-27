@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { eventsApi } from '@/lib/api';
-import { EventType, ExceptionEventMeta } from '@nest-devtools/shared';
+import { EventType, ExceptionEventMeta } from 'nest-devtools-shared';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 

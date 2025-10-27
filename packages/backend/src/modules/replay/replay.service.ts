@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { PrismaService } from '../../prisma/prisma.service';
-import { EventType } from '@nest-devtools/shared';
+import { EventType } from 'nest-devtools-shared';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable()

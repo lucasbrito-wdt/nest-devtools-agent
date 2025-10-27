@@ -112,20 +112,25 @@ jobs:
           echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
           echo "registry=https://registry.npmjs.org/" >> .npmrc
 
-      - name: 🚀 Publicar @nest-devtools/agent
+      - name: 🚀 Publicar nest-devtools-agent
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           cd packages/agent
           echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
-          npm publish --access public --tag latest || echo "Package may already exist"
+          echo "registry=https://registry.npmjs.org/" >> .npmrc
+
+          # Publicar pacote (sem scope, não precisa de organização)
+          npm publish --access public --tag latest
+          echo "✅ Publicado com sucesso!"
 
       - name: 📊 Informações da publicação
         run: |
           echo "✅ Pacote publicado com sucesso!"
-          echo "📦 @nest-devtools/agent"
+          echo "📦 nest-devtools-agent"
           echo "🏷️ Tag: latest"
           echo "📦 Versão: ${{ steps.version.outputs.version }}"
+          echo "🔗 https://www.npmjs.com/package/nest-devtools-agent"
 
   # Job 3: Publicar GitHub Release
   create-github-release:

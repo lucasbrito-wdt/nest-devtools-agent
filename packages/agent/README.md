@@ -1,8 +1,8 @@
-# 🔭 @nest-devtools/agent
+# 🔭 nest-devtools-agent
 
 > Agent de instrumentação NestJS para DevTools Telescope - rastreie requisições HTTP, exceções e logs em tempo real
 
-[![npm version](https://badge.fury.io/js/%40nest-devtools%2Fagent.svg)](https://www.npmjs.com/package/@nest-devtools/agent)
+[![npm version](https://badge.fury.io/js/nest-devtools-agent.svg)](https://www.npmjs.com/package/nest-devtools-agent)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
 
@@ -10,7 +10,7 @@
 
 ## 🎯 O que é?
 
-O `@nest-devtools/agent` é uma biblioteca de instrumentação para aplicações NestJS que captura automaticamente:
+O `nest-devtools-agent` é uma biblioteca de instrumentação para aplicações NestJS que captura automaticamente:
 
 - ✅ **Requisições HTTP** — método, rota, status, headers, body, timing
 - ✅ **Exceções** — stacktraces completos com contexto
@@ -25,13 +25,16 @@ Inspirado no [Laravel Telescope](https://laravel.com/docs/telescope), mas feito 
 
 ```bash
 # npm
-npm install @nest-devtools/agent
+npm install nest-devtools-agent
 
 # yarn
-yarn add @nest-devtools/agent
+yarn add nest-devtools-agent
 
 # pnpm
-pnpm add @nest-devtools/agent
+pnpm add nest-devtools-agent
+
+# bun
+bun add nest-devtools-agent
 ```
 
 ---
@@ -42,7 +45,7 @@ pnpm add @nest-devtools/agent
 
 ```typescript
 import { Module } from '@nestjs/common';
-import { DevtoolsModule } from '@nest-devtools/agent';
+import { DevtoolsModule } from 'nest-devtools-agent';
 
 @Module({
   imports: [
@@ -69,6 +72,7 @@ NODE_ENV=development
 ### 3️⃣ Pronto! 🎉
 
 O agent agora está capturando automaticamente:
+
 - Todas as requisições HTTP
 - Todas as exceções não tratadas
 - Todos os logs da aplicação
@@ -121,32 +125,22 @@ DevtoolsModule.forRoot({
   enabled: process.env.NODE_ENV !== 'production',
   backendUrl: 'https://devtools.minha-empresa.com',
   apiKey: process.env.DEVTOOLS_API_KEY,
-  
+
   // Performance
   flushInterval: 10000, // enviar a cada 10s
   batchSize: 100,
-  
+
   // Segurança
   sanitize: true,
-  sanitizeFields: [
-    'password',
-    'token',
-    'secret',
-    'authorization',
-    'credit_card',
-  ],
-  
+  sanitizeFields: ['password', 'token', 'secret', 'authorization', 'credit_card'],
+
   // Captura
   captureRequestBody: true,
   captureResponseBody: false, // não capturar response (economia)
-  
+
   // Filtros
-  ignoreRoutes: [
-    '/health',
-    '/metrics',
-    '/favicon.ico',
-  ],
-})
+  ignoreRoutes: ['/health', '/metrics', '/favicon.ico'],
+});
 ```
 
 ---
@@ -169,24 +163,30 @@ O DevTools é uma ferramenta de desenvolvimento/staging. Para usar em produção
 DevtoolsModule.forRoot({
   // Apenas em staging
   enabled: process.env.NODE_ENV === 'staging',
-  
+
   // URL segura (HTTPS)
   backendUrl: 'https://devtools-backend.com',
-  
+
   // API Key forte (32+ caracteres)
   apiKey: process.env.DEVTOOLS_API_KEY, // armazenada em secrets
-  
+
   // Sanitização habilitada
   sanitize: true,
   sanitizeFields: [
-    'password', 'token', 'secret', 'authorization',
-    'credit_card', 'ssn', 'cpf', 'api_key',
+    'password',
+    'token',
+    'secret',
+    'authorization',
+    'credit_card',
+    'ssn',
+    'cpf',
+    'api_key',
   ],
-  
+
   // Não capturar payloads sensíveis
   captureRequestBody: false,
   captureResponseBody: false,
-})
+});
 ```
 
 ---
@@ -274,7 +274,7 @@ DevtoolsModule.forRootAsync({
     backendUrl: config.get('DEVTOOLS_BACKEND_URL'),
     apiKey: config.get('DEVTOOLS_API_KEY'),
   }),
-})
+});
 ```
 
 ---
@@ -338,7 +338,7 @@ NODE_ENV=test pnpm test
    ```
 4. Adicione rotas à lista de ignorados:
    ```typescript
-   ignoreRoutes: ['/health', '/metrics', '/static/*']
+   ignoreRoutes: ['/health', '/metrics', '/static/*'];
    ```
 
 ---

@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { QueryEventsDto } from './dto/query-events.dto';
-import { PaginatedEventsResponse, DevToolsStats, EventType } from '@nest-devtools/shared';
+import { PaginatedEventsResponse, DevToolsStats, EventType } from 'nest-devtools-shared';
 
 /**
  * Serviço de consulta e gerenciamento de eventos (Prisma)
