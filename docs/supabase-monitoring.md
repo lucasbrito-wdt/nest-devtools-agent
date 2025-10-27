@@ -64,7 +64,7 @@ ALTER SYSTEM SET log_min_duration_statement = 1000; -- 1 segundo
 SELECT pg_reload_conf();
 
 -- Ver queries lentas
-SELECT 
+SELECT
   query,
   calls,
   total_time,
@@ -79,7 +79,7 @@ LIMIT 20;
 
 ```sql
 -- Ver conexões ativas
-SELECT 
+SELECT
   pid,
   usename,
   application_name,
@@ -243,13 +243,13 @@ export class MetricsService {
    */
   async getCostEstimate() {
     const metrics = await this.getDatabaseMetrics();
-    
+
     // Calcular baseado em:
     // - Database size
     // - Bandwidth
     // - API requests
     // - Storage
-    
+
     return {
       database: this.calculateDatabaseCost(metrics),
       bandwidth: 0, // Implementar
@@ -262,9 +262,9 @@ export class MetricsService {
     // Free tier: 500MB
     // Pro: $25/mês base + $0.125/GB adicional
     const totalSizeGB = Object.values(metrics.tableSize).reduce((a, b) => a + b, 0) / 1024 / 1024 / 1024;
-    
+
     if (totalSizeGB <= 0.5) return 0; // Free tier
-    
+
     const additionalGB = totalSizeGB - 8; // Pro inclui 8GB
     return additionalGB > 0 ? 25 + (additionalGB * 0.125) : 25;
   }
@@ -285,7 +285,7 @@ RETURNS TABLE (
 ) AS $$
 BEGIN
   RETURN QUERY
-  SELECT 
+  SELECT
     pg_stat_activity.pid,
     pg_stat_activity.usename::text,
     pg_stat_activity.datname::text,
@@ -308,7 +308,7 @@ RETURNS TABLE (
 ) AS $$
 BEGIN
   RETURN QUERY
-  SELECT 
+  SELECT
     pg_stat_statements.query::text,
     pg_stat_statements.calls,
     pg_stat_statements.total_exec_time,
@@ -331,7 +331,7 @@ RETURNS TABLE (
 ) AS $$
 BEGIN
   RETURN QUERY
-  SELECT 
+  SELECT
     tablename::text,
     pg_total_relation_size(schemaname||'.'||tablename),
     pg_relation_size(schemaname||'.'||tablename),
@@ -349,8 +349,8 @@ RETURNS TABLE (
 ) AS $$
 BEGIN
   RETURN QUERY
-  SELECT 
-    CASE 
+  SELECT
+    CASE
       WHEN (blks_hit + blks_read) = 0 THEN 0
       ELSE ROUND(blks_hit::numeric / (blks_hit + blks_read), 4)
     END
@@ -375,7 +375,7 @@ export class AlertService {
   async sendAlert(type: string, message: string, severity: 'info' | 'warning' | 'critical') {
     // Integrar com serviço de email (SendGrid, AWS SES, etc.)
     console.log(`[${severity.toUpperCase()}] ${type}: ${message}`);
-    
+
     // Exemplo: Enviar para Slack
     // await this.slackService.send({
     //   channel: '#alerts',
@@ -399,11 +399,11 @@ const ALERT_THRESHOLDS = {
   },
   cacheHitRate: {
     warning: 0.85,
-    critical: 0.70,
+    critical: 0.7,
   },
   diskUsage: {
-    warning: 0.80, // 80%
-    critical: 0.90, // 90%
+    warning: 0.8, // 80%
+    critical: 0.9, // 90%
   },
 };
 ```
@@ -499,7 +499,7 @@ export function MonitoringDashboard() {
 
 ```sql
 -- Analisar queries sem índices
-SELECT 
+SELECT
   schemaname,
   tablename,
   seq_scan,
@@ -512,10 +512,10 @@ ORDER BY seq_tup_read DESC
 LIMIT 20;
 
 -- Criar índices necessários
-CREATE INDEX CONCURRENTLY idx_events_project_type 
+CREATE INDEX CONCURRENTLY idx_events_project_type
 ON events(project_id, type);
 
-CREATE INDEX CONCURRENTLY idx_events_created_at_desc 
+CREATE INDEX CONCURRENTLY idx_events_created_at_desc
 ON events(created_at DESC);
 ```
 
@@ -527,7 +527,7 @@ ON events(created_at DESC);
 VACUUM ANALYZE events;
 
 -- Ver estatísticas de vacuum
-SELECT 
+SELECT
   schemaname,
   tablename,
   last_vacuum,
@@ -545,7 +545,7 @@ export const typeOrmConfig = {
   // ...
   extra: {
     max: 20, // Máximo de conexões
-    min: 5,  // Mínimo de conexões
+    min: 5, // Mínimo de conexões
     idle: 10000, // Tempo de idle (ms)
   },
 };
@@ -598,7 +598,7 @@ Auth: 50,000 MAU (Monthly Active Users)
 async checkUsageLimits() {
   const metrics = await this.getDatabaseMetrics();
   const totalSize = Object.values(metrics.tableSize).reduce((a, b) => a + b, 0);
-  
+
   const usage = {
     database: {
       used: totalSize,
@@ -632,4 +632,3 @@ async checkUsageLimits() {
 - [Supabase Monitoring](https://supabase.com/docs/guides/platform/metrics)
 - [PostgreSQL Performance](https://www.postgresql.org/docs/current/monitoring-stats.html)
 - [Database Optimization](https://supabase.com/docs/guides/database/database-optimization)
-

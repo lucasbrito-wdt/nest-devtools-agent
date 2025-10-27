@@ -225,7 +225,7 @@ export class RealtimeService implements OnModuleInit, OnModuleDestroy {
    */
   async unsubscribeFromProject(projectId: string): Promise<void> {
     const channel = this.channels.get(`project:${projectId}`);
-    
+
     if (channel) {
       await this.supabase.removeChannel(channel);
       this.channels.delete(`project:${projectId}`);
@@ -332,7 +332,7 @@ emitRealtimeEvent(event: string, data: any, projectId?: string) {
   } else {
     this.server.emit(event, data);
   }
-  
+
   this.logger.debug(`Emitted realtime event: ${event}`);
 }
 ```
@@ -494,7 +494,7 @@ setInterval(flushBatch, 5000);
 
 channel.on('postgres_changes', { event: '*' }, (payload) => {
   eventBatch.push(payload);
-  
+
   // Flush se batch ficar muito grande
   if (eventBatch.length >= 100) {
     flushBatch();
@@ -560,12 +560,15 @@ SUPABASE_SERVICE_ROLE_KEY=[service-role-key]
 ## 11. Troubleshooting
 
 ### Erro: "Channel not found"
+
 ✅ Verifique se a tabela está habilitada em Replication
 
 ### Erro: "Unauthorized"
+
 ✅ Verifique RLS policies
 
 ### Erro: "Too many connections"
+
 ✅ Limite de conexões no Free tier: 200
 ✅ Implemente connection pooling
 
@@ -582,4 +585,3 @@ SUPABASE_SERVICE_ROLE_KEY=[service-role-key]
 - [Supabase Realtime](https://supabase.com/docs/guides/realtime)
 - [Realtime Presence](https://supabase.com/docs/guides/realtime/presence)
 - [Realtime Broadcast](https://supabase.com/docs/guides/realtime/broadcast)
-
