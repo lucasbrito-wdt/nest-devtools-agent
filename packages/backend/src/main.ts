@@ -8,7 +8,7 @@ import { dataSourceOptions } from './config/typeorm.config';
 async function bootstrap() {
   // Executar migrations automaticamente em produção
   const nodeEnv = process.env.NODE_ENV || 'development';
-  
+
   if (nodeEnv === 'production') {
     try {
       console.log('🔄 Running database migrations...');
@@ -18,7 +18,8 @@ async function bootstrap() {
       await dataSource.destroy();
       console.log('✅ Migrations completed successfully');
     } catch (error) {
-      console.error('⚠️  Migration warning (continuing anyway):', error.message);
+      const message = error instanceof Error ? error.message : String(error);
+      console.error('⚠️  Migration warning (continuing anyway):', message);
       // Continue mesmo se migration falhar (pode já estar atualizado)
     }
   }
@@ -53,4 +54,3 @@ async function bootstrap() {
 }
 
 bootstrap();
-

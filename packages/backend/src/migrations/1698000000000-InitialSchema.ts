@@ -50,12 +50,18 @@ export class InitialSchema1698000000000 implements MigrationInterface {
     `);
 
     // Indexes
-    await queryRunner.query(`CREATE INDEX IF NOT EXISTS idx_events_project_id ON events(project_id)`);
+    await queryRunner.query(
+      `CREATE INDEX IF NOT EXISTS idx_events_project_id ON events(project_id)`,
+    );
     await queryRunner.query(`CREATE INDEX IF NOT EXISTS idx_events_type ON events(type)`);
     await queryRunner.query(`CREATE INDEX IF NOT EXISTS idx_events_route ON events(route)`);
     await queryRunner.query(`CREATE INDEX IF NOT EXISTS idx_events_status ON events(status)`);
-    await queryRunner.query(`CREATE INDEX IF NOT EXISTS idx_events_created_at ON events(created_at)`);
-    await queryRunner.query(`CREATE INDEX IF NOT EXISTS idx_events_payload_gin ON events USING GIN(payload)`);
+    await queryRunner.query(
+      `CREATE INDEX IF NOT EXISTS idx_events_created_at ON events(created_at)`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX IF NOT EXISTS idx_events_payload_gin ON events USING GIN(payload)`,
+    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
@@ -73,4 +79,3 @@ export class InitialSchema1698000000000 implements MigrationInterface {
     await queryRunner.query(`DROP TABLE IF EXISTS projects CASCADE`);
   }
 }
-
