@@ -4,7 +4,6 @@ import { DevToolsAgentConfig } from './shared/types/config';
 import { DevtoolsService } from './devtools.service';
 import { DevtoolsRequestInterceptor } from './interceptors/request.interceptor';
 import { DevtoolsExceptionFilter } from './filters/exception.filter';
-import { DevtoolsTypeOrmSubscriber } from './subscribers/typeorm.subscriber';
 
 /**
  * Token de injeção para a configuração
@@ -37,11 +36,7 @@ export class DevtoolsModule {
       useValue: config,
     };
 
-    const providers: Provider[] = [
-      configProvider,
-      DevtoolsService,
-      DevtoolsTypeOrmSubscriber, // ← Adiciona subscriber TypeORM
-    ];
+    const providers: Provider[] = [configProvider, DevtoolsService];
 
     // Só registra interceptors/filters se estiver habilitado
     if (config.enabled) {
@@ -67,6 +62,7 @@ export class DevtoolsModule {
   static forRootAsync(options: {
     useFactory: (...args: any[]) => Promise<DevToolsAgentConfig> | DevToolsAgentConfig;
     inject?: any[];
+    enabled?: boolean;
   }): DynamicModule {
     const configProvider: Provider = {
       provide: DEVTOOLS_CONFIG,
@@ -74,12 +70,12 @@ export class DevtoolsModule {
       inject: options.inject || [],
     };
 
-    return {
-      module: DevtoolsModule,
-      providers: [
-        configProvider,
-        DevtoolsService,
-        DevtoolsTypeOrmSubscriber,
+    const providers: Provider[] = [configProvider, DevtoolsService];
+
+    const isEnabled = options.enabled ?? true;
+
+    if (isEnabled) {
+      providers.push(
         {
           provide: APP_INTERCEPTOR,
           useClass: DevtoolsRequestInterceptor,
@@ -88,7 +84,12 @@ export class DevtoolsModule {
           provide: APP_FILTER,
           useClass: DevtoolsExceptionFilter,
         },
-      ],
+      );
+    }
+
+    return {
+      module: DevtoolsModule,
+      providers,
       exports: [DevtoolsService],
     };
   }
