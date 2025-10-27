@@ -80,12 +80,14 @@ export const onStatsUpdate = (callback: (stats: DevToolsStats) => void) => {
 /**
  * Listener para alertas
  */
-export const onAlert = (callback: (alert: {
-  type: 'error' | 'warning' | 'info';
-  title: string;
-  message: string;
-  timestamp: string;
-}) => void) => {
+export const onAlert = (
+  callback: (alert: {
+    type: 'error' | 'warning' | 'info';
+    title: string;
+    message: string;
+    timestamp: string;
+  }) => void,
+) => {
   if (!socket) return;
   socket.on('alert', callback);
 };
@@ -130,7 +132,7 @@ export const ping = (): Promise<any> => {
       reject(new Error('Socket not connected'));
       return;
     }
-    
+
     socket.emit('ping', {}, (response: any) => {
       resolve(response);
     });

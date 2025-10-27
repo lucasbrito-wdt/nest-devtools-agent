@@ -41,4 +41,3 @@ export const eventsApi = {
     return response.data;
   },
 };
-

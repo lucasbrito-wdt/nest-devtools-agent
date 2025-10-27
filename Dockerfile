@@ -24,9 +24,9 @@ RUN bun install
 WORKDIR /app/packages/backend
 RUN bunx prisma generate
 
-# Build dos pacotes necessários
-WORKDIR /app
-RUN bun run --filter '@nest-devtools/shared' build
+# Build do pacote shared primeiro (dependência do backend)
+WORKDIR /app/packages/shared
+RUN bun run build
 
 # Instala @nestjs/cli na raiz temporariamente para build
 WORKDIR /app
