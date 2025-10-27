@@ -24,6 +24,12 @@ export class IngestService {
     const route = this.extractRoute(dto);
     const status = this.extractStatus(dto);
 
+    this.logger.debug(`💾 Persistindo evento no banco de dados`);
+    this.logger.debug(`  ├─ Tipo: ${dto.type}`);
+    this.logger.debug(`  ├─ Route: ${route || 'N/A'}`);
+    this.logger.debug(`  ├─ Status: ${status || 'N/A'}`);
+    this.logger.debug(`  └─ Project ID: ${projectId || 'N/A'}`);
+
     // Cria e persiste evento
     const saved = await this.prisma.event.create({
       data: {
@@ -35,18 +41,22 @@ export class IngestService {
       },
     });
 
-    this.logger.debug(`Event ingested: ${saved.id} (${saved.type})`);
+    this.logger.log(`✅ Evento persistido: ${saved.id} (${saved.type})`);
 
     // Emite evento WebSocket em tempo real
+    this.logger.debug(`📡 Emitindo evento via WebSocket`);
     this.wsGateway.emitNewEvent(saved as any, projectId);
 
     // Se for exceção, emite alerta
     if (saved.type === EventType.EXCEPTION) {
+      const exceptionMsg = (dto.meta as any).message || 'Exceção capturada';
+      this.logger.warn(`🚨 Exceção detectada: ${exceptionMsg}`);
+
       this.wsGateway.emitAlert(
         {
           type: 'error',
           title: 'Nova Exceção',
-          message: (dto.meta as any).message || 'Exceção capturada',
+          message: exceptionMsg,
           timestamp: new Date().toISOString(),
         },
         projectId,

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { QueryEventsDto } from './dto/query-events.dto';
 import {
@@ -13,7 +13,11 @@ import {
  */
 @Injectable()
 export class EventsService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(EventsService.name);
+
+  constructor(private readonly prisma: PrismaService) {
+    this.logger.log('📊 EventsService inicializado');
+  }
 
   /**
    * Lista eventos com filtros e paginação
@@ -22,6 +26,19 @@ export class EventsService {
     const page = query.page || 1;
     const limit = query.limit || 50;
     const skip = (page - 1) * limit;
+
+    this.logger.debug(`🔍 Consultando eventos - Página ${page}, Limit ${limit}`);
+    if (query.type) {
+      this.logger.debug(
+        `  ├─ Tipo: ${Array.isArray(query.type) ? query.type.join(', ') : query.type}`,
+      );
+    }
+    if (query.route) {
+      this.logger.debug(`  ├─ Route: ${query.route}`);
+    }
+    if (query.status) {
+      this.logger.debug(`  ├─ Status: ${query.status}`);
+    }
 
     // Build where clause
     const where: any = {};

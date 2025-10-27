@@ -1,4 +1,12 @@
-import { ExceptionFilter, Catch, ArgumentsHost, HttpException, Inject, Optional } from '@nestjs/common';
+import {
+  ExceptionFilter,
+  Catch,
+  ArgumentsHost,
+  HttpException,
+  Inject,
+  Optional,
+  Logger,
+} from '@nestjs/common';
 import { Request } from 'express';
 import { DevToolsAgentConfig, EventType, ExceptionEventMeta } from '../shared/types';
 import { DevtoolsService } from '../devtools.service';
@@ -9,12 +17,16 @@ import { DEVTOOLS_CONFIG } from '../devtools.module';
  */
 @Catch()
 export class DevtoolsExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger(DevtoolsExceptionFilter.name);
+
   constructor(
     private readonly devtoolsService: DevtoolsService,
     @Optional()
     @Inject(DEVTOOLS_CONFIG)
     private readonly config?: DevToolsAgentConfig,
-  ) {}
+  ) {
+    this.logger.log('🚨 DevtoolsExceptionFilter registrado');
+  }
 
   catch(exception: any, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
@@ -24,6 +36,14 @@ export class DevtoolsExceptionFilter implements ExceptionFilter {
     const statusCode = this.getStatusCode(exception);
     const message = this.getMessage(exception);
     const stack = exception.stack;
+
+    // Log da exceção capturada
+    const errorEmoji = statusCode >= 500 ? '💥' : '⚠️';
+    this.logger.error(`${errorEmoji} Exceção capturada: ${exception.name || 'Error'}`);
+    this.logger.error(`  ├─ Status: ${statusCode}`);
+    this.logger.error(`  ├─ Mensagem: ${message}`);
+    this.logger.error(`  ├─ Rota: ${request.method} ${request.url}`);
+    this.logger.error(`  └─ Stack: ${stack?.split('\n')[1]?.trim()}`);
 
     // Monta metadata da exceção
     const meta: ExceptionEventMeta = {

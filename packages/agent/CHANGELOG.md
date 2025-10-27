@@ -7,6 +7,24 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [0.1.9] - 2025-10-27
+
+### 🔍 Melhorias de Debug
+
+- **Logs Detalhados Adicionados**: Sistema completo de logs para facilitar debugging
+  - `DevtoolsService`: Logs de inicialização, envio de eventos, erros detalhados com códigos HTTP, retry automático
+  - `DevtoolsRequestInterceptor`: Logs de captura de requisições HTTP com status code e duração
+  - `DevtoolsExceptionFilter`: Logs de exceções capturadas com stack trace
+  - Logs de buffer: adição, remoção e flush de eventos
+  - Emojis visuais para facilitar identificação rápida (✅, ❌, 🔴, 🟡, 🟢)
+
+### 🐛 Correções
+
+- **Timeout Ajustado**: Corrigido timeout padrão de 10ms para 10000ms (10 segundos) no exemplo de configuração do NoBreakAds
+- Documentação criada (`DEVTOOLS_CONFIG.md`) explicando os problemas comuns e suas soluções
+
+---
+
 ## [0.1.8] - 2025-10-27
 
 ### ✨ Adicionado

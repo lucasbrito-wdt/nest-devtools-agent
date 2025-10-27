@@ -1,4 +1,12 @@
-import { Injectable, NestInterceptor, ExecutionContext, CallHandler, Inject, Optional } from '@nestjs/common';
+import {
+  Injectable,
+  NestInterceptor,
+  ExecutionContext,
+  CallHandler,
+  Inject,
+  Optional,
+  Logger,
+} from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { Request, Response } from 'express';
@@ -12,12 +20,16 @@ import { truncatePayload } from '../utils/sanitizer';
  */
 @Injectable()
 export class DevtoolsRequestInterceptor implements NestInterceptor {
+  private readonly logger = new Logger(DevtoolsRequestInterceptor.name);
+
   constructor(
     private readonly devtoolsService: DevtoolsService,
     @Optional()
     @Inject(DEVTOOLS_CONFIG)
     private readonly config?: DevToolsAgentConfig,
-  ) {}
+  ) {
+    this.logger.log('🎯 DevtoolsRequestInterceptor registrado');
+  }
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     // Só processa se for contexto HTTP
@@ -29,6 +41,8 @@ export class DevtoolsRequestInterceptor implements NestInterceptor {
     const request = ctx.getRequest<Request>();
     const response = ctx.getResponse<Response>();
     const startTime = Date.now();
+
+    this.logger.debug(`🔍 Interceptando requisição: ${request.method} ${request.url}`);
 
     // Captura metadata inicial
     const meta: Partial<RequestEventMeta> = {
@@ -84,20 +98,30 @@ export class DevtoolsRequestInterceptor implements NestInterceptor {
     error?: any,
   ): void {
     const duration = Date.now() - startTime;
+    const statusCode = error ? error.status || 500 : response.statusCode;
 
     const completeMeta: RequestEventMeta = {
       ...meta,
       timestamp: meta.timestamp!,
       method: meta.method!,
       url: meta.url!,
-      statusCode: error ? error.status || 500 : response.statusCode,
+      statusCode,
       duration,
     };
+
+    // Log da captura
+    const statusEmoji = statusCode >= 500 ? '🔴' : statusCode >= 400 ? '🟡' : '🟢';
+    this.logger.log(
+      `${statusEmoji} Capturado: ${meta.method} ${meta.url} - ${statusCode} (${duration}ms)`,
+    );
 
     // Captura response se configurado
     if (this.config?.captureResponse && responseData) {
       const maxBodySize = this.config?.maxBodySize || 10240;
       completeMeta.response = truncatePayload(responseData, maxBodySize);
+      this.logger.verbose(
+        `  └─ Response capturado (${JSON.stringify(completeMeta.response).length} bytes)`,
+      );
     }
 
     // Envia evento de forma assíncrona (fire-and-forget)
