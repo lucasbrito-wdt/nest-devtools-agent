@@ -9,7 +9,6 @@ import {
 } from '@nestjs/websockets';
 import { Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
-import { Event } from '../events/entities/event.entity';
 import { DevToolsStats } from '@nest-devtools/shared';
 
 /**

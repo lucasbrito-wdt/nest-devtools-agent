@@ -3,7 +3,6 @@ import { Response } from 'express';
 import { EventsService } from './events.service';
 import { QueryEventsDto } from './dto/query-events.dto';
 import { PaginatedEventsResponse, DevToolsStats } from '@nest-devtools/shared';
-import { Event } from './entities/event.entity';
 
 /**
  * Controller para consulta de eventos
