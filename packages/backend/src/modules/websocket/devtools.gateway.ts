@@ -75,7 +75,7 @@ export class DevToolsGateway implements OnGatewayConnection, OnGatewayDisconnect
   /**
    * Emite novo evento para todos os clientes conectados
    */
-  emitNewEvent(event: Event, projectId?: string) {
+  emitNewEvent(event: any, projectId?: string) {
     if (projectId) {
       // Emite apenas para clientes inscritos nesse projeto
       this.server.to(`project:${projectId}`).emit('new-event', event);
