@@ -1,12 +1,11 @@
 # Netlify configuration for Frontend deployment
 
 [build]
-  command = "pnpm install && pnpm --filter @nest-devtools/shared build && pnpm --filter @nest-devtools/frontend build"
+  command = "curl -fsSL https://bun.sh/install | bash && export PATH=\"$HOME/.bun/bin:$PATH\" && bun --version && bun run build:netlify"
   publish = "packages/frontend/dist"
 
 [build.environment]
   NODE_VERSION = "20"
-  PNPM_VERSION = "8"
 
 [[redirects]]
   from = "/*"
