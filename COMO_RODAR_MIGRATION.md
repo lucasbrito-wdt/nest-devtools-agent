@@ -16,34 +16,39 @@ Quando você faz deploy, o backend:
 
 ## 🔧 Em Desenvolvimento Local
 
-### Opção 1: Via Supabase Dashboard (Mais Simples) ⭐
+### Opção 1: Via Prisma CLI (Recomendado) ⭐
+
+```bash
+cd packages/backend
+
+# 1. Definir URL do banco
+export DATABASE_URL="postgresql://postgres:[senha]@db.[ref].supabase.co:5432/postgres"
+
+# 2. Executar migrations
+npx prisma migrate deploy
+
+# 3. Gerar Prisma Client
+npx prisma generate
+```
+
+### Opção 2: Via Supabase Dashboard
 
 1. Acesse [https://supabase.com](https://supabase.com)
 2. Vá em **SQL Editor**
 3. Clique em **New Query**
-4. Cole o conteúdo de `supabase/migrations/001_initial_schema.sql`
+4. Cole o conteúdo de `packages/backend/prisma/migrations/*/migration.sql`
 5. Clique em **Run**
 
-**Pronto!** Tabelas criadas.
-
-### Opção 2: Via Script Automatizado
+### Opção 3: Via npm scripts
 
 ```bash
-# 1. Definir URL do banco Supabase
-export DATABASE_URL="postgresql://postgres:[senha]@db.[ref].supabase.co:5432/postgres"
+cd packages/backend
 
-# 2. Executar
-./scripts/run-migration.sh
+# Deploy migrations
+npm run prisma:deploy
 
-# Windows PowerShell
-.\scripts\run-migration.ps1
-```
-
-### Opção 3: Via psql Direto
-
-```bash
-# Execute o SQL diretamente
-psql "$DATABASE_URL" -f supabase/migrations/001_initial_schema.sql
+# Ou criar nova migration (dev)
+npm run prisma:migrate
 ```
 
 ---
@@ -103,7 +108,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 ### Migration já foi executada?
 
-**Tudo bem!** A migration tem `IF NOT EXISTS`, então é idempotente (segura rodar múltiplas vezes).
+**Tudo bem!** Prisma controla automaticamente quais migrations já foram aplicadas (tabela `_prisma_migrations`).
 
 ---
 
@@ -120,5 +125,11 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 ## 🎯 Resumo
 
-- **Produção**: Migrations automáticas ✅
-- **Desenvolvimento**: Usar Dashboard ou Script ✅
+- **Produção**: `prisma migrate deploy` automático ✅
+- **Desenvolvimento**: `npx prisma migrate deploy` ✅
+- **Criar nova migration**: `npm run prisma:migrate` ✅
+
+## 📚 Documentação
+
+- [docs/prisma-guide.md](docs/prisma-guide.md) - Guia completo do Prisma
+- [Prisma Migrations](https://www.prisma.io/docs/concepts/components/prisma-migrate)
