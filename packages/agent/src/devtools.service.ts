@@ -208,7 +208,7 @@ export class DevtoolsService {
 
     for (const event of events) {
       try {
-        await this.httpClient.post('/ingest', event);
+        await this.httpClient.post('/api/ingest', event);
         successCount++;
         this.logger.debug(`  ✅ Evento ${successCount} reenviado com sucesso`);
       } catch (error) {
