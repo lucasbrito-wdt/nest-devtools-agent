@@ -7,6 +7,10 @@ import {
   IconFileText,
   IconMoon,
   IconSun,
+  IconClock,
+  IconApi,
+  IconDatabase,
+  IconUsers,
 } from '@tabler/icons-react';
 import { useThemeStore } from '@/stores/theme.store';
 
@@ -22,6 +26,10 @@ export default function Layout({ children }: LayoutProps) {
     { path: '/requests', label: 'Requests', icon: IconWorld },
     { path: '/exceptions', label: 'Exceptions', icon: IconAlertTriangle },
     { path: '/logs', label: 'Logs', icon: IconFileText },
+    { path: '/schedule', label: 'Schedule', icon: IconClock },
+    { path: '/http-client', label: 'HTTP Client', icon: IconApi },
+    { path: '/redis', label: 'Redis', icon: IconDatabase },
+    { path: '/sessions', label: 'Sessions', icon: IconUsers },
   ];
 
   return (
@@ -32,9 +40,7 @@ export default function Layout({ children }: LayoutProps) {
           <div className="flex h-full flex-col">
             {/* Logo */}
             <div className="flex h-16 items-center border-b border-gray-200 dark:border-gray-700 px-6">
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-                🔭 DevTools
-              </h1>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white">🔭 DevTools</h1>
             </div>
 
             {/* Navigation */}
@@ -78,4 +84,3 @@ export default function Layout({ children }: LayoutProps) {
     </div>
   );
 }
-

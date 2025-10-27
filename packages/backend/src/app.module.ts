@@ -7,6 +7,10 @@ import { EventsModule } from './modules/events/events.module';
 import { HealthModule } from './modules/health/health.module';
 import { WebSocketModule } from './modules/websocket/websocket.module';
 import { GraphModule } from './modules/graph/graph.module';
+import { ScheduleModule } from './modules/schedule/schedule.module';
+import { HttpClientModule } from './modules/http-client/http-client.module';
+import { RedisModule } from './modules/redis/redis.module';
+import { SessionsModule } from './modules/sessions/sessions.module';
 import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
@@ -53,6 +57,10 @@ import { PrismaModule } from './prisma/prisma.module';
     HealthModule,
     WebSocketModule,
     GraphModule,
+    ScheduleModule,
+    HttpClientModule,
+    RedisModule,
+    SessionsModule,
   ],
 })
 export class AppModule {}

@@ -72,6 +72,46 @@ export interface DevToolsAgentConfig {
   captureResponse?: boolean;
 
   /**
+   * Capturar response headers
+   * @default false
+   */
+  captureResponseHeaders?: boolean;
+
+  /**
+   * Capturar dados de sessão
+   * @default false
+   */
+  captureSession?: boolean;
+
+  /**
+   * Capturar eventos de schedule/cron
+   * @default false
+   */
+  captureSchedule?: boolean;
+
+  /**
+   * Capturar requisições HTTP de saída (HTTP Client)
+   * @default false
+   */
+  captureHttpClient?: boolean;
+
+  /**
+   * Capturar operações Redis
+   * @default false
+   */
+  captureRedis?: boolean;
+
+  /**
+   * Configuração de conexão Redis (necessária se captureRedis = true)
+   */
+  redisConfig?: {
+    host?: string;
+    port?: number;
+    password?: string;
+    db?: number;
+  };
+
+  /**
    * Ambiente (dev, staging, production)
    */
   environment?: string;
@@ -125,4 +165,3 @@ export interface DevToolsBackendConfig {
    */
   enableWebSocket: boolean;
 }
-

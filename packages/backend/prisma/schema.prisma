@@ -21,8 +21,12 @@ model Project {
   updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   // Relations
-  events Event[]
-  users  User[]
+  events          Event[]
+  users           User[]
+  schedules       Schedule[]
+  httpClients     HttpClient[]
+  redisOperations RedisOperation[]
+  sessions        Session[]
 
   @@map("projects")
 }
@@ -53,6 +57,8 @@ model Event {
   payload   Json     @db.JsonB
   route     String?  @db.VarChar(500)
   status    Int?
+  sessionId String?  @map("session_id") @db.VarChar(255)
+  userId    String?  @map("user_id") @db.VarChar(255)
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
   // Relations
@@ -62,8 +68,109 @@ model Event {
   @@index([type])
   @@index([route])
   @@index([status])
+  @@index([sessionId])
+  @@index([userId])
   @@index([createdAt])
   @@map("events")
+}
+
+model Schedule {
+  id             String    @id @default(uuid()) @db.Uuid
+  projectId      String?   @map("project_id") @db.Uuid
+  jobId          String    @map("job_id") @db.VarChar(255)
+  jobName        String    @map("job_name") @db.VarChar(255)
+  cronExpression String?   @map("cron_expression") @db.VarChar(255)
+  status         String    @db.VarChar(50)
+  startedAt      DateTime? @map("started_at") @db.Timestamptz(6)
+  completedAt    DateTime? @map("completed_at") @db.Timestamptz(6)
+  duration       Int?
+  error          String?   @db.Text
+  result         Json?     @db.JsonB
+  nextRunAt      DateTime? @map("next_run_at") @db.Timestamptz(6)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  // Relations
+  project Project? @relation(fields: [projectId], references: [id])
+
+  @@index([projectId])
+  @@index([jobId])
+  @@index([jobName])
+  @@index([status])
+  @@index([createdAt])
+  @@map("schedules")
+}
+
+model HttpClient {
+  id              String   @id @default(uuid()) @db.Uuid
+  projectId       String?  @map("project_id") @db.Uuid
+  method          String   @db.VarChar(10)
+  url             String   @db.Text
+  baseURL         String?  @map("base_url") @db.Text
+  headers         Json?    @db.JsonB
+  requestBody     Json?    @map("request_body") @db.JsonB
+  responseStatus  Int?     @map("response_status")
+  responseHeaders Json?    @map("response_headers") @db.JsonB
+  responseBody    Json?    @map("response_body") @db.JsonB
+  duration        Int
+  error           String?  @db.Text
+  timeout         Int?
+  retries         Int?
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  // Relations
+  project Project? @relation(fields: [projectId], references: [id])
+
+  @@index([projectId])
+  @@index([method])
+  @@index([responseStatus])
+  @@index([createdAt])
+  @@map("http_clients")
+}
+
+model RedisOperation {
+  id        String   @id @default(uuid()) @db.Uuid
+  projectId String?  @map("project_id") @db.Uuid
+  command   String   @db.VarChar(50)
+  args      Json?    @db.JsonB
+  key       String?  @db.VarChar(500)
+  value     Json?    @db.JsonB
+  duration  Int
+  error     String?  @db.Text
+  database  Int?
+  result    Json?    @db.JsonB
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  // Relations
+  project Project? @relation(fields: [projectId], references: [id])
+
+  @@index([projectId])
+  @@index([command])
+  @@index([key])
+  @@index([createdAt])
+  @@map("redis_operations")
+}
+
+model Session {
+  id          String    @id @default(uuid()) @db.Uuid
+  projectId   String?   @map("project_id") @db.Uuid
+  sessionId   String    @map("session_id") @db.VarChar(255)
+  userId      String?   @map("user_id") @db.VarChar(255)
+  action      String    @db.VarChar(50)
+  sessionData Json?     @map("session_data") @db.JsonB
+  expiresAt   DateTime? @map("expires_at") @db.Timestamptz(6)
+  ip          String?   @db.VarChar(50)
+  userAgent   String?   @map("user_agent") @db.Text
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  // Relations
+  project Project? @relation(fields: [projectId], references: [id])
+
+  @@index([projectId])
+  @@index([sessionId])
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("sessions")
 }
 
 enum UserRole {
@@ -73,4 +180,3 @@ enum UserRole {
 
   @@map("user_role")
 }
-

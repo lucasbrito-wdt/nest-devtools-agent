@@ -7,6 +7,10 @@ export enum EventType {
   LOG = 'log',
   QUERY = 'query',
   JOB = 'job',
+  SCHEDULE = 'schedule',
+  HTTP_CLIENT = 'http_client',
+  REDIS = 'redis',
+  SESSION = 'session',
 }
 
 /**
@@ -29,6 +33,7 @@ export interface RequestEventMeta extends BaseEventMeta {
   route?: string;
   statusCode?: number;
   headers?: Record<string, string | string[]>;
+  responseHeaders?: Record<string, string | string[]>;
   query?: Record<string, any>;
   params?: Record<string, string>;
   body?: any;
@@ -36,6 +41,9 @@ export interface RequestEventMeta extends BaseEventMeta {
   duration: number;
   userAgent?: string;
   ip?: string;
+  sessionId?: string;
+  userId?: string;
+  sessionData?: any;
 }
 
 /**
@@ -92,6 +100,67 @@ export interface JobEventMeta extends BaseEventMeta {
 }
 
 /**
+ * Metadata de schedule/cron
+ */
+export interface ScheduleEventMeta extends BaseEventMeta {
+  jobId: string;
+  jobName: string;
+  cronExpression?: string;
+  status: 'scheduled' | 'running' | 'completed' | 'failed' | 'cancelled';
+  startedAt?: number;
+  completedAt?: number;
+  duration?: number;
+  error?: string;
+  result?: any;
+  nextRunAt?: number;
+}
+
+/**
+ * Metadata de HTTP Client (outgoing requests)
+ */
+export interface HttpClientEventMeta extends BaseEventMeta {
+  method: string;
+  url: string;
+  baseURL?: string;
+  headers?: Record<string, string | string[]>;
+  requestBody?: any;
+  responseStatus?: number;
+  responseHeaders?: Record<string, string | string[]>;
+  responseBody?: any;
+  duration: number;
+  error?: string;
+  timeout?: number;
+  retries?: number;
+}
+
+/**
+ * Metadata de operação Redis
+ */
+export interface RedisEventMeta extends BaseEventMeta {
+  command: string;
+  args?: any[];
+  key?: string;
+  value?: any;
+  duration: number;
+  error?: string;
+  database?: number;
+  result?: any;
+}
+
+/**
+ * Metadata de sessão
+ */
+export interface SessionEventMeta extends BaseEventMeta {
+  sessionId: string;
+  userId?: string;
+  action: 'created' | 'updated' | 'destroyed' | 'accessed';
+  sessionData?: any;
+  expiresAt?: number;
+  ip?: string;
+  userAgent?: string;
+}
+
+/**
  * Union type de todas as metadata possíveis
  */
 export type EventMeta =
@@ -99,7 +168,11 @@ export type EventMeta =
   | ExceptionEventMeta
   | LogEventMeta
   | QueryEventMeta
-  | JobEventMeta;
+  | JobEventMeta
+  | ScheduleEventMeta
+  | HttpClientEventMeta
+  | RedisEventMeta
+  | SessionEventMeta;
 
 /**
  * Estrutura de um evento completo
@@ -120,4 +193,3 @@ export interface PersistedEvent {
   status?: number;
   createdAt: Date;
 }
-

@@ -67,6 +67,19 @@ export class DevtoolsRequestInterceptor implements NestInterceptor {
       meta.body = truncatePayload(request.body, maxBodySize);
     }
 
+    // Captura dados de sessão se configurado
+    if (config?.captureSession && (request as any).session) {
+      const session = (request as any).session;
+      meta.sessionId = session.id || session.sessionID;
+      meta.userId = session.userId || session.user?.id;
+
+      // Captura dados da sessão (sanitizados)
+      if (session) {
+        const { cookie, ...sessionData } = session;
+        meta.sessionData = truncatePayload(sessionData, config?.maxBodySize || 10240);
+      }
+    }
+
     return next.handle().pipe(
       tap((responseData) => {
         this.sendRequestEvent(meta, response, responseData, startTime);
@@ -115,6 +128,19 @@ export class DevtoolsRequestInterceptor implements NestInterceptor {
       this.logger.verbose(
         `  └─ Response capturado (${JSON.stringify(completeMeta.response).length} bytes)`,
       );
+    }
+
+    // Captura response headers se configurado
+    if (config?.captureResponseHeaders) {
+      const responseHeaders: Record<string, string | string[]> = {};
+      response.getHeaderNames().forEach((headerName) => {
+        const headerValue = response.getHeader(headerName);
+        if (headerValue !== undefined) {
+          responseHeaders[headerName] = headerValue as string | string[];
+        }
+      });
+      completeMeta.responseHeaders = responseHeaders;
+      this.logger.verbose(`  └─ Response headers capturados`);
     }
 
     // Envia evento de forma assíncrona (fire-and-forget)

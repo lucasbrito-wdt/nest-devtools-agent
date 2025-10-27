@@ -4,6 +4,10 @@ import { DevToolsAgentConfig } from './shared/types/config';
 import { DevtoolsService } from './devtools.service';
 import { DevtoolsRequestInterceptor } from './interceptors/request.interceptor';
 import { DevtoolsExceptionFilter } from './filters/exception.filter';
+import { ScheduleTracer } from './tracers/schedule.tracer';
+import { HttpClientTracer } from './tracers/http-client.tracer';
+import { RedisTracer } from './tracers/redis.tracer';
+import { SessionSubscriber } from './subscribers/session.subscriber';
 
 /**
  * Token de injeção para a configuração
@@ -53,7 +57,7 @@ export class DevtoolsModule {
     return {
       module: DevtoolsModule,
       providers,
-      exports: [DevtoolsService],
+      exports: [DevtoolsService, ScheduleTracer, HttpClientTracer, RedisTracer, SessionSubscriber],
     };
   }
 
@@ -74,7 +78,7 @@ export class DevtoolsModule {
       module: DevtoolsModule,
       imports: options.imports || [],
       providers,
-      exports: [DevtoolsService],
+      exports: [DevtoolsService, ScheduleTracer, HttpClientTracer, RedisTracer, SessionSubscriber],
     };
   }
 
@@ -90,6 +94,10 @@ export class DevtoolsModule {
         useValue: config,
       },
       DevtoolsService,
+      ScheduleTracer,
+      HttpClientTracer,
+      RedisTracer,
+      SessionSubscriber,
     ];
 
     if (!config.enabled) {
@@ -172,6 +180,10 @@ export class DevtoolsModule {
         },
         inject: [DEVTOOLS_CONFIG],
       },
+      ScheduleTracer,
+      HttpClientTracer,
+      RedisTracer,
+      SessionSubscriber,
     ];
 
     const isEnabled = options.enabled ?? true;
