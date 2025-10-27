@@ -24,7 +24,12 @@ COPY packages/backend packages/backend
 WORKDIR /app
 RUN bun run --filter '@nest-devtools/shared' build
 
+# Gera Prisma Client
+WORKDIR /app/packages/backend
+RUN ../../node_modules/.bin/prisma generate
+
 # Instala @nestjs/cli na raiz temporariamente para build
+WORKDIR /app
 RUN bun add -d @nestjs/cli
 
 # Build do backend usando nest da raiz
@@ -53,5 +58,5 @@ WORKDIR /app/packages/backend
 # Expõe a porta da aplicação
 EXPOSE 4000
 
-# Inicia o app com Bun
-CMD ["bun", "run", "dist/main.js"]
+# Inicia o app com Bun (migrations são executadas via prisma migrate deploy antes do start)
+CMD ["sh", "-c", "cd /app/packages/backend && ../../node_modules/.bin/prisma migrate deploy && cd /app/packages/backend && bun run dist/main.js"]
