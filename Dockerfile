@@ -55,6 +55,9 @@ COPY --from=builder /app/node_modules ./node_modules
 # Instala apenas dependências de produção
 RUN bun install --production
 
+# Volta o WORKDIR para o app principal (backend)
+WORKDIR /app/packages/backend
+
 # Expõe a porta da aplicação
 EXPOSE 4000
 
