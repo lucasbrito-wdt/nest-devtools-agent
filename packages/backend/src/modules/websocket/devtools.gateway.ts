@@ -84,7 +84,7 @@ export class DevToolsGateway implements OnGatewayConnection, OnGatewayDisconnect
       this.server.emit('new-event', event);
     }
 
-    this.logger.debug(`Emitted new-event: ${event.id} (type: ${event.type})`);
+    this.logger.debug(`Emitted new-event (type: ${event.type})`);
   }
 
   /**
