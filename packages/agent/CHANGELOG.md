@@ -7,6 +7,21 @@ e este projeto adere ao [Semantic Versioning](https://semver.org/lang/pt-BR/).
 
 ---
 
+## [0.1.8] - 2025-10-27
+
+### ✨ Adicionado
+
+- **Suporte para NestJS 11**: Atualizado peerDependencies para aceitar tanto NestJS 10 quanto 11
+  - `@nestjs/common`: `^10.0.0 || ^11.0.0`
+  - `@nestjs/core`: `^10.0.0 || ^11.0.0`
+  
+### 🔧 Melhorias
+
+- Atualizado devDependencies para usar NestJS 11.1.0 para desenvolvimento
+- Maior compatibilidade com projetos que usam versões mais recentes do NestJS
+
+---
+
 ## [0.1.5] - 2025-10-27
 
 ### ✅ Corrigido
