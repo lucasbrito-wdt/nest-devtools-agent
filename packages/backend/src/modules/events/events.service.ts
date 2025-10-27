@@ -92,8 +92,8 @@ export class EventsService {
       id: event.id,
       type: event.type as any,
       payload: event.payload as any,
-      route: event.route,
-      status: event.status,
+      route: event.route || undefined,
+      status: event.status || undefined,
       createdAt: event.createdAt,
     };
   }
