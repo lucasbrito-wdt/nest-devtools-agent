@@ -28,7 +28,6 @@ on:
 
 env:
   NODE_VERSION: '20'
-  PNPM_VERSION: '8'
 
 jobs:
   # Job 1: Build e testes
@@ -94,12 +93,6 @@ jobs:
         with:
           bun-version: latest
 
-      - name: 🔧 Setup Node.js (para npm publish)
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          registry-url: 'https://registry.npmjs.org'
-
       - name: 📥 Instalar dependências
         run: bun install
 
@@ -115,13 +108,14 @@ jobs:
           cd packages/agent
           npm version ${{ github.event.inputs.version }} --no-git-tag-version
 
+      - name: 🔐 Setup npm registry
+        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
+
       - name: 🚀 Publicar @nest-devtools/agent
         run: |
           cd packages/agent
           TAG="${{ github.event.inputs.tag || 'latest' }}"
           npm publish --access public --tag $TAG
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: 📊 Informações da publicação
         run: |
