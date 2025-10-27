@@ -14,13 +14,14 @@ export const typeOrmConfig = (configService: ConfigService): TypeOrmModuleOption
   migrations: ['dist/migrations/*.js'],
 });
 
-// Para uso com TypeORM CLI
+// Para uso com TypeORM CLI e execução automática
 export const dataSourceOptions: DataSourceOptions = {
   type: 'postgres',
   url: process.env.DATABASE_URL || 'postgresql://devtools:devtools@localhost:5432/nest_devtools',
-  entities: ['src/**/*.entity.ts'],
-  migrations: ['src/migrations/*.ts'],
+  entities: [__dirname + '/../**/*.entity.{ts,js}'],
+  migrations: [__dirname + '/../migrations/*.{ts,js}'],
   synchronize: false,
+  ssl: process.env.DATABASE_URL?.includes('supabase') ? { rejectUnauthorized: false } : false,
 };
 
 export default new DataSource(dataSourceOptions);

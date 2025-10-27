@@ -101,17 +101,20 @@ Após executar, verifique se as tabelas foram criadas:
 ### 2.2 Instalar psql
 
 #### Windows
+
 ```powershell
 # Via PostgreSQL installer
 # https://www.postgresql.org/download/windows/
 ```
 
 #### MacOS
+
 ```bash
 brew install postgresql
 ```
 
 #### Linux
+
 ```bash
 sudo apt-get install postgresql-client
 ```
@@ -248,8 +251,8 @@ DATABASE_URL="..." npm run migrate
 SELECT * FROM typeorm_migrations;
 
 -- Ver todas as tabelas
-SELECT tablename 
-FROM pg_tables 
+SELECT tablename
+FROM pg_tables
 WHERE schemaname = 'public'
 ORDER BY tablename;
 
@@ -341,7 +344,7 @@ async function seed() {
 
     // Criar projeto padrão
     const projectRepo = dataSource.getRepository(Project);
-    
+
     const defaultProject = projectRepo.create({
       name: 'Default Project',
       apiKey: 'dev-project-key-12345',
@@ -442,4 +445,3 @@ DATABASE_URL=postgresql://postgres:[password]@db.[project-ref].supabase.co:5432/
 - [Supabase SQL Editor](https://supabase.com/docs/guides/database/tables)
 - [TypeORM Migrations](https://typeorm.io/migrations)
 - [PostgreSQL Documentation](https://www.postgresql.org/docs/)
-

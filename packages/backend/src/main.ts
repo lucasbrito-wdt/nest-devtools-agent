@@ -1,9 +1,28 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { DataSource } from 'typeorm';
 import { AppModule } from './app.module';
+import { dataSourceOptions } from './config/typeorm.config';
 
 async function bootstrap() {
+  // Executar migrations automaticamente em produção
+  const nodeEnv = process.env.NODE_ENV || 'development';
+  
+  if (nodeEnv === 'production') {
+    try {
+      console.log('🔄 Running database migrations...');
+      const dataSource = new DataSource(dataSourceOptions);
+      await dataSource.initialize();
+      await dataSource.runMigrations();
+      await dataSource.destroy();
+      console.log('✅ Migrations completed successfully');
+    } catch (error) {
+      console.error('⚠️  Migration warning (continuing anyway):', error.message);
+      // Continue mesmo se migration falhar (pode já estar atualizado)
+    }
+  }
+
   const app = await NestFactory.create(AppModule);
 
   const configService = app.get(ConfigService);

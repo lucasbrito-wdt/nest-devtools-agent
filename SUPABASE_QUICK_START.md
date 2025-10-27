@@ -67,4 +67,3 @@ Agora o backend está conectado ao Supabase.
 - Erro de conexão? Verifique `DATABASE_URL`
 - Tabelas não criadas? Execute migration novamente
 - Mais detalhes? Consulte docs/
-
