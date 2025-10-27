@@ -57,7 +57,7 @@ RUN bun install --production
 
 # Gera Prisma Client antes de iniciar
 WORKDIR /app/packages/backend
-RUN ../../node_modules/.bin/prisma generate
+RUN bunx prisma generate
 
 # Expõe a porta da aplicação
 EXPOSE 4000
