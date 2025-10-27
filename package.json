@@ -23,6 +23,11 @@
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
     "docker:logs": "docker-compose logs -f",
+    "docker:restart": "docker-compose restart",
+    "docker:rebuild": "docker-compose up -d --build",
+    "docker:stop": "docker-compose stop",
+    "docker:ps": "docker-compose ps",
+    "docker:clean": "docker-compose down -v",
     "typecheck": "bun run --filter '*' typecheck"
   },
   "devDependencies": {
