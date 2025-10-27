@@ -53,7 +53,7 @@ jobs:
         continue-on-error: true
 
       - name: 🚀 Deploy para Netlify
-        uses: nwtgck/actions-netlify@v2.1
+        uses: nwtgck/actions-netlify@v3.0
         with:
           publish-dir: './packages/frontend/dist'
           production-branch: main
