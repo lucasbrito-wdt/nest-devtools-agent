@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "description": "DevTools tipo Laravel Telescope para NestJS - rastreamento de requisições, exceções, logs e queries",
-  "author": "Lucas",
+  "author": "Lucas Brito <lucasbrito.wdt@gmail.com>",
   "license": "MIT",
   "workspaces": [
     "packages/*"

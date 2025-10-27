@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { DevtoolsModule } from 'nest-devtools-agent';
 import { IngestModule } from './modules/ingest/ingest.module';
 import { EventsModule } from './modules/events/events.module';
 import { HealthModule } from './modules/health/health.module';
@@ -28,6 +29,22 @@ import { PrismaModule } from './prisma/prisma.module';
           limit: config.get<number>('RATE_LIMIT') || 100,
         },
       ],
+    }),
+
+    // DevTools monitoring
+    DevtoolsModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        enabled: config.get('NODE_ENV') !== 'production',
+        backendUrl: config.get('DEVTOOLS_BACKEND_URL', 'http://localhost:4000'),
+        apiKey: config.get('DEVTOOLS_API_KEY', 'dev-key'),
+        timeout: config.get('DEVTOOLS_TIMEOUT', 5000),
+        maxRetries: config.get('DEVTOOLS_MAX_RETRIES', 3),
+        enableBuffer: config.get('DEVTOOLS_ENABLE_BUFFER') === 'true',
+        captureHeaders: true,
+        captureBody: true,
+        captureResponse: false,
+      }),
     }),
 
     // Módulos de feature

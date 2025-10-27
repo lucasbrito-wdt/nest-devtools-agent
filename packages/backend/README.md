@@ -22,18 +22,29 @@ pnpm install
 
 ### 2. Configurar ambiente
 
-Copie `.env.example` para `.env`:
+Copie `.env.example` para `.env.local`:
 
 ```bash
-cp .env.example .env
+cp .env.example .env.local
 ```
 
-Edite `.env`:
+Edite `.env.local`:
 
 ```env
+# Configurações básicas
 DATABASE_URL=postgresql://user:pass@localhost:5432/nest_devtools
 DEVTOOLS_API_KEY=your-secret-key
+NODE_ENV=development
+PORT=4001
+
+# DevTools Agent (auto-monitoramento opcional)
+DEVTOOLS_BACKEND_URL=http://localhost:4001
+DEVTOOLS_TIMEOUT=5000
+DEVTOOLS_MAX_RETRIES=3
+DEVTOOLS_ENABLE_BUFFER=false
 ```
+
+**Nota:** O backend agora pode auto-monitorar suas próprias requisições usando o `nest-devtools-agent`. As variáveis `DEVTOOLS_*` são opcionais e apenas necessárias se você quiser que o próprio backend envie seus eventos para análise.
 
 ### 3. Subir banco de dados
 
@@ -69,12 +80,14 @@ Servidor rodando em: **http://localhost:4000**
 Ingere um novo evento.
 
 **Headers:**
+
 ```
 x-api-key: your-secret-key
 Content-Type: application/json
 ```
 
 **Body:**
+
 ```json
 {
   "type": "request",
@@ -89,6 +102,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -101,6 +115,7 @@ Content-Type: application/json
 Lista eventos com filtros.
 
 **Query params:**
+
 - `type` — `request`, `exception`, `log`, `query`, `job`
 - `route` — filtro por rota
 - `status` — status code
@@ -114,11 +129,13 @@ Lista eventos com filtros.
 - `sortOrder` — `ASC` ou `DESC` (default: `DESC`)
 
 **Exemplo:**
+
 ```
 GET /api/events?type=request&status=500&page=1&limit=20
 ```
 
 **Response:**
+
 ```json
 {
   "data": [...],
@@ -140,6 +157,7 @@ Busca evento específico por ID.
 Retorna estatísticas gerais.
 
 **Response:**
+
 ```json
 {
   "totalEvents": 1500,
@@ -208,16 +226,19 @@ RATE_LIMIT=100
 ### Migrações
 
 Gerar migração:
+
 ```bash
 pnpm migration:generate src/migrations/MigrationName
 ```
 
 Rodar migrações:
+
 ```bash
 pnpm migration:run
 ```
 
 Reverter última migração:
+
 ```bash
 pnpm migration:revert
 ```
@@ -257,6 +278,7 @@ O cleanup pode ser executado manualmente ou via cron job.
 ### Porta já em uso
 
 Altere a porta em `.env`:
+
 ```env
 PORT=4001
 ```
@@ -264,6 +286,7 @@ PORT=4001
 ### Erro de conexão com banco
 
 Verifique se Postgres está rodando e as credenciais estão corretas:
+
 ```bash
 docker-compose ps
 ```
@@ -275,4 +298,3 @@ Verifique CORS e firewall.
 ## Licença
 
 MIT
-
