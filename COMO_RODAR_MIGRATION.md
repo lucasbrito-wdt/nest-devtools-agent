@@ -5,6 +5,7 @@
 **As migrations rodam automaticamente!** 🎉
 
 Quando você faz deploy, o backend:
+
 1. Inicializa
 2. Executa migrations automaticamente
 3. Inicia a aplicação
@@ -53,13 +54,14 @@ psql "$DATABASE_URL" -f supabase/migrations/001_initial_schema.sql
 
 ```sql
 -- No Supabase SQL Editor
-SELECT tablename 
-FROM pg_tables 
+SELECT tablename
+FROM pg_tables
 WHERE schemaname = 'public'
 ORDER BY tablename;
 ```
 
 Deve retornar:
+
 ```
 events
 projects
@@ -69,7 +71,7 @@ users
 ### Verificar Índices
 
 ```sql
-SELECT 
+SELECT
   tablename,
   indexname
 FROM pg_indexes
@@ -120,4 +122,3 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 - **Produção**: Migrations automáticas ✅
 - **Desenvolvimento**: Usar Dashboard ou Script ✅
-

@@ -1,13 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { IngestModule } from './modules/ingest/ingest.module';
 import { EventsModule } from './modules/events/events.module';
 import { HealthModule } from './modules/health/health.module';
 import { WebSocketModule } from './modules/websocket/websocket.module';
 import { GraphModule } from './modules/graph/graph.module';
-import { typeOrmConfig } from './config/typeorm.config';
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
   imports: [
@@ -18,10 +17,7 @@ import { typeOrmConfig } from './config/typeorm.config';
     }),
 
     // Database
-    TypeOrmModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: typeOrmConfig,
-    }),
+    PrismaModule,
 
     // Rate limiting
     ThrottlerModule.forRootAsync({
@@ -39,7 +35,7 @@ import { typeOrmConfig } from './config/typeorm.config';
     EventsModule,
     HealthModule,
     WebSocketModule,
-    GraphModule, // ← Novo módulo de grafo
+    GraphModule,
   ],
 })
 export class AppModule {}

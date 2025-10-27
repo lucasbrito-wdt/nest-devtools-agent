@@ -1,19 +1,15 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between } from 'typeorm';
-import { Event } from './entities/event.entity';
+import { PrismaService } from '../../prisma/prisma.service';
 import { QueryEventsDto } from './dto/query-events.dto';
 import { PaginatedEventsResponse, DevToolsStats, EventType } from '@nest-devtools/shared';
+import { Prisma } from '@prisma/client';
 
 /**
- * Serviço de consulta e gerenciamento de eventos
+ * Serviço de consulta e gerenciamento de eventos (Prisma)
  */
 @Injectable()
 export class EventsService {
-  constructor(
-    @InjectRepository(Event)
-    private readonly eventRepository: Repository<Event>,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   /**
    * Lista eventos com filtros e paginação
@@ -23,53 +19,54 @@ export class EventsService {
     const limit = query.limit || 50;
     const skip = (page - 1) * limit;
 
-    // Monta query builder
-    const qb = this.eventRepository.createQueryBuilder('event');
+    // Build where clause
+    const where: Prisma.EventWhereInput = {};
 
     // Filtros
     if (query.type) {
       const types = Array.isArray(query.type) ? query.type : [query.type];
-      qb.andWhere('event.type IN (:...types)', { types });
+      where.type = { in: types };
     }
 
     if (query.route) {
-      qb.andWhere('event.route ILIKE :route', { route: `%${query.route}%` });
+      where.route = { contains: query.route, mode: 'insensitive' };
     }
 
     if (query.status) {
-      qb.andWhere('event.status = :status', { status: query.status });
+      where.status = query.status;
     }
 
-    if (query.method) {
-      qb.andWhere("event.payload->>'method' = :method", { method: query.method });
+    if (query.method && typeof query.method === 'string') {
+      where.payload = {
+        path: ['method'],
+        equals: query.method,
+      };
     }
 
     if (query.fromDate && query.toDate) {
-      qb.andWhere('event.createdAt BETWEEN :fromDate AND :toDate', {
-        fromDate: new Date(query.fromDate),
-        toDate: new Date(query.toDate),
-      });
+      where.createdAt = {
+        gte: new Date(query.fromDate),
+        lte: new Date(query.toDate),
+      };
     }
 
-    if (query.search) {
-      qb.andWhere('(event.route ILIKE :search OR event.payload::text ILIKE :search)', {
-        search: `%${query.search}%`,
-      });
+    if (query.projectId) {
+      where.projectId = query.projectId;
     }
 
-    // Ordenação
-    const sortBy = query.sortBy || 'createdAt';
-    const sortOrder = query.sortOrder || 'DESC';
-    qb.orderBy(`event.${sortBy}`, sortOrder);
-
-    // Paginação
-    qb.skip(skip).take(limit);
-
-    // Executa
-    const [data, total] = await qb.getManyAndCount();
+    // Execute queries
+    const [data, total] = await Promise.all([
+      this.prisma.event.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: query.order === 'ASC' ? 'asc' : 'desc' },
+      }),
+      this.prisma.event.count({ where }),
+    ]);
 
     return {
-      data: data as any, // TypeORM Event entity to PersistedEvent interface
+      data: data as any, // Type assertion para compatibilidade
       meta: {
         total,
         page,
@@ -82,108 +79,120 @@ export class EventsService {
   /**
    * Busca evento por ID
    */
-  async findOne(id: string): Promise<Event> {
-    const event = await this.eventRepository.findOne({ where: { id } });
+  async findOne(id: string) {
+    const event = await this.prisma.event.findUnique({
+      where: { id },
+    });
 
     if (!event) {
-      throw new NotFoundException(`Event ${id} not found`);
+      throw new NotFoundException(`Event with ID ${id} not found`);
     }
 
     return event;
   }
 
   /**
-   * Retorna estatísticas gerais
+   * Cria um novo evento
    */
-  async getStats(): Promise<DevToolsStats> {
-    const totalEvents = await this.eventRepository.count();
-
-    const totalRequests = await this.eventRepository.count({
-      where: { type: EventType.REQUEST },
+  async create(data: {
+    type: string;
+    payload: any;
+    route?: string;
+    status?: number;
+    projectId?: string;
+  }) {
+    return this.prisma.event.create({
+      data: {
+        type: data.type,
+        payload: data.payload,
+        route: data.route,
+        status: data.status,
+        projectId: data.projectId,
+      },
     });
+  }
 
-    const totalExceptions = await this.eventRepository.count({
-      where: { type: EventType.EXCEPTION },
-    });
+  /**
+   * Remove eventos antigos baseado na retenção do projeto
+   */
+  async cleanupOldEvents(projectId: string, retentionDays: number): Promise<number> {
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - retentionDays);
 
-    const totalLogs = await this.eventRepository.count({
-      where: { type: EventType.LOG },
-    });
-
-    // Última 24h
-    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
-
-    const last24HoursRequests = await this.eventRepository.count({
+    const result = await this.prisma.event.deleteMany({
       where: {
-        type: EventType.REQUEST,
-        createdAt: Between(yesterday, new Date()),
+        projectId,
+        createdAt: { lt: cutoffDate },
       },
     });
 
-    const last24HoursExceptions = await this.eventRepository.count({
-      where: {
-        type: EventType.EXCEPTION,
-        createdAt: Between(yesterday, new Date()),
-      },
-    });
+    return result.count;
+  }
 
-    // Calcula average response time
-    const avgResult = await this.eventRepository
-      .createQueryBuilder('event')
-      .select("AVG((event.payload->>'duration')::int)", 'avg')
-      .where('event.type = :type', { type: EventType.REQUEST })
-      .andWhere("event.payload->>'duration' IS NOT NULL")
-      .getRawOne();
+  /**
+   * Gera estatísticas agregadas
+   */
+  async getStats(projectId?: string): Promise<DevToolsStats> {
+    const where = projectId ? { projectId } : {};
 
-    const averageResponseTime = avgResult?.avg ? parseFloat(avgResult.avg) : 0;
-
-    // Success rate (status < 400)
-    const successfulRequests = await this.eventRepository.count({
-      where: {
-        type: EventType.REQUEST,
-        status: Between(200, 399),
-      },
-    });
-
-    const successRate = totalRequests > 0 ? (successfulRequests / totalRequests) * 100 : 0;
+    const [totalEvents, totalRequests, totalErrors, avgResponseTime] = await Promise.all([
+      this.prisma.event.count({ where }),
+      this.prisma.event.count({
+        where: { ...where, type: EventType.HTTP_REQUEST },
+      }),
+      this.prisma.event.count({
+        where: {
+          ...where,
+          OR: [
+            { type: EventType.ERROR },
+            { type: EventType.HTTP_REQUEST, status: { gte: 400 } },
+          ],
+        },
+      }),
+      this.getAverageResponseTime(projectId),
+    ]);
 
     return {
       totalEvents,
       totalRequests,
-      totalExceptions,
-      totalLogs,
-      averageResponseTime,
-      successRate,
-      last24Hours: {
-        requests: last24HoursRequests,
-        exceptions: last24HoursExceptions,
-      },
+      totalErrors,
+      avgResponseTime,
+      errorRate: totalRequests > 0 ? (totalErrors / totalRequests) * 100 : 0,
     };
   }
 
   /**
-   * Remove eventos antigos (cleanup job)
+   * Calcula tempo médio de resposta
    */
-  async cleanup(retentionDays: number): Promise<number> {
-    const cutoffDate = new Date(Date.now() - retentionDays * 24 * 60 * 60 * 1000);
+  private async getAverageResponseTime(projectId?: string): Promise<number> {
+    const events = await this.prisma.event.findMany({
+      where: {
+        projectId,
+        type: EventType.HTTP_REQUEST,
+      },
+      select: { payload: true },
+    });
 
-    const result = await this.eventRepository
-      .createQueryBuilder()
-      .delete()
-      .where('createdAt < :cutoffDate', { cutoffDate })
-      .execute();
+    if (events.length === 0) return 0;
 
-    return result.affected || 0;
+    const durations = events
+      .map((e: any) => e.payload?.duration)
+      .filter((d: number) => typeof d === 'number');
+
+    if (durations.length === 0) return 0;
+
+    const sum = durations.reduce((a: number, b: number) => a + b, 0);
+    return sum / durations.length;
   }
 
   /**
    * Exporta eventos para CSV
    */
   async exportToCsv(query: QueryEventsDto): Promise<string> {
-    const { data } = await this.findAll({ ...query, limit: 10000 }); // Max 10k
+    const { data } = await this.findAll({ ...query, limit: 10000 });
 
     const headers = ['ID', 'Type', 'Route', 'Status', 'Duration', 'Created At'];
-    const rows = data.map((event) => {
+    const rows = data.map((event: any) => {
       const payload = event.payload as any;
       return [
         event.id,
@@ -191,97 +200,28 @@ export class EventsService {
         event.route || '',
         event.status || '',
         payload?.duration || '',
-        event.createdAt.toISOString(),
+        new Date(event.createdAt).toISOString(),
       ];
     });
 
-    const csv = [
-      headers.join(','),
-      ...rows.map((row) => row.map((cell) => `"${cell}"`).join(',')),
-    ].join('\n');
-
-    return csv;
+    return [headers, ...rows].map((row) => row.join(',')).join('\n');
   }
 
   /**
-   * Exporta eventos para JSON
+   * Busca eventos similares
    */
-  async exportToJson(query: QueryEventsDto): Promise<any> {
-    const { data } = await this.findAll({ ...query, limit: 10000 });
-    return data;
-  }
+  async findSimilar(eventId: string, limit: number = 10) {
+    const baseEvent = await this.findOne(eventId);
 
-  /**
-   * Retorna métricas de performance ao longo do tempo
-   */
-  async getPerformanceMetrics(hours: number = 24) {
-    const since = new Date(Date.now() - hours * 60 * 60 * 1000);
-
-    const result = await this.eventRepository
-      .createQueryBuilder('event')
-      .select("DATE_TRUNC('hour', event.createdAt)", 'hour')
-      .addSelect('COUNT(*)', 'count')
-      .addSelect("AVG((event.payload->>'duration')::int)", 'avgDuration')
-      .addSelect("MAX((event.payload->>'duration')::int)", 'maxDuration')
-      .addSelect("MIN((event.payload->>'duration')::int)", 'minDuration')
-      .where('event.type = :type', { type: EventType.REQUEST })
-      .andWhere('event.createdAt > :since', { since })
-      .groupBy("DATE_TRUNC('hour', event.createdAt)")
-      .orderBy("DATE_TRUNC('hour', event.createdAt)", 'ASC')
-      .getRawMany();
-
-    return result.map((row) => ({
-      timestamp: row.hour,
-      count: parseInt(row.count),
-      avgDuration: parseFloat(row.avgduration) || 0,
-      maxDuration: parseInt(row.maxduration) || 0,
-      minDuration: parseInt(row.minduration) || 0,
-    }));
-  }
-
-  /**
-   * Retorna distribuição de status codes
-   */
-  async getStatusDistribution() {
-    const result = await this.eventRepository
-      .createQueryBuilder('event')
-      .select('event.status', 'status')
-      .addSelect('COUNT(*)', 'count')
-      .where('event.type = :type', { type: EventType.REQUEST })
-      .andWhere('event.status IS NOT NULL')
-      .groupBy('event.status')
-      .orderBy('count', 'DESC')
-      .getRawMany();
-
-    return result.map((row) => ({
-      status: row.status,
-      count: parseInt(row.count),
-    }));
-  }
-
-  /**
-   * Retorna rotas mais lentas
-   */
-  async getSlowestRoutes(limit: number = 10) {
-    const result = await this.eventRepository
-      .createQueryBuilder('event')
-      .select('event.route', 'route')
-      .addSelect('COUNT(*)', 'count')
-      .addSelect("AVG((event.payload->>'duration')::int)", 'avgDuration')
-      .addSelect("MAX((event.payload->>'duration')::int)", 'maxDuration')
-      .where('event.type = :type', { type: EventType.REQUEST })
-      .andWhere('event.route IS NOT NULL')
-      .andWhere("event.payload->>'duration' IS NOT NULL")
-      .groupBy('event.route')
-      .orderBy('avgDuration', 'DESC')
-      .limit(limit)
-      .getRawMany();
-
-    return result.map((row) => ({
-      route: row.route,
-      count: parseInt(row.count),
-      avgDuration: parseFloat(row.avgduration),
-      maxDuration: parseInt(row.maxduration),
-    }));
+    return this.prisma.event.findMany({
+      where: {
+        type: baseEvent.type,
+        route: baseEvent.route,
+        id: { not: eventId },
+      },
+      take: limit,
+      orderBy: { createdAt: 'desc' },
+    });
   }
 }
+
