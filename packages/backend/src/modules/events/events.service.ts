@@ -142,7 +142,7 @@ export class EventsService {
     return {
       totalEvents,
       totalRequests,
-      avgResponseTime,
+      averageResponseTime: avgResponseTime,
       errorRate: 0,
     };
   }
@@ -212,7 +212,7 @@ export class EventsService {
     });
 
     const distribution: Record<string, number> = {};
-    events.forEach((e) => {
+    events.forEach((e: any) => {
       const status = e.status?.toString() || 'unknown';
       distribution[status] = (distribution[status] || 0) + 1;
     });
