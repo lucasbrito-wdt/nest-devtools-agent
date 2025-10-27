@@ -19,10 +19,16 @@ export class DevtoolsService {
     @Inject(DEVTOOLS_CONFIG)
     config?: DevToolsAgentConfig,
   ) {
+    this.logger.log('🔍 DevtoolsService - Construtor chamado');
+    this.logger.log(`  └─ Config recebido: ${config ? 'SIM' : 'NÃO'}`);
+
     if (!config) {
       this.logger.warn(
         'Nenhuma configuração do DevtoolsModule foi encontrada. Verifique se você chamou DevtoolsModule.forRoot() ou DevtoolsModule.forRootAsync(). O módulo será desabilitado automaticamente.',
       );
+    } else {
+      this.logger.verbose('Config recebido no construtor:');
+      this.logger.verbose(config);
     }
 
     this.config = config ?? this.getDisabledConfig();
@@ -84,6 +90,8 @@ export class DevtoolsService {
    * Envia um evento para o backend DevTools
    */
   async sendEvent<T extends EventMeta>(event: DevToolsEvent<T>): Promise<void> {
+    this.logger.verbose('Configuração do DevTools:', this.config);
+
     if (!this.config.enabled) {
       this.logger.verbose('⏸️  DevTools desabilitado - evento ignorado');
       return;
@@ -229,5 +237,13 @@ export class DevtoolsService {
       size: this.buffer.length,
       maxSize: this.config.maxBufferSize || 100,
     };
+  }
+
+  /**
+   * Retorna a configuração atual do DevTools
+   * Útil para interceptors e filters acessarem a config
+   */
+  getConfig(): DevToolsAgentConfig {
+    return this.config;
   }
 }

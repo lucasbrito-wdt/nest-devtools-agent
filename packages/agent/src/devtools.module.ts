@@ -102,17 +102,21 @@ export class DevtoolsModule {
     providers.push(
       {
         provide: APP_INTERCEPTOR,
-        useFactory: (service: DevtoolsService, config: DevToolsAgentConfig) => {
-          return new DevtoolsRequestInterceptor(service, config);
+        useFactory: (service: DevtoolsService) => {
+          this.logger.debug('🔧 Criando APP_INTERCEPTOR via factory (forRoot)');
+          this.logger.debug(`  └─ DevtoolsService: ${service ? 'PRESENTE' : 'AUSENTE'}`);
+          return new DevtoolsRequestInterceptor(service);
         },
-        inject: [DevtoolsService, DEVTOOLS_CONFIG],
+        inject: [DevtoolsService],
       },
       {
         provide: APP_FILTER,
-        useFactory: (service: DevtoolsService, config: DevToolsAgentConfig) => {
-          return new DevtoolsExceptionFilter(service, config);
+        useFactory: (service: DevtoolsService) => {
+          this.logger.debug('🔧 Criando APP_FILTER via factory (forRoot)');
+          this.logger.debug(`  └─ DevtoolsService: ${service ? 'PRESENTE' : 'AUSENTE'}`);
+          return new DevtoolsExceptionFilter(service);
         },
-        inject: [DevtoolsService, DEVTOOLS_CONFIG],
+        inject: [DevtoolsService],
       },
     );
 
@@ -128,17 +132,46 @@ export class DevtoolsModule {
       {
         provide: DEVTOOLS_CONFIG,
         useFactory: async (...args: any[]) => {
+          this.logger.log('🔍 [DEVTOOLS_CONFIG] Executando useFactory assíncrona');
+          this.logger.log(`  ├─ Args recebidos: ${args.length}`);
+          this.logger.log(`  └─ Inject configurado: ${JSON.stringify(options.inject || [])}`);
+
           const config = await options.useFactory(...args);
+
           if (!config) {
+            this.logger.error('❌ [DEVTOOLS_CONFIG] Factory retornou undefined/null!');
             throw new Error(
               '[DevtoolsModule] useFactory must resolve a valid configuration object',
             );
           }
+
+          this.logger.log('✅ [DEVTOOLS_CONFIG] Configuração resolvida:');
+          this.logger.log(`  ├─ Enabled: ${config.enabled}`);
+          this.logger.log(`  ├─ Backend URL: ${config.backendUrl}`);
+          this.logger.log(`  ├─ API Key: ${config.apiKey ? '***' : 'não definido'}`);
+          this.logger.log(`  └─ Timeout: ${config.timeout || 5000}ms`);
+
           return config;
         },
         inject: options.inject || [],
       },
-      DevtoolsService,
+      {
+        provide: DevtoolsService,
+        useFactory: (config: DevToolsAgentConfig) => {
+          this.logger.debug('🔍 Criando DevtoolsService via useFactory');
+          this.logger.debug(`  └─ Config: ${config ? 'PRESENTE' : 'AUSENTE'}`);
+          if (config) {
+            this.logger.debug(`  └─ Config.enabled: ${config.enabled}`);
+            this.logger.debug(`  └─ Config.backendUrl: ${config.backendUrl}`);
+          } else {
+            this.logger.error(
+              '❌ Config é UNDEFINED! A configuração não foi resolvida corretamente.',
+            );
+          }
+          return new DevtoolsService(config);
+        },
+        inject: [DEVTOOLS_CONFIG],
+      },
     ];
 
     const isEnabled = options.enabled ?? true;
@@ -150,20 +183,29 @@ export class DevtoolsModule {
       return providers;
     }
 
+    this.logger.log('✅ Registrando interceptors e filters via forRootAsync');
+
     providers.push(
       {
         provide: APP_INTERCEPTOR,
-        useFactory: (service: DevtoolsService, config: DevToolsAgentConfig) => {
-          return new DevtoolsRequestInterceptor(service, config);
+        useFactory: (service: DevtoolsService) => {
+          this.logger.debug('🔧 Criando APP_INTERCEPTOR via factory (forRootAsync)');
+          this.logger.debug(`  └─ DevtoolsService: ${service ? 'PRESENTE' : 'AUSENTE'}`);
+          const config = service.getConfig();
+          this.logger.debug(`  └─ Config enabled: ${config?.enabled}`);
+          this.logger.debug(`  └─ Config backendUrl: ${config?.backendUrl}`);
+          return new DevtoolsRequestInterceptor(service);
         },
-        inject: [DevtoolsService, DEVTOOLS_CONFIG],
+        inject: [DevtoolsService],
       },
       {
         provide: APP_FILTER,
-        useFactory: (service: DevtoolsService, config: DevToolsAgentConfig) => {
-          return new DevtoolsExceptionFilter(service, config);
+        useFactory: (service: DevtoolsService) => {
+          this.logger.debug('🔧 Criando APP_FILTER via factory (forRootAsync)');
+          this.logger.debug(`  └─ DevtoolsService: ${service ? 'PRESENTE' : 'AUSENTE'}`);
+          return new DevtoolsExceptionFilter(service);
         },
-        inject: [DevtoolsService, DEVTOOLS_CONFIG],
+        inject: [DevtoolsService],
       },
     );
 

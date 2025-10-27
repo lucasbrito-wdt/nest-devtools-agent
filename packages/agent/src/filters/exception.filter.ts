@@ -1,16 +1,7 @@
-import {
-  ExceptionFilter,
-  Catch,
-  ArgumentsHost,
-  HttpException,
-  Inject,
-  Optional,
-  Logger,
-} from '@nestjs/common';
+import { ExceptionFilter, Catch, ArgumentsHost, HttpException, Logger } from '@nestjs/common';
 import { Request } from 'express';
-import { DevToolsAgentConfig, EventType, ExceptionEventMeta } from '../shared/types';
+import { EventType, ExceptionEventMeta } from '../shared/types';
 import { DevtoolsService } from '../devtools.service';
-import { DEVTOOLS_CONFIG } from '../devtools.module';
 
 /**
  * Filter global que captura todas as exceções não tratadas
@@ -19,13 +10,11 @@ import { DEVTOOLS_CONFIG } from '../devtools.module';
 export class DevtoolsExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(DevtoolsExceptionFilter.name);
 
-  constructor(
-    private readonly devtoolsService: DevtoolsService,
-    @Optional()
-    @Inject(DEVTOOLS_CONFIG)
-    private readonly config?: DevToolsAgentConfig,
-  ) {
+  constructor(private readonly devtoolsService: DevtoolsService) {
     this.logger.log('🚨 DevtoolsExceptionFilter registrado');
+    this.logger.debug(
+      `  └─ Config acessível via service: ${this.devtoolsService.getConfig() ? 'SIM' : 'NÃO'}`,
+    );
   }
 
   catch(exception: any, host: ArgumentsHost): void {

@@ -1,18 +1,9 @@
-import {
-  Injectable,
-  NestInterceptor,
-  ExecutionContext,
-  CallHandler,
-  Inject,
-  Optional,
-  Logger,
-} from '@nestjs/common';
+import { Injectable, NestInterceptor, ExecutionContext, CallHandler, Logger } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { Request, Response } from 'express';
-import { DevToolsAgentConfig, EventType, RequestEventMeta } from '../shared/types';
+import { EventType, RequestEventMeta } from '../shared/types';
 import { DevtoolsService } from '../devtools.service';
-import { DEVTOOLS_CONFIG } from '../devtools.module';
 import { truncatePayload } from '../utils/sanitizer';
 
 /**
@@ -22,13 +13,11 @@ import { truncatePayload } from '../utils/sanitizer';
 export class DevtoolsRequestInterceptor implements NestInterceptor {
   private readonly logger = new Logger(DevtoolsRequestInterceptor.name);
 
-  constructor(
-    private readonly devtoolsService: DevtoolsService,
-    @Optional()
-    @Inject(DEVTOOLS_CONFIG)
-    private readonly config?: DevToolsAgentConfig,
-  ) {
+  constructor(private readonly devtoolsService: DevtoolsService) {
     this.logger.log('🎯 DevtoolsRequestInterceptor registrado');
+    this.logger.debug(
+      `  └─ Config acessível via service: ${this.devtoolsService.getConfig() ? 'SIM' : 'NÃO'}`,
+    );
   }
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
@@ -55,8 +44,10 @@ export class DevtoolsRequestInterceptor implements NestInterceptor {
       userAgent: request.get('user-agent'),
     };
 
+    const config = this.devtoolsService.getConfig();
+
     // Captura headers se configurado
-    if (this.config?.captureHeaders !== false) {
+    if (config?.captureHeaders !== false) {
       meta.headers = request.headers as Record<string, string | string[]>;
     }
 
@@ -71,8 +62,8 @@ export class DevtoolsRequestInterceptor implements NestInterceptor {
     }
 
     // Captura body se configurado
-    if (this.config?.captureBody !== false && request.body) {
-      const maxBodySize = this.config?.maxBodySize || 10240; // 10KB default
+    if (config?.captureBody !== false && request.body) {
+      const maxBodySize = config?.maxBodySize || 10240; // 10KB default
       meta.body = truncatePayload(request.body, maxBodySize);
     }
 
@@ -115,9 +106,11 @@ export class DevtoolsRequestInterceptor implements NestInterceptor {
       `${statusEmoji} Capturado: ${meta.method} ${meta.url} - ${statusCode} (${duration}ms)`,
     );
 
+    const config = this.devtoolsService.getConfig();
+
     // Captura response se configurado
-    if (this.config?.captureResponse && responseData) {
-      const maxBodySize = this.config?.maxBodySize || 10240;
+    if (config?.captureResponse && responseData) {
+      const maxBodySize = config?.maxBodySize || 10240;
       completeMeta.response = truncatePayload(responseData, maxBodySize);
       this.logger.verbose(
         `  └─ Response capturado (${JSON.stringify(completeMeta.response).length} bytes)`,
