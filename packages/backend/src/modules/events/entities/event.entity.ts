@@ -14,7 +14,7 @@ export class Event {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ name: 'project_id', nullable: true })
+  @Column({ name: 'project_id', type: 'uuid', nullable: true })
   projectId?: string;
 
   @Column({
