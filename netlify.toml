@@ -1,9 +1,8 @@
 # Netlify configuration for Frontend deployment
 
 [build]
-  base = "."
-  command = "cd /opt/build/repo && bun install && cd packages/shared && bun run build && cd ../frontend && bun run build"
-  publish = "/opt/build/repo/packages/frontend/dist"
+  command = "bash ../../../scripts/netlify-build.sh || bash ../../scripts/netlify-build.sh || bash ../scripts/netlify-build.sh || bash scripts/netlify-build.sh"
+  publish = "packages/frontend/dist"
 
 [build.environment]
   NODE_VERSION = "20"
