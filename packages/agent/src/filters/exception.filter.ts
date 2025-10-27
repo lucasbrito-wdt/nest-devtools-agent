@@ -1,4 +1,4 @@
-import { ExceptionFilter, Catch, ArgumentsHost, HttpException, Inject } from '@nestjs/common';
+import { ExceptionFilter, Catch, ArgumentsHost, HttpException, Inject, Optional } from '@nestjs/common';
 import { Request } from 'express';
 import { DevToolsAgentConfig, EventType, ExceptionEventMeta } from '../shared/types';
 import { DevtoolsService } from '../devtools.service';
@@ -11,8 +11,9 @@ import { DEVTOOLS_CONFIG } from '../devtools.module';
 export class DevtoolsExceptionFilter implements ExceptionFilter {
   constructor(
     private readonly devtoolsService: DevtoolsService,
+    @Optional()
     @Inject(DEVTOOLS_CONFIG)
-    private readonly config: DevToolsAgentConfig,
+    private readonly config?: DevToolsAgentConfig,
   ) {}
 
   catch(exception: any, host: ArgumentsHost): void {

@@ -1,4 +1,4 @@
-import { Injectable, NestInterceptor, ExecutionContext, CallHandler, Inject } from '@nestjs/common';
+import { Injectable, NestInterceptor, ExecutionContext, CallHandler, Inject, Optional } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { Request, Response } from 'express';
@@ -14,8 +14,9 @@ import { truncatePayload } from '../utils/sanitizer';
 export class DevtoolsRequestInterceptor implements NestInterceptor {
   constructor(
     private readonly devtoolsService: DevtoolsService,
+    @Optional()
     @Inject(DEVTOOLS_CONFIG)
-    private readonly config: DevToolsAgentConfig,
+    private readonly config?: DevToolsAgentConfig,
   ) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
@@ -41,7 +42,7 @@ export class DevtoolsRequestInterceptor implements NestInterceptor {
     };
 
     // Captura headers se configurado
-    if (this.config.captureHeaders !== false) {
+    if (this.config?.captureHeaders !== false) {
       meta.headers = request.headers as Record<string, string | string[]>;
     }
 
@@ -56,8 +57,8 @@ export class DevtoolsRequestInterceptor implements NestInterceptor {
     }
 
     // Captura body se configurado
-    if (this.config.captureBody !== false && request.body) {
-      const maxBodySize = this.config.maxBodySize || 10240; // 10KB default
+    if (this.config?.captureBody !== false && request.body) {
+      const maxBodySize = this.config?.maxBodySize || 10240; // 10KB default
       meta.body = truncatePayload(request.body, maxBodySize);
     }
 
@@ -94,8 +95,8 @@ export class DevtoolsRequestInterceptor implements NestInterceptor {
     };
 
     // Captura response se configurado
-    if (this.config.captureResponse && responseData) {
-      const maxBodySize = this.config.maxBodySize || 10240;
+    if (this.config?.captureResponse && responseData) {
+      const maxBodySize = this.config?.maxBodySize || 10240;
       completeMeta.response = truncatePayload(responseData, maxBodySize);
     }
 

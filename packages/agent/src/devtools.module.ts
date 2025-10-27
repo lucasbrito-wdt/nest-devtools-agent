@@ -102,11 +102,17 @@ export class DevtoolsModule {
     providers.push(
       {
         provide: APP_INTERCEPTOR,
-        useClass: DevtoolsRequestInterceptor,
+        useFactory: (service: DevtoolsService, config: DevToolsAgentConfig) => {
+          return new DevtoolsRequestInterceptor(service, config);
+        },
+        inject: [DevtoolsService, DEVTOOLS_CONFIG],
       },
       {
         provide: APP_FILTER,
-        useClass: DevtoolsExceptionFilter,
+        useFactory: (service: DevtoolsService, config: DevToolsAgentConfig) => {
+          return new DevtoolsExceptionFilter(service, config);
+        },
+        inject: [DevtoolsService, DEVTOOLS_CONFIG],
       },
     );
 
@@ -147,11 +153,17 @@ export class DevtoolsModule {
     providers.push(
       {
         provide: APP_INTERCEPTOR,
-        useClass: DevtoolsRequestInterceptor,
+        useFactory: (service: DevtoolsService, config: DevToolsAgentConfig) => {
+          return new DevtoolsRequestInterceptor(service, config);
+        },
+        inject: [DevtoolsService, DEVTOOLS_CONFIG],
       },
       {
         provide: APP_FILTER,
-        useClass: DevtoolsExceptionFilter,
+        useFactory: (service: DevtoolsService, config: DevToolsAgentConfig) => {
+          return new DevtoolsExceptionFilter(service, config);
+        },
+        inject: [DevtoolsService, DEVTOOLS_CONFIG],
       },
     );
 

@@ -9,15 +9,17 @@
 ## 📋 Problemas Identificados
 
 ### 1. Configuração Ausente no Backend
+
 O `AppModule` do backend não estava importando o `DevtoolsModule.forRoot()` ou `.forRootAsync()`, causando:
 
 ```
-[Nest] 227 - ERROR [ExceptionHandler] UndefinedDependencyException [Error]: 
-Nest can't resolve dependencies of the DevtoolsRequestInterceptor (DevtoolsService, ?). 
+[Nest] 227 - ERROR [ExceptionHandler] UndefinedDependencyException [Error]:
+Nest can't resolve dependencies of the DevtoolsRequestInterceptor (DevtoolsService, ?).
 Please make sure that the argument dependency at index [1] is available in the DevtoolsModule context.
 ```
 
 ### 2. Incompatibilidade de Versões
+
 O pacote `nest-devtools-agent@0.1.7` só aceitava NestJS 10, mas o projeto estava usando NestJS 11.
 
 ---
@@ -27,6 +29,7 @@ O pacote `nest-devtools-agent@0.1.7` só aceitava NestJS 10, mas o projeto estav
 ### 1. Atualização do AppModule (`packages/backend/src/app.module.ts`)
 
 **Adicionado:**
+
 ```typescript
 import { DevtoolsModule } from 'nest-devtools-agent';
 
@@ -52,6 +55,7 @@ DevtoolsModule.forRootAsync({
 **Versão:** `0.1.7` → `0.1.8`
 
 **PeerDependencies atualizadas:**
+
 ```json
 {
   "@nestjs/common": "^10.0.0 || ^11.0.0",
@@ -60,6 +64,7 @@ DevtoolsModule.forRootAsync({
 ```
 
 **DevDependencies atualizadas:**
+
 ```json
 {
   "@nestjs/common": "^11.1.0",
@@ -70,6 +75,7 @@ DevtoolsModule.forRootAsync({
 ### 3. Atualização do Backend (`packages/backend/package.json`)
 
 **Dependencies atualizadas para NestJS 11:**
+
 ```json
 {
   "@nestjs/common": "^11.1.0",
@@ -82,6 +88,7 @@ DevtoolsModule.forRootAsync({
 ```
 
 **DevDependencies atualizadas:**
+
 ```json
 {
   "@nestjs/cli": "^11.0.0",
@@ -93,7 +100,9 @@ DevtoolsModule.forRootAsync({
 ### 4. Documentação Atualizada
 
 #### `env.example`
+
 Adicionadas variáveis de ambiente:
+
 ```env
 # DevTools Agent Configuration (para apps que importam nest-devtools-agent)
 DEVTOOLS_BACKEND_URL=http://localhost:4001
@@ -103,9 +112,11 @@ DEVTOOLS_ENABLE_BUFFER=false
 ```
 
 #### `packages/backend/README.md`
+
 Adicionada seção explicando configuração do DevTools Agent para auto-monitoramento opcional.
 
 #### `packages/agent/CHANGELOG.md`
+
 Adicionada entrada para versão 0.1.8 documentando suporte para NestJS 11.
 
 ---
@@ -144,7 +155,7 @@ pnpm run dev
 ✅ DevtoolsModule inicializa corretamente  
 ✅ Suporte para NestJS 10 e 11  
 ✅ Auto-monitoramento opcional ativado  
-✅ Todas as dependências resolvidas  
+✅ Todas as dependências resolvidas
 
 ---
 
@@ -170,4 +181,3 @@ pnpm run dev
 ---
 
 **Problema resolvido com sucesso! 🎉**
-
