@@ -1,7 +1,7 @@
 # Netlify configuration for Frontend deployment
 
 [build]
-  command = "bash ../../../scripts/netlify-build.sh || bash ../../scripts/netlify-build.sh || bash ../scripts/netlify-build.sh || bash scripts/netlify-build.sh"
+  command = "cd ../.. && bash scripts/netlify-build.sh"
   publish = "packages/frontend/dist"
 
 [build.environment]
