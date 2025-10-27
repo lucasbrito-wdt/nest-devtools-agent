@@ -18,8 +18,8 @@ export const typeOrmConfig = (configService: ConfigService): TypeOrmModuleOption
 export const dataSourceOptions: DataSourceOptions = {
   type: 'postgres',
   url: process.env.DATABASE_URL || 'postgresql://devtools:devtools@localhost:5432/nest_devtools',
-  entities: [__dirname + '/../**/*.entity.{ts,js}'],
-  migrations: [__dirname + '/../migrations/*.{ts,js}'],
+  entities: [Event, User, Project],
+  migrations: ['dist/src/migrations/*.js'],
   synchronize: false,
   ssl: process.env.DATABASE_URL?.includes('supabase') ? { rejectUnauthorized: false } : false,
 };
