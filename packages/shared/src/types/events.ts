@@ -49,6 +49,8 @@ export interface ExceptionEventMeta extends BaseEventMeta {
   method?: string;
   url?: string;
   route?: string;
+  hostname?: string;
+  ip?: string;
   userId?: string;
   context?: Record<string, any>;
 }
