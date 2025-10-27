@@ -3,14 +3,27 @@ import { IconWorld, IconAlertTriangle, IconFileText, IconClock } from '@tabler/i
 import { eventsApi } from '@/lib/api';
 
 export default function Dashboard() {
-  const { data: stats, isLoading } = useQuery({
+  const {
+    data: stats,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ['stats'],
     queryFn: eventsApi.stats,
     refetchInterval: 5000, // Atualiza a cada 5s
+    retry: false, // Não tentar novamente se der erro
   });
 
   if (isLoading) {
     return <div className="text-center text-gray-500 dark:text-gray-400">Carregando...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="text-center text-red-500 dark:text-red-400">
+        Erro ao carregar estatísticas. Verifique se o backend está rodando.
+      </div>
+    );
   }
 
   const statCards = [
@@ -59,9 +72,7 @@ export default function Dashboard() {
           <div key={card.label} className="card">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                  {card.label}
-                </p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{card.label}</p>
                 <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-white">
                   {card.value}
                 </p>
@@ -84,28 +95,26 @@ export default function Dashboard() {
             <div className="flex justify-between">
               <span className="text-gray-600 dark:text-gray-400">Requests</span>
               <span className="font-medium text-gray-900 dark:text-white">
-                {stats?.last24Hours.requests || 0}
+                {stats?.last24Hours?.requests || 0}
               </span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600 dark:text-gray-400">Exceções</span>
               <span className="font-medium text-red-600 dark:text-red-400">
-                {stats?.last24Hours.exceptions || 0}
+                {stats?.last24Hours?.exceptions || 0}
               </span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600 dark:text-gray-400">Taxa de Sucesso</span>
               <span className="font-medium text-green-600 dark:text-green-400">
-                {stats?.successRate.toFixed(1)}%
+                {stats?.successRate?.toFixed(1) || '0.0'}%
               </span>
             </div>
           </div>
         </div>
 
         <div className="card">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Performance
-          </h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Performance</h2>
           <div className="space-y-3">
             <div className="flex justify-between">
               <span className="text-gray-600 dark:text-gray-400">Tempo Médio</span>
@@ -125,4 +134,3 @@ export default function Dashboard() {
     </div>
   );
 }
-
