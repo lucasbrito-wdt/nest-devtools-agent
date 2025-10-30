@@ -44,10 +44,8 @@ export class DevtoolsRequestInterceptor implements NestInterceptor {
       userAgent: request.get('user-agent'),
     };
 
-    const config = this.devtoolsService.getConfig();
-
     // Captura headers se configurado
-    if (config?.captureHeaders !== false) {
+    if (this.devtoolsService.shouldCaptureHeaders()) {
       meta.headers = request.headers as Record<string, string | string[]>;
     }
 
@@ -62,13 +60,13 @@ export class DevtoolsRequestInterceptor implements NestInterceptor {
     }
 
     // Captura body se configurado
-    if (config?.captureBody !== false && request.body) {
-      const maxBodySize = config?.maxBodySize || 10240; // 10KB default
+    if (this.devtoolsService.shouldCaptureBody() && request.body) {
+      const maxBodySize = this.devtoolsService.getMaxBodySize();
       meta.body = truncatePayload(request.body, maxBodySize);
     }
 
     // Captura dados de sessão se configurado
-    if (config?.captureSession && (request as any).session) {
+    if (this.devtoolsService.shouldCaptureSession() && (request as any).session) {
       const session = (request as any).session;
       meta.sessionId = session.id || session.sessionID;
       meta.userId = session.userId || session.user?.id;
@@ -76,7 +74,7 @@ export class DevtoolsRequestInterceptor implements NestInterceptor {
       // Captura dados da sessão (sanitizados)
       if (session) {
         const { cookie, ...sessionData } = session;
-        meta.sessionData = truncatePayload(sessionData, config?.maxBodySize || 10240);
+        meta.sessionData = truncatePayload(sessionData, this.devtoolsService.getMaxBodySize());
       }
     }
 
@@ -119,11 +117,9 @@ export class DevtoolsRequestInterceptor implements NestInterceptor {
       `${statusEmoji} Capturado: ${meta.method} ${meta.url} - ${statusCode} (${duration}ms)`,
     );
 
-    const config = this.devtoolsService.getConfig();
-
     // Captura response se configurado
-    if (config?.captureResponse && responseData) {
-      const maxBodySize = config?.maxBodySize || 10240;
+    if (this.devtoolsService.shouldCaptureResponse() && responseData) {
+      const maxBodySize = this.devtoolsService.getMaxBodySize();
       completeMeta.response = truncatePayload(responseData, maxBodySize);
       this.logger.verbose(
         `  └─ Response capturado (${JSON.stringify(completeMeta.response).length} bytes)`,
@@ -131,7 +127,7 @@ export class DevtoolsRequestInterceptor implements NestInterceptor {
     }
 
     // Captura response headers se configurado
-    if (config?.captureResponseHeaders) {
+    if (this.devtoolsService.shouldCaptureResponseHeaders()) {
       const responseHeaders: Record<string, string | string[]> = {};
       response.getHeaderNames().forEach((headerName) => {
         const headerValue = response.getHeader(headerName);

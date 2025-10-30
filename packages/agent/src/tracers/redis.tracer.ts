@@ -14,8 +14,7 @@ export class RedisTracer implements OnModuleInit {
   constructor(private readonly devtoolsService: DevtoolsService) {}
 
   onModuleInit() {
-    const config = this.devtoolsService.getConfig();
-    if (config?.captureRedis) {
+    if (this.devtoolsService.shouldCaptureRedis()) {
       this.logger.log('🔴 RedisTracer habilitado');
     } else {
       this.logger.debug('🔴 RedisTracer desabilitado');
@@ -26,8 +25,7 @@ export class RedisTracer implements OnModuleInit {
    * Intercepta cliente Redis (ioredis ou node-redis)
    */
   interceptRedisClient(redisClient: any): void {
-    const config = this.devtoolsService.getConfig();
-    if (!config?.captureRedis) return;
+    if (!this.devtoolsService.shouldCaptureRedis()) return;
 
     // Detecta tipo de cliente
     const isIoRedis =
@@ -107,12 +105,12 @@ export class RedisTracer implements OnModuleInit {
     result?: any,
     error?: any,
   ): void {
-    const config = this.devtoolsService.getConfig();
-    if (!config?.captureRedis) return;
+    if (!this.devtoolsService.shouldCaptureRedis()) return;
 
-    const maxBodySize = config.maxBodySize || 10240;
+    const maxBodySize = this.devtoolsService.getMaxBodySize();
     const key = args[0]?.toString();
     const value = args[1];
+    const redisConfig = this.devtoolsService.getRedisConfig();
 
     const meta: RedisEventMeta = {
       timestamp: Date.now(),
@@ -122,8 +120,8 @@ export class RedisTracer implements OnModuleInit {
       duration,
       hostname: require('os').hostname(),
       pid: process.pid,
-      environment: config.environment,
-      database: config.redisConfig?.db,
+      environment: this.devtoolsService.getEnvironment(),
+      database: redisConfig?.db,
     };
 
     // Captura valor para comandos SET/GET
@@ -161,8 +159,7 @@ export class RedisTracer implements OnModuleInit {
       args?: any[];
     },
   ): Promise<T> {
-    const config = this.devtoolsService.getConfig();
-    if (!config?.captureRedis) {
+    if (!this.devtoolsService.shouldCaptureRedis()) {
       return operationFn();
     }
 
@@ -178,6 +175,7 @@ export class RedisTracer implements OnModuleInit {
       throw err;
     } finally {
       const duration = Date.now() - startTime;
+      const redisConfig = this.devtoolsService.getRedisConfig();
 
       const meta: RedisEventMeta = {
         timestamp: startTime,
@@ -187,14 +185,14 @@ export class RedisTracer implements OnModuleInit {
         duration,
         hostname: require('os').hostname(),
         pid: process.pid,
-        environment: config.environment,
-        database: config.redisConfig?.db,
+        environment: this.devtoolsService.getEnvironment(),
+        database: redisConfig?.db,
       };
 
       if (error) {
         meta.error = error.message || 'Unknown error';
       } else if (result !== undefined) {
-        const maxBodySize = config.maxBodySize || 10240;
+        const maxBodySize = this.devtoolsService.getMaxBodySize();
         meta.result = truncatePayload(result, maxBodySize);
       }
 
@@ -209,8 +207,7 @@ export class RedisTracer implements OnModuleInit {
    * Wrapper para comandos Redis comuns
    */
   createTrackedRedisClient(redisClient: any): any {
-    const config = this.devtoolsService.getConfig();
-    if (!config?.captureRedis) {
+    if (!this.devtoolsService.shouldCaptureRedis()) {
       return redisClient;
     }
 

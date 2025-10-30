@@ -23,11 +23,14 @@ COPY packages/shared packages/shared
 COPY packages/backend packages/backend
 
 # Construir shared primeiro (dependência do backend)
+# Instalar dependências localmente no shared para garantir que typescript esteja disponível
 WORKDIR /app/packages/shared
+RUN bun install
 RUN bun run build
 
 # Gerar Prisma Client e build do backend
 WORKDIR /app/packages/backend
+RUN bun install
 RUN bunx prisma generate
 RUN bun run build
 
@@ -36,4 +39,4 @@ EXPOSE 4001
 
 # Comando para desenvolvimento com hot reload
 WORKDIR /app/packages/backend
-CMD ["bun", "dev"]
+CMD ["bun", "run", "dev"]

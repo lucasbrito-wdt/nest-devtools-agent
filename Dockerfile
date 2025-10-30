@@ -25,7 +25,9 @@ WORKDIR /app/packages/backend
 RUN bunx prisma generate
 
 # Build do pacote shared primeiro (dependência do backend)
+# Instalar dependências localmente no shared para garantir que typescript esteja disponível
 WORKDIR /app/packages/shared
+RUN bun install
 RUN bun run build
 
 # Instala @nestjs/cli na raiz temporariamente para build

@@ -38,9 +38,25 @@ async function bootstrap() {
 
   // CORS
   const corsOrigins = configService.get<string>('CORS_ORIGINS')?.split(',') || [];
+  const isDevelopment = nodeEnv === 'development';
+
   app.enableCors({
-    origin: corsOrigins,
+    origin: isDevelopment ? true : corsOrigins.length > 0 ? corsOrigins : true,
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-API-Key',
+      'x-api-key',
+      'Accept',
+      'Origin',
+      'Referer',
+    ],
+    exposedHeaders: ['Content-Length', 'Content-Type'],
+    maxAge: 86400, // 24 hours
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
   });
 
   // Prefix global

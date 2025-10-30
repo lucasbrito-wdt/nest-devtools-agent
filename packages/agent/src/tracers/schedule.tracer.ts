@@ -14,8 +14,7 @@ export class ScheduleTracer implements OnModuleInit {
   constructor(private readonly devtoolsService: DevtoolsService) {}
 
   onModuleInit() {
-    const config = this.devtoolsService.getConfig();
-    if (config?.captureSchedule) {
+    if (this.devtoolsService.shouldCaptureSchedule()) {
       this.logger.log('📅 ScheduleTracer habilitado');
     } else {
       this.logger.debug('📅 ScheduleTracer desabilitado');
@@ -26,8 +25,7 @@ export class ScheduleTracer implements OnModuleInit {
    * Registra início de um job agendado
    */
   trackJobStart(jobId: string, jobName: string, cronExpression?: string): void {
-    const config = this.devtoolsService.getConfig();
-    if (!config?.captureSchedule) return;
+    if (!this.devtoolsService.shouldCaptureSchedule()) return;
 
     const startTime = Date.now();
     this.trackedJobs.set(jobId, { startTime, jobName });
@@ -41,7 +39,7 @@ export class ScheduleTracer implements OnModuleInit {
       startedAt: startTime,
       hostname: require('os').hostname(),
       pid: process.pid,
-      environment: config.environment,
+      environment: this.devtoolsService.getEnvironment(),
     };
 
     this.logger.debug(`📅 Job iniciado: ${jobName} (${jobId})`);
@@ -56,8 +54,7 @@ export class ScheduleTracer implements OnModuleInit {
    * Registra conclusão de um job agendado
    */
   trackJobComplete(jobId: string, result?: any, nextRunAt?: number): void {
-    const config = this.devtoolsService.getConfig();
-    if (!config?.captureSchedule) return;
+    if (!this.devtoolsService.shouldCaptureSchedule()) return;
 
     const tracked = this.trackedJobs.get(jobId);
     if (!tracked) {
@@ -80,7 +77,7 @@ export class ScheduleTracer implements OnModuleInit {
       nextRunAt,
       hostname: require('os').hostname(),
       pid: process.pid,
-      environment: config.environment,
+      environment: this.devtoolsService.getEnvironment(),
     };
 
     this.logger.log(`✅ Job completado: ${tracked.jobName} (${duration}ms)`);
@@ -97,8 +94,7 @@ export class ScheduleTracer implements OnModuleInit {
    * Registra falha de um job agendado
    */
   trackJobFailure(jobId: string, error: Error): void {
-    const config = this.devtoolsService.getConfig();
-    if (!config?.captureSchedule) return;
+    if (!this.devtoolsService.shouldCaptureSchedule()) return;
 
     const tracked = this.trackedJobs.get(jobId);
     if (!tracked) {
@@ -120,7 +116,7 @@ export class ScheduleTracer implements OnModuleInit {
       error: error.message,
       hostname: require('os').hostname(),
       pid: process.pid,
-      environment: config.environment,
+      environment: this.devtoolsService.getEnvironment(),
     };
 
     this.logger.error(`❌ Job falhou: ${tracked.jobName} - ${error.message}`);
@@ -142,8 +138,7 @@ export class ScheduleTracer implements OnModuleInit {
     cronExpression?: string,
     nextRunAt?: number,
   ): void {
-    const config = this.devtoolsService.getConfig();
-    if (!config?.captureSchedule) return;
+    if (!this.devtoolsService.shouldCaptureSchedule()) return;
 
     const meta: ScheduleEventMeta = {
       timestamp: Date.now(),
@@ -154,7 +149,7 @@ export class ScheduleTracer implements OnModuleInit {
       nextRunAt,
       hostname: require('os').hostname(),
       pid: process.pid,
-      environment: config.environment,
+      environment: this.devtoolsService.getEnvironment(),
     };
 
     this.logger.debug(
@@ -171,8 +166,7 @@ export class ScheduleTracer implements OnModuleInit {
    * Registra cancelamento de um job
    */
   trackJobCancelled(jobId: string, jobName: string): void {
-    const config = this.devtoolsService.getConfig();
-    if (!config?.captureSchedule) return;
+    if (!this.devtoolsService.shouldCaptureSchedule()) return;
 
     const meta: ScheduleEventMeta = {
       timestamp: Date.now(),
@@ -181,7 +175,7 @@ export class ScheduleTracer implements OnModuleInit {
       status: 'cancelled',
       hostname: require('os').hostname(),
       pid: process.pid,
-      environment: config.environment,
+      environment: this.devtoolsService.getEnvironment(),
     };
 
     this.logger.debug(`🚫 Job cancelado: ${jobName}`);

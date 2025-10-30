@@ -14,8 +14,7 @@ export class SessionSubscriber implements OnModuleInit {
   constructor(private readonly devtoolsService: DevtoolsService) {}
 
   onModuleInit() {
-    const config = this.devtoolsService.getConfig();
-    if (config?.captureSession) {
+    if (this.devtoolsService.shouldCaptureSession()) {
       this.logger.log('🔐 SessionSubscriber habilitado');
     } else {
       this.logger.debug('🔐 SessionSubscriber desabilitado');
@@ -35,10 +34,9 @@ export class SessionSubscriber implements OnModuleInit {
       userAgent?: string;
     },
   ): void {
-    const config = this.devtoolsService.getConfig();
-    if (!config?.captureSession) return;
+    if (!this.devtoolsService.shouldCaptureSession()) return;
 
-    const maxBodySize = config.maxBodySize || 10240;
+    const maxBodySize = this.devtoolsService.getMaxBodySize();
 
     const meta: SessionEventMeta = {
       timestamp: Date.now(),
@@ -51,7 +49,7 @@ export class SessionSubscriber implements OnModuleInit {
       userAgent: options?.userAgent,
       hostname: require('os').hostname(),
       pid: process.pid,
-      environment: config.environment,
+      environment: this.devtoolsService.getEnvironment(),
     };
 
     this.logger.debug(
@@ -77,10 +75,9 @@ export class SessionSubscriber implements OnModuleInit {
       userAgent?: string;
     },
   ): void {
-    const config = this.devtoolsService.getConfig();
-    if (!config?.captureSession) return;
+    if (!this.devtoolsService.shouldCaptureSession()) return;
 
-    const maxBodySize = config.maxBodySize || 10240;
+    const maxBodySize = this.devtoolsService.getMaxBodySize();
 
     const meta: SessionEventMeta = {
       timestamp: Date.now(),
@@ -93,7 +90,7 @@ export class SessionSubscriber implements OnModuleInit {
       userAgent: options?.userAgent,
       hostname: require('os').hostname(),
       pid: process.pid,
-      environment: config.environment,
+      environment: this.devtoolsService.getEnvironment(),
     };
 
     this.logger.debug(`🔐 Sessão atualizada: ${sessionId}`);
@@ -115,8 +112,7 @@ export class SessionSubscriber implements OnModuleInit {
       userAgent?: string;
     },
   ): void {
-    const config = this.devtoolsService.getConfig();
-    if (!config?.captureSession) return;
+    if (!this.devtoolsService.shouldCaptureSession()) return;
 
     const meta: SessionEventMeta = {
       timestamp: Date.now(),
@@ -127,7 +123,7 @@ export class SessionSubscriber implements OnModuleInit {
       userAgent: options?.userAgent,
       hostname: require('os').hostname(),
       pid: process.pid,
-      environment: config.environment,
+      environment: this.devtoolsService.getEnvironment(),
     };
 
     this.logger.debug(`🔐 Sessão destruída: ${sessionId}`);
@@ -149,8 +145,7 @@ export class SessionSubscriber implements OnModuleInit {
       userAgent?: string;
     },
   ): void {
-    const config = this.devtoolsService.getConfig();
-    if (!config?.captureSession) return;
+    if (!this.devtoolsService.shouldCaptureSession()) return;
 
     const meta: SessionEventMeta = {
       timestamp: Date.now(),
@@ -161,7 +156,7 @@ export class SessionSubscriber implements OnModuleInit {
       userAgent: options?.userAgent,
       hostname: require('os').hostname(),
       pid: process.pid,
-      environment: config.environment,
+      environment: this.devtoolsService.getEnvironment(),
     };
 
     this.logger.verbose(`🔐 Sessão acessada: ${sessionId}`);
@@ -176,8 +171,7 @@ export class SessionSubscriber implements OnModuleInit {
    * Intercepta express-session store
    */
   interceptSessionStore(store: any): void {
-    const config = this.devtoolsService.getConfig();
-    if (!config?.captureSession) return;
+    if (!this.devtoolsService.shouldCaptureSession()) return;
 
     // Wrap set method (criação/atualização)
     const originalSet = store.set?.bind(store);
@@ -231,10 +225,9 @@ export class SessionSubscriber implements OnModuleInit {
    */
   createSessionMiddleware() {
     const self = this;
-    const config = this.devtoolsService.getConfig();
 
     return function sessionTrackerMiddleware(req: any, res: any, next: any) {
-      if (!config?.captureSession || !req.session) {
+      if (!self.devtoolsService.shouldCaptureSession() || !req.session) {
         return next();
       }
 

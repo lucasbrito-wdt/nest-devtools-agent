@@ -122,6 +122,7 @@ export interface HttpClientEventMeta extends BaseEventMeta {
   method: string;
   url: string;
   baseURL?: string;
+  clientType?: 'axios' | 'fetch' | 'httpService' | 'unknown';
   headers?: Record<string, string | string[]>;
   requestBody?: any;
   responseStatus?: number;

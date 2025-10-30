@@ -137,12 +137,14 @@ DevTools Dashboard
 ## 🎨 Componentes Comuns
 
 ### Layout
+
 - **Sidebar**: Navegação principal com ícones
 - **Header**: Título da página e ações
 - **Dark Mode**: Toggle de tema claro/escuro
 - **Responsive**: Adaptável a mobile/tablet/desktop
 
 ### Tabelas
+
 - **Paginação**: Navegação entre páginas
 - **Filtros**: Busca e filtros específicos
 - **Ordenação**: Clique nos headers para ordenar
@@ -150,12 +152,14 @@ DevTools Dashboard
 - **Click**: Navegação para detalhes
 
 ### Cards de Estatísticas
+
 - **Valor Principal**: Número grande e destacado
 - **Label**: Descrição da métrica
 - **Ícone**: Representação visual
 - **Cores**: Código de cores por tipo
 
 ### Badges de Status
+
 - **Verde**: Sucesso (2xx, completed)
 - **Azul**: Informação (3xx, running)
 - **Amarelo**: Aviso (4xx, scheduled)
@@ -178,19 +182,19 @@ import { SessionSubscriber } from '@nestjs-devtools/agent';
     DevtoolsModule.forRoot({
       backendUrl: 'http://localhost:4000',
       apiKey: 'dev-key',
-      
+
       // Capturas de Request
       captureHeaders: true,
       captureBody: true,
       captureResponse: true,
       captureResponseHeaders: true,
       captureSession: true,
-      
+
       // Capturas de outros tipos
       captureSchedule: true,
       captureHttpClient: true,
       captureRedis: true,
-      
+
       // Configuração Redis
       redisConfig: {
         host: 'localhost',
@@ -229,12 +233,14 @@ packages/frontend/src/
 ## 🚀 Funcionalidades por Página
 
 ### Dashboard (Home)
+
 - [ ] Cards com totais de cada tipo de evento
 - [ ] Gráficos de tendências
 - [ ] Últimos eventos
 - [ ] Alertas e notificações
 
 ### Requests ✅
+
 - [x] Listagem completa com paginação
 - [x] Filtros por status e busca
 - [x] Colunas: Método, Rota, Status, Duração, IP, Session
@@ -242,34 +248,40 @@ packages/frontend/src/
 - [x] Sub-tabs: Headers, Payload, Data, Session
 
 ### Exceptions ✅
+
 - [x] Listagem de exceções
 - [x] Stack trace
 - [x] Contexto da requisição
 
 ### Logs ✅
+
 - [x] Listagem de logs
 - [x] Filtros por nível
 - [x] Busca por mensagem
 
 ### Schedule ✅
+
 - [x] Dashboard com estatísticas
 - [x] Listagem de jobs
 - [x] Filtros por status
 - [x] Detalhes do job com resultado/erro
 
 ### HTTP Client ✅
+
 - [x] Dashboard com estatísticas
 - [x] Listagem de requisições externas
 - [x] Filtros por método e status
 - [x] Detalhes com request/response
 
 ### Redis ✅
+
 - [x] Dashboard com estatísticas
 - [x] Listagem de operações
 - [x] Filtros por comando
 - [x] Detalhes da operação
 
 ### Sessions ✅
+
 - [x] Dashboard com estatísticas
 - [x] Listagem de sessões
 - [x] Filtros por ação
@@ -278,6 +290,7 @@ packages/frontend/src/
 ## 🎯 Próximas Melhorias Sugeridas
 
 ### Funcionalidades
+
 - [ ] WebSocket real-time updates
 - [ ] Exportação de dados (JSON, CSV)
 - [ ] Comparação de eventos (diff)
@@ -286,12 +299,14 @@ packages/frontend/src/
 - [ ] Dashboards customizáveis
 
 ### Performance
+
 - [ ] Virtual scrolling para tabelas grandes
 - [ ] Lazy loading de detalhes
 - [ ] Cache de queries
 - [ ] Otimização de re-renders
 
 ### UX
+
 - [ ] Atalhos de teclado
 - [ ] Temas customizáveis
 - [ ] Preferências do usuário
@@ -299,6 +314,7 @@ packages/frontend/src/
 - [ ] Tooltips informativos
 
 ### Analytics
+
 - [ ] Gráficos de performance
 - [ ] Análise de tendências
 - [ ] Relatórios automáticos
@@ -306,15 +322,15 @@ packages/frontend/src/
 
 ## 📊 Métricas Capturadas
 
-| Tipo | Métricas |
-|------|----------|
-| **Requests** | Total, por status, duração média, mais lentos, por rota |
-| **Exceptions** | Total, por tipo, mais frequentes, stack traces |
-| **Logs** | Total, por nível, por contexto |
-| **Schedule** | Total jobs, completados, falhados, duração média, mais lentos |
+| Tipo            | Métricas                                                      |
+| --------------- | ------------------------------------------------------------- |
+| **Requests**    | Total, por status, duração média, mais lentos, por rota       |
+| **Exceptions**  | Total, por tipo, mais frequentes, stack traces                |
+| **Logs**        | Total, por nível, por contexto                                |
+| **Schedule**    | Total jobs, completados, falhados, duração média, mais lentos |
 | **HTTP Client** | Total requisições, sucesso/falha, duração média, por endpoint |
-| **Redis** | Total operações, sucesso/falha, duração média, por comando |
-| **Sessions** | Total, ativas, criadas, destruídas, por usuário |
+| **Redis**       | Total operações, sucesso/falha, duração média, por comando    |
+| **Sessions**    | Total, ativas, criadas, destruídas, por usuário               |
 
 ## 🔐 Segurança
 
@@ -326,6 +342,7 @@ packages/frontend/src/
 ## 📱 Responsividade
 
 Todas as páginas são responsivas e funcionam em:
+
 - 📱 Mobile (< 768px)
 - 📱 Tablet (768px - 1024px)
 - 💻 Desktop (> 1024px)
@@ -333,25 +350,26 @@ Todas as páginas são responsivas e funcionam em:
 ## 🌙 Dark Mode
 
 Todas as páginas suportam dark mode com:
+
 - Cores otimizadas para baixa luminosidade
 - Transições suaves
 - Persistência da preferência
 
 ## ✅ Status de Implementação
 
-| Componente | Status | Observações |
-|------------|--------|-------------|
-| Dashboard | 🟡 Parcial | Precisa de gráficos |
-| Requests | ✅ Completo | Com tabs e session |
-| Exceptions | ✅ Completo | - |
-| Logs | ✅ Completo | - |
-| Schedule | ✅ Completo | Com estatísticas |
-| HTTP Client | ✅ Completo | Com estatísticas |
-| Redis | ✅ Completo | Com estatísticas |
-| Sessions | ✅ Completo | Com estatísticas |
-| Layout | ✅ Completo | Com novos menus |
-| Dark Mode | ✅ Completo | - |
-| Responsive | ✅ Completo | - |
+| Componente  | Status      | Observações         |
+| ----------- | ----------- | ------------------- |
+| Dashboard   | 🟡 Parcial  | Precisa de gráficos |
+| Requests    | ✅ Completo | Com tabs e session  |
+| Exceptions  | ✅ Completo | -                   |
+| Logs        | ✅ Completo | -                   |
+| Schedule    | ✅ Completo | Com estatísticas    |
+| HTTP Client | ✅ Completo | Com estatísticas    |
+| Redis       | ✅ Completo | Com estatísticas    |
+| Sessions    | ✅ Completo | Com estatísticas    |
+| Layout      | ✅ Completo | Com novos menus     |
+| Dark Mode   | ✅ Completo | -                   |
+| Responsive  | ✅ Completo | -                   |
 
 ## 🎉 Conclusão
 
@@ -367,4 +385,3 @@ O dashboard está completo e funcional, oferecendo uma visão abrangente de todo
 ✅ **Visualização de sessions** integrada
 
 O sistema está pronto para uso em produção! 🚀
-

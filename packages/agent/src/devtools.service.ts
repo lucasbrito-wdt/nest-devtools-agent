@@ -37,12 +37,23 @@ export class DevtoolsService {
     this.logger.log(`🔧 DevtoolsService inicializado`);
     this.logger.log(`  ├─ Enabled: ${this.config.enabled}`);
     this.logger.log(`  ├─ Backend URL: ${this.config.backendUrl || 'N/A'}`);
+    this.logger.log(`  ├─ Environment: ${this.config.environment || 'N/A'}`);
     this.logger.log(`  ├─ Timeout: ${this.config.timeout || 5000}ms`);
     this.logger.log(`  ├─ Max Retries: ${this.config.maxRetries || 3}`);
+    this.logger.log(`  ├─ Max Body Size: ${this.config.maxBodySize || 10240} bytes`);
     this.logger.log(`  ├─ Buffer Enabled: ${this.config.enableBuffer || false}`);
+    this.logger.log(`  ├─ Max Buffer Size: ${this.config.maxBufferSize || 100}`);
     this.logger.log(`  ├─ Capture Headers: ${this.config.captureHeaders !== false}`);
     this.logger.log(`  ├─ Capture Body: ${this.config.captureBody !== false}`);
-    this.logger.log(`  └─ Capture Response: ${this.config.captureResponse || false}`);
+    this.logger.log(`  ├─ Capture Response: ${this.config.captureResponse || false}`);
+    this.logger.log(
+      `  ├─ Capture Response Headers: ${this.config.captureResponseHeaders || false}`,
+    );
+    this.logger.log(`  ├─ Capture Session: ${this.config.captureSession || false}`);
+    this.logger.log(`  ├─ Capture Schedule: ${this.config.captureSchedule || false}`);
+    this.logger.log(`  ├─ Capture HTTP Client: ${this.config.captureHttpClient || false}`);
+    this.logger.log(`  ├─ Capture Redis: ${this.config.captureRedis || false}`);
+    this.logger.log(`  └─ Sensitive Fields: ${this.config.sensitiveFields?.length || 9} fields`);
 
     // Configura cliente HTTP com timeout e retry
     this.httpClient = axios.create({
@@ -77,12 +88,21 @@ export class DevtoolsService {
       enabled: false,
       backendUrl: '',
       apiKey: '',
+      maxBodySize: 0,
+      timeout: 0,
       maxRetries: 0,
-      enableBuffer: false,
+      enableBuffer: true,
       maxBufferSize: 0,
-      captureHeaders: false,
-      captureBody: false,
-      captureResponse: false,
+      sensitiveFields: [],
+      captureHeaders: true,
+      captureBody: true,
+      captureResponse: true,
+      captureResponseHeaders: true,
+      captureSession: true,
+      captureSchedule: true,
+      captureHttpClient: true,
+      captureRedis: true,
+      environment: 'disabled',
     };
   }
 
@@ -90,8 +110,6 @@ export class DevtoolsService {
    * Envia um evento para o backend DevTools
    */
   async sendEvent<T extends EventMeta>(event: DevToolsEvent<T>): Promise<void> {
-    this.logger.verbose('Configuração do DevTools:', this.config);
-
     if (!this.config.enabled) {
       this.logger.verbose('⏸️  DevTools desabilitado - evento ignorado');
       return;
@@ -156,17 +174,7 @@ export class DevtoolsService {
    * Sanitiza evento antes de enviar
    */
   private sanitizeEvent<T extends EventMeta>(event: DevToolsEvent<T>): DevToolsEvent<T> {
-    const sensitiveFields = this.config.sensitiveFields || [
-      'password',
-      'token',
-      'secret',
-      'authorization',
-      'cookie',
-      'api_key',
-      'apiKey',
-      'access_token',
-      'refresh_token',
-    ];
+    const sensitiveFields = this.getSensitiveFields();
 
     return {
       ...event,
@@ -245,5 +253,101 @@ export class DevtoolsService {
    */
   getConfig(): DevToolsAgentConfig {
     return this.config;
+  }
+
+  /**
+   * Verifica se a captura de headers está habilitada
+   */
+  shouldCaptureHeaders(): boolean {
+    return this.config.enabled && this.config.captureHeaders !== false;
+  }
+
+  /**
+   * Verifica se a captura de body está habilitada
+   */
+  shouldCaptureBody(): boolean {
+    return this.config.enabled && this.config.captureBody !== false;
+  }
+
+  /**
+   * Verifica se a captura de response está habilitada
+   */
+  shouldCaptureResponse(): boolean {
+    return this.config.enabled && (this.config.captureResponse || false);
+  }
+
+  /**
+   * Verifica se a captura de response headers está habilitada
+   */
+  shouldCaptureResponseHeaders(): boolean {
+    return this.config.enabled && (this.config.captureResponseHeaders || false);
+  }
+
+  /**
+   * Verifica se a captura de sessão está habilitada
+   */
+  shouldCaptureSession(): boolean {
+    return this.config.enabled && (this.config.captureSession || false);
+  }
+
+  /**
+   * Verifica se a captura de schedule está habilitada
+   */
+  shouldCaptureSchedule(): boolean {
+    return this.config.enabled && (this.config.captureSchedule || false);
+  }
+
+  /**
+   * Verifica se a captura de HTTP Client está habilitada
+   */
+  shouldCaptureHttpClient(): boolean {
+    return this.config.enabled && (this.config.captureHttpClient || false);
+  }
+
+  /**
+   * Verifica se a captura de Redis está habilitada
+   */
+  shouldCaptureRedis(): boolean {
+    return this.config.enabled && (this.config.captureRedis || false);
+  }
+
+  /**
+   * Retorna o tamanho máximo do body a ser capturado
+   */
+  getMaxBodySize(): number {
+    return this.config.maxBodySize || 10240; // 10KB default
+  }
+
+  /**
+   * Retorna a lista de campos sensíveis
+   */
+  getSensitiveFields(): string[] {
+    return (
+      this.config.sensitiveFields || [
+        'password',
+        'token',
+        'secret',
+        'authorization',
+        'cookie',
+        'api_key',
+        'apiKey',
+        'access_token',
+        'refresh_token',
+      ]
+    );
+  }
+
+  /**
+   * Retorna o ambiente configurado
+   */
+  getEnvironment(): string {
+    return this.config.environment || 'development';
+  }
+
+  /**
+   * Retorna a configuração do Redis (se disponível)
+   */
+  getRedisConfig() {
+    return this.config.redisConfig;
   }
 }

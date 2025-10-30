@@ -7,12 +7,14 @@ Este guia mostra como testar todas as funcionalidades implementadas no dashboard
 ## 📋 Pré-requisitos
 
 1. **Backend rodando**:
+
 ```bash
 cd packages/backend
 npm run dev
 ```
 
 2. **Frontend rodando**:
+
 ```bash
 cd packages/frontend
 npm run dev
@@ -25,6 +27,7 @@ npm run dev
 ### 1. ✅ Página de Requests
 
 #### Teste 1: Visualização da Listagem
+
 1. Acesse `http://localhost:5173/requests`
 2. Verifique se a tabela exibe:
    - ✅ Coluna "Método" (GET, POST, etc.)
@@ -36,17 +39,20 @@ npm run dev
    - ✅ Coluna "Quando" com timestamp relativo
 
 #### Teste 2: Filtros
+
 1. Digite algo no campo de busca
 2. Verifique se a tabela filtra em tempo real
 3. Selecione um status code no dropdown
 4. Verifique se apenas requests com aquele status aparecem
 
 #### Teste 3: Paginação
+
 1. Se houver mais de 20 requests, verifique os botões de paginação
 2. Clique em "Próxima" e verifique se carrega a próxima página
 3. Clique em "Anterior" e verifique se volta
 
 #### Teste 4: Detalhes do Request
+
 1. Clique em qualquer linha da tabela
 2. Verifique se abre a página de detalhes
 3. Verifique a seção "Overview":
@@ -57,6 +63,7 @@ npm run dev
    - ✅ Query Params (se houver)
 
 #### Teste 5: Tab Request
+
 1. Clique na tab "Request" (deve estar ativa por padrão)
 2. Clique em "Headers"
    - ✅ Deve exibir JSON formatado dos headers
@@ -65,6 +72,7 @@ npm run dev
    - ✅ Se não houver payload, deve exibir "No payload available"
 
 #### Teste 6: Tab Response
+
 1. Clique na tab "Response"
 2. Clique em "Data"
    - ✅ Deve exibir JSON formatado da resposta
@@ -79,6 +87,7 @@ npm run dev
 ### 2. ✅ Página de Schedule
 
 #### Teste 1: Dashboard de Estatísticas
+
 1. Acesse `http://localhost:5173/schedule`
 2. Verifique os cards de estatísticas:
    - ✅ Total de Jobs
@@ -89,6 +98,7 @@ npm run dev
    - ✅ Duração Média (ms)
 
 #### Teste 2: Listagem de Jobs
+
 1. Verifique a tabela de jobs:
    - ✅ Job Name
    - ✅ Status com badge colorido
@@ -98,12 +108,14 @@ npm run dev
    - ✅ Timestamp
 
 #### Teste 3: Filtros
+
 1. Selecione um status no dropdown
 2. Verifique se filtra corretamente
 3. Digite no campo de busca
 4. Verifique se busca por job name
 
 #### Teste 4: Detalhes do Job
+
 1. Clique em um job na tabela
 2. Verifique o modal com:
    - ✅ Job Name
@@ -118,6 +130,7 @@ npm run dev
 ### 3. ✅ Página de HTTP Client
 
 #### Teste 1: Dashboard de Estatísticas
+
 1. Acesse `http://localhost:5173/http-client`
 2. Verifique os cards:
    - ✅ Total de Requisições
@@ -127,6 +140,7 @@ npm run dev
    - ✅ Duração Média (ms)
 
 #### Teste 2: Listagem de Requisições
+
 1. Verifique a tabela:
    - ✅ Método (GET, POST, etc.)
    - ✅ URL
@@ -135,12 +149,14 @@ npm run dev
    - ✅ Timestamp
 
 #### Teste 3: Filtros
+
 1. Selecione um método no dropdown
 2. Verifique se filtra
 3. Selecione um status
 4. Verifique se filtra
 
 #### Teste 4: Detalhes da Requisição
+
 1. Clique em uma requisição
 2. Verifique o modal com:
    - ✅ Método e URL
@@ -155,6 +171,7 @@ npm run dev
 ### 4. ✅ Página de Redis
 
 #### Teste 1: Dashboard de Estatísticas
+
 1. Acesse `http://localhost:5173/redis`
 2. Verifique os cards:
    - ✅ Total de Operações
@@ -164,6 +181,7 @@ npm run dev
    - ✅ Duração Média (ms)
 
 #### Teste 2: Listagem de Operações
+
 1. Verifique a tabela:
    - ✅ Comando (GET, SET, DEL, etc.)
    - ✅ Chave
@@ -172,12 +190,14 @@ npm run dev
    - ✅ Timestamp
 
 #### Teste 3: Filtros
+
 1. Selecione um comando no dropdown
 2. Verifique se filtra
 3. Digite uma chave no campo de busca
 4. Verifique se busca
 
 #### Teste 4: Detalhes da Operação
+
 1. Clique em uma operação
 2. Verifique o modal com:
    - ✅ Comando
@@ -192,6 +212,7 @@ npm run dev
 ### 5. ✅ Página de Sessions
 
 #### Teste 1: Dashboard de Estatísticas
+
 1. Acesse `http://localhost:5173/sessions`
 2. Verifique os cards:
    - ✅ Total de Sessões
@@ -200,6 +221,7 @@ npm run dev
    - ✅ Destruídas
 
 #### Teste 2: Listagem de Sessões
+
 1. Verifique a tabela:
    - ✅ Session ID
    - ✅ User ID
@@ -208,12 +230,14 @@ npm run dev
    - ✅ Timestamp
 
 #### Teste 3: Filtros
+
 1. Selecione uma ação no dropdown
 2. Verifique se filtra
 3. Digite no campo de busca
 4. Verifique se busca por session ID ou user ID
 
 #### Teste 4: Detalhes da Sessão
+
 1. Clique em uma sessão
 2. Verifique o modal com:
    - ✅ Session ID
@@ -227,6 +251,7 @@ npm run dev
 ### 6. ✅ Navegação e Layout
 
 #### Teste 1: Menu Lateral
+
 1. Verifique se todos os itens estão visíveis:
    - ✅ Dashboard
    - ✅ Requests
@@ -238,17 +263,20 @@ npm run dev
    - ✅ Sessions
 
 #### Teste 2: Navegação
+
 1. Clique em cada item do menu
 2. Verifique se navega para a página correta
 3. Verifique se o item fica destacado
 
 #### Teste 3: Dark Mode
+
 1. Clique no botão de dark mode (ícone de lua/sol)
 2. Verifique se todas as cores mudam
 3. Navegue entre páginas
 4. Verifique se o tema persiste
 
 #### Teste 4: Responsividade
+
 1. Redimensione a janela do navegador
 2. Verifique se o layout se adapta
 3. Teste em mobile (< 768px)
@@ -345,6 +373,7 @@ VALUES (
 Use este checklist para garantir que tudo está funcionando:
 
 ### Requests
+
 - [ ] Listagem carrega
 - [ ] Colunas IP e Session aparecem
 - [ ] Filtros funcionam
@@ -355,6 +384,7 @@ Use este checklist para garantir que tudo está funcionando:
 - [ ] Sub-tab Session exibe dados
 
 ### Schedule
+
 - [ ] Dashboard carrega
 - [ ] Estatísticas aparecem
 - [ ] Listagem carrega
@@ -362,6 +392,7 @@ Use este checklist para garantir que tudo está funcionando:
 - [ ] Modal de detalhes abre
 
 ### HTTP Client
+
 - [ ] Dashboard carrega
 - [ ] Estatísticas aparecem
 - [ ] Listagem carrega
@@ -369,6 +400,7 @@ Use este checklist para garantir que tudo está funcionando:
 - [ ] Modal de detalhes abre
 
 ### Redis
+
 - [ ] Dashboard carrega
 - [ ] Estatísticas aparecem
 - [ ] Listagem carrega
@@ -376,6 +408,7 @@ Use este checklist para garantir que tudo está funcionando:
 - [ ] Modal de detalhes abre
 
 ### Sessions
+
 - [ ] Dashboard carrega
 - [ ] Estatísticas aparecem
 - [ ] Listagem carrega
@@ -383,6 +416,7 @@ Use este checklist para garantir que tudo está funcionando:
 - [ ] Modal de detalhes abre
 
 ### Geral
+
 - [ ] Menu lateral funciona
 - [ ] Navegação funciona
 - [ ] Dark mode funciona
@@ -392,21 +426,25 @@ Use este checklist para garantir que tudo está funcionando:
 ## 🐛 Problemas Comuns
 
 ### Erro: "Erro ao carregar requisições"
+
 - Verifique se o backend está rodando
 - Verifique a URL da API em `packages/frontend/src/lib/api.ts`
 - Verifique o console do navegador para mais detalhes
 
 ### Tabelas vazias
+
 - Verifique se há dados no banco de dados
 - Use as queries SQL acima para inserir dados de teste
 - Verifique se o agent está configurado corretamente
 
 ### Dark mode não funciona
+
 - Limpe o localStorage do navegador
 - Recarregue a página
 - Verifique se o Tailwind CSS está configurado corretamente
 
 ### Paginação não aparece
+
 - Normal se houver menos de 20 itens
 - Insira mais dados para testar a paginação
 
@@ -428,9 +466,9 @@ Após os testes, você deve ter:
 Se todos os testes passaram, parabéns! O dashboard está completo e funcional. 🚀
 
 Caso encontre algum problema, verifique:
+
 1. Logs do backend
 2. Console do navegador
 3. Network tab do DevTools
 4. Configuração do agent
 5. Dados no banco de dados
-

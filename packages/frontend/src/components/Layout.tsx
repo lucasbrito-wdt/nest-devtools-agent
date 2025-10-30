@@ -1,5 +1,5 @@
-import { ReactNode } from 'react';
-import { NavLink } from 'react-router-dom';
+import { ReactNode, useState } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
 import {
   IconDashboard,
   IconWorld,
@@ -11,8 +11,12 @@ import {
   IconApi,
   IconDatabase,
   IconUsers,
+  IconKeyboard,
 } from '@tabler/icons-react';
 import { useThemeStore } from '@/stores/theme.store';
+import { useKeyboardShortcuts, KeyboardShortcut } from '@/hooks/useKeyboardShortcuts';
+import { KeyboardShortcutsHelp } from './KeyboardShortcutsHelp';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 
 interface LayoutProps {
   children: ReactNode;
@@ -20,17 +24,43 @@ interface LayoutProps {
 
 export default function Layout({ children }: LayoutProps) {
   const { isDark, toggle } = useThemeStore();
+  const navigate = useNavigate();
+  const [showShortcuts, setShowShortcuts] = useState(false);
 
   const navItems = [
-    { path: '/', label: 'Dashboard', icon: IconDashboard },
-    { path: '/requests', label: 'Requests', icon: IconWorld },
-    { path: '/exceptions', label: 'Exceptions', icon: IconAlertTriangle },
-    { path: '/logs', label: 'Logs', icon: IconFileText },
-    { path: '/schedule', label: 'Schedule', icon: IconClock },
-    { path: '/http-client', label: 'HTTP Client', icon: IconApi },
-    { path: '/redis', label: 'Redis', icon: IconDatabase },
-    { path: '/sessions', label: 'Sessions', icon: IconUsers },
+    { path: '/', label: 'Dashboard', icon: IconDashboard, shortcut: 'g d' },
+    { path: '/requests', label: 'Requests', icon: IconWorld, shortcut: 'g r' },
+    { path: '/exceptions', label: 'Exceptions', icon: IconAlertTriangle, shortcut: 'g e' },
+    { path: '/logs', label: 'Logs', icon: IconFileText, shortcut: 'g l' },
+    { path: '/schedule', label: 'Schedule', icon: IconClock, shortcut: 'g s' },
+    { path: '/http-client', label: 'HTTP Client', icon: IconApi, shortcut: 'g h' },
+    { path: '/redis', label: 'Redis', icon: IconDatabase, shortcut: 'g i' },
+    { path: '/sessions', label: 'Sessions', icon: IconUsers, shortcut: 'g u' },
   ];
+
+  // Define keyboard shortcuts
+  const shortcuts: KeyboardShortcut[] = [
+    // Navigation shortcuts
+    { key: 'd', description: 'Navegar para Dashboard', action: () => navigate('/') },
+    { key: 'r', description: 'Navegar para Requests', action: () => navigate('/requests') },
+    { key: 'e', description: 'Navegar para Exceptions', action: () => navigate('/exceptions') },
+    { key: 'l', description: 'Navegar para Logs', action: () => navigate('/logs') },
+    { key: 's', description: 'Navegar para Schedule', action: () => navigate('/schedule') },
+    { key: 'h', description: 'Navegar para HTTP Client', action: () => navigate('/http-client') },
+    { key: 'i', description: 'Navegar para Redis', action: () => navigate('/redis') },
+    { key: 'u', description: 'Navegar para Sessions', action: () => navigate('/sessions') },
+
+    // Action shortcuts
+    { key: 't', description: 'Alternar tema (Dark/Light)', action: toggle },
+    {
+      key: '?',
+      shift: true,
+      description: 'Mostrar atalhos de teclado',
+      action: () => setShowShortcuts(true),
+    },
+  ];
+
+  useKeyboardShortcuts(shortcuts);
 
   return (
     <div className={isDark ? 'dark' : ''}>
@@ -64,7 +94,7 @@ export default function Layout({ children }: LayoutProps) {
             </nav>
 
             {/* Footer */}
-            <div className="border-t border-gray-200 dark:border-gray-700 p-4">
+            <div className="border-t border-gray-200 dark:border-gray-700 p-4 space-y-2">
               <button
                 onClick={toggle}
                 className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
@@ -72,6 +102,23 @@ export default function Layout({ children }: LayoutProps) {
                 {isDark ? <IconSun size={20} /> : <IconMoon size={20} />}
                 {isDark ? 'Light Mode' : 'Dark Mode'}
               </button>
+
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => setShowShortcuts(true)}
+                      className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                    >
+                      <IconKeyboard size={20} />
+                      Atalhos
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    Pressione <kbd className="font-mono">?</kbd> para ver todos os atalhos
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
           </div>
         </aside>
@@ -80,6 +127,13 @@ export default function Layout({ children }: LayoutProps) {
         <main className="ml-64 min-h-screen">
           <div className="p-8">{children}</div>
         </main>
+
+        {/* Keyboard Shortcuts Help Dialog */}
+        <KeyboardShortcutsHelp
+          open={showShortcuts}
+          onOpenChange={setShowShortcuts}
+          shortcuts={shortcuts}
+        />
       </div>
     </div>
   );

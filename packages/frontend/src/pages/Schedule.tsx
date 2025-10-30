@@ -1,5 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { IconClock } from '@tabler/icons-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { EmptyState } from '@/components/ui/empty-state';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 interface Schedule {
   id: string;
@@ -70,20 +85,22 @@ export default function Schedule() {
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusVariant = (
+    status: string,
+  ): 'success' | 'info' | 'warning' | 'destructive' | 'default' | 'secondary' => {
     switch (status) {
       case 'completed':
-        return 'bg-green-100 text-green-800';
+        return 'success';
       case 'failed':
-        return 'bg-red-100 text-red-800';
+        return 'destructive';
       case 'running':
-        return 'bg-blue-100 text-blue-800';
+        return 'info';
       case 'scheduled':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'warning';
       case 'cancelled':
-        return 'bg-gray-100 text-gray-800';
+        return 'secondary';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'default';
     }
   };
 
@@ -99,171 +116,178 @@ export default function Schedule() {
     return new Date(dateString).toLocaleString();
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-xl">Loading schedules...</div>
-      </div>
-    );
-  }
-
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">Schedule & Jobs</h1>
-        <p className="text-gray-600">Monitor scheduled tasks and cron jobs</p>
+    <div className="space-y-6 p-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold">Schedule & Jobs</h1>
+        <p className="mt-2 text-muted-foreground">Monitor scheduled tasks and cron jobs</p>
       </div>
 
       {/* Statistics Cards */}
-      {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-sm text-gray-600">Total Jobs</div>
-            <div className="text-2xl font-bold">{stats.totalJobs}</div>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-sm text-gray-600">Completed</div>
-            <div className="text-2xl font-bold text-green-600">{stats.completedJobs}</div>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-sm text-gray-600">Failed</div>
-            <div className="text-2xl font-bold text-red-600">{stats.failedJobs}</div>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-sm text-gray-600">Success Rate</div>
-            <div className="text-2xl font-bold text-blue-600">{stats.successRate.toFixed(1)}%</div>
-          </div>
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Skeleton className="h-24" />
+          <Skeleton className="h-24" />
+          <Skeleton className="h-24" />
+          <Skeleton className="h-24" />
         </div>
+      ) : (
+        stats && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardDescription>Total Jobs</CardDescription>
+                <CardTitle className="text-3xl">{stats.totalJobs}</CardTitle>
+              </CardHeader>
+            </Card>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardDescription>Completed</CardDescription>
+                <CardTitle className="text-3xl text-green-600">{stats.completedJobs}</CardTitle>
+              </CardHeader>
+            </Card>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardDescription>Failed</CardDescription>
+                <CardTitle className="text-3xl text-red-600">{stats.failedJobs}</CardTitle>
+              </CardHeader>
+            </Card>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardDescription>Success Rate</CardDescription>
+                <CardTitle className="text-3xl text-blue-600">
+                  {stats.successRate.toFixed(1)}%
+                </CardTitle>
+              </CardHeader>
+            </Card>
+          </div>
+        )
       )}
 
       {/* Filters */}
-      <div className="bg-white p-4 rounded-lg shadow mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Status</label>
-            <select
-              className="w-full border rounded px-3 py-2"
-              value={filter.status}
-              onChange={(e) => setFilter({ ...filter, status: e.target.value, page: 1 })}
-            >
-              <option value="">All Statuses</option>
-              <option value="scheduled">Scheduled</option>
-              <option value="running">Running</option>
-              <option value="completed">Completed</option>
-              <option value="failed">Failed</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
+      <Card>
+        <CardContent className="pt-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">Status</label>
+              <select
+                className="flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                value={filter.status}
+                onChange={(e) => setFilter({ ...filter, status: e.target.value, page: 1 })}
+              >
+                <option value="">All Statuses</option>
+                <option value="scheduled">Scheduled</option>
+                <option value="running">Running</option>
+                <option value="completed">Completed</option>
+                <option value="failed">Failed</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Job Name</label>
+              <Input
+                type="text"
+                placeholder="Filter by job name..."
+                value={filter.jobName}
+                onChange={(e) => setFilter({ ...filter, jobName: e.target.value, page: 1 })}
+              />
+            </div>
+            <div className="flex items-end">
+              <Button
+                variant="outline"
+                onClick={() => setFilter({ status: '', jobName: '', page: 1, limit: 50 })}
+              >
+                Clear Filters
+              </Button>
+            </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Job Name</label>
-            <input
-              type="text"
-              className="w-full border rounded px-3 py-2"
-              placeholder="Filter by job name..."
-              value={filter.jobName}
-              onChange={(e) => setFilter({ ...filter, jobName: e.target.value, page: 1 })}
-            />
-          </div>
-          <div className="flex items-end">
-            <button
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-              onClick={() => setFilter({ status: '', jobName: '', page: 1, limit: 50 })}
-            >
-              Clear Filters
-            </button>
-          </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Schedules Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Job Name
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Status
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Cron Expression
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Duration
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Started At
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Next Run
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {schedules.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
-                  No schedules found
-                </td>
-              </tr>
-            ) : (
-              schedules.map((schedule) => (
-                <tr
-                  key={schedule.id}
-                  className="hover:bg-gray-50 cursor-pointer"
-                  onClick={() => navigate(`/schedules/${schedule.id}`)}
-                >
-                  <td className="px-6 py-4">
-                    <div className="text-sm font-medium text-gray-900">{schedule.jobName}</div>
-                    <div className="text-sm text-gray-500">{schedule.jobId}</div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(
-                        schedule.status,
-                      )}`}
+      <Card>
+        <CardContent className="p-0">
+          {loading ? (
+            <div className="p-6 space-y-4">
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+          ) : schedules.length === 0 ? (
+            <EmptyState
+              icon={<IconClock size={48} />}
+              title="No schedules found"
+              description="There are no scheduled jobs to display. Create a scheduled task to see it here."
+            />
+          ) : (
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Job Name</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Cron Expression</TableHead>
+                    <TableHead>Duration</TableHead>
+                    <TableHead>Started At</TableHead>
+                    <TableHead>Next Run</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {schedules.map((schedule) => (
+                    <TableRow
+                      key={schedule.id}
+                      className="cursor-pointer"
+                      onClick={() => navigate(`/schedules/${schedule.id}`)}
                     >
-                      {schedule.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-900">
-                    {schedule.cronExpression || 'N/A'}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-900">
-                    {formatDuration(schedule.duration)}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
-                    {formatDate(schedule.startedAt)}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
-                    {formatDate(schedule.nextRunAt)}
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+                      <TableCell>
+                        <div className="font-medium">{schedule.jobName}</div>
+                        <div className="text-sm text-muted-foreground">{schedule.jobId}</div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={getStatusVariant(schedule.status)}>{schedule.status}</Badge>
+                      </TableCell>
+                      <TableCell className="font-mono text-sm">
+                        {schedule.cronExpression || 'N/A'}
+                      </TableCell>
+                      <TableCell>{formatDuration(schedule.duration)}</TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {formatDate(schedule.startedAt)}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {formatDate(schedule.nextRunAt)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
 
-      {/* Pagination */}
-      <div className="mt-4 flex justify-between items-center">
-        <button
-          className="bg-gray-200 px-4 py-2 rounded disabled:opacity-50"
-          disabled={filter.page === 1}
-          onClick={() => setFilter({ ...filter, page: filter.page - 1 })}
-        >
-          Previous
-        </button>
-        <span className="text-sm text-gray-600">Page {filter.page}</span>
-        <button
-          className="bg-gray-200 px-4 py-2 rounded disabled:opacity-50"
-          disabled={schedules.length < filter.limit}
-          onClick={() => setFilter({ ...filter, page: filter.page + 1 })}
-        >
-          Next
-        </button>
-      </div>
+              {/* Pagination */}
+              <div className="flex items-center justify-between border-t px-6 py-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={filter.page === 1}
+                  onClick={() => setFilter({ ...filter, page: filter.page - 1 })}
+                >
+                  Previous
+                </Button>
+                <span className="text-sm text-muted-foreground">Page {filter.page}</span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={schedules.length < filter.limit}
+                  onClick={() => setFilter({ ...filter, page: filter.page + 1 })}
+                >
+                  Next
+                </Button>
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -27,6 +27,7 @@ Este documento descreve as melhorias implementadas nas páginas de visualizaçã
 A página foi completamente reestruturada com um sistema de tabs de dois níveis:
 
 #### Overview (Sempre Visível)
+
 - **Status**: Com badge colorido baseado no código HTTP
   - Verde: 2xx (sucesso)
   - Azul: 3xx (redirecionamento)
@@ -38,12 +39,16 @@ A página foi completamente reestruturada com um sistema de tabs de dois níveis
 - **Query Params**: Parâmetros da URL (quando presentes)
 
 #### Tab: Request
+
 Sub-tabs:
+
 1. **Headers**: Cabeçalhos HTTP da requisição
 2. **Payload**: Corpo da requisição (body)
 
 #### Tab: Response
+
 Sub-tabs:
+
 1. **Data**: Dados retornados pela API
 2. **Headers**: Cabeçalhos HTTP da resposta
 3. **Session**: Informações de sessão
@@ -71,7 +76,7 @@ DevtoolsModule.forRoot({
   captureResponse: true,
   captureResponseHeaders: true,
   captureSession: true,
-})
+});
 ```
 
 ## 4. Estrutura de Dados Esperada
@@ -99,17 +104,20 @@ DevtoolsModule.forRoot({
 ## 5. Benefícios das Melhorias
 
 ### Para Desenvolvedores
+
 - **Debugging Facilitado**: Visualização completa de request/response
 - **Rastreamento de Sessão**: Identificação rápida de usuários e sessões
 - **Análise de Performance**: Duração e status code visíveis
 - **Inspeção de Headers**: Acesso fácil a todos os cabeçalhos
 
 ### Para DevOps
+
 - **Monitoramento de IPs**: Identificação de origem das requisições
 - **Análise de Erros**: Status codes coloridos para rápida identificação
 - **Auditoria**: Rastreamento completo de requisições por sessão/usuário
 
 ### Para Segurança
+
 - **Tracking de Sessões**: Monitoramento de atividades por sessão
 - **Identificação de Usuários**: Rastreamento de ações por user ID
 - **Análise de Origem**: Verificação de IPs suspeitos
@@ -119,6 +127,7 @@ DevtoolsModule.forRoot({
 ### Visualizando Request com Sessão
 
 Quando uma requisição possui sessão ativa, você verá:
+
 - Badge roxo com Session ID truncado na listagem
 - User ID ao lado (se disponível)
 - Na página de detalhes, tab "Session" com dados completos
@@ -158,4 +167,3 @@ Quando uma requisição possui sessão ativa, você verá:
 ## Conclusão
 
 As melhorias implementadas transformam a visualização de requests em uma ferramenta poderosa para debugging, monitoramento e análise de aplicações NestJS. A estrutura com tabs organiza as informações de forma intuitiva, enquanto as novas colunas na listagem facilitam a identificação rápida de requisições específicas.
-

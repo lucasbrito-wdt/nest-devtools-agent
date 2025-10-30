@@ -14,7 +14,7 @@ COPY tsconfig.json ./
 COPY packages/shared/package.json packages/shared/package.json
 COPY packages/frontend/package.json packages/frontend/package.json
 
-# Instalar dependências
+# Instalar dependências do workspace
 RUN bun install
 
 # Copiar código fonte completo dos pacotes necessários
@@ -22,7 +22,9 @@ COPY packages/shared packages/shared
 COPY packages/frontend packages/frontend
 
 # Construir shared primeiro
+# Instalar dependências localmente no shared para garantir que typescript esteja disponível
 WORKDIR /app/packages/shared
+RUN bun install
 RUN bun run build
 
 # Expor a porta

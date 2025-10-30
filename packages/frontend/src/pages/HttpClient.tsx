@@ -1,4 +1,20 @@
 import { useState, useEffect } from 'react';
+import { IconWorld } from '@tabler/icons-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { EmptyState } from '@/components/ui/empty-state';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 interface HttpClientRequest {
   id: string;
@@ -72,30 +88,34 @@ export default function HttpClient() {
     }
   };
 
-  const getMethodColor = (method: string) => {
+  const getMethodVariant = (
+    method: string,
+  ): 'success' | 'info' | 'warning' | 'destructive' | 'default' | 'secondary' => {
     switch (method) {
       case 'GET':
-        return 'bg-green-100 text-green-800';
+        return 'success';
       case 'POST':
-        return 'bg-blue-100 text-blue-800';
+        return 'info';
       case 'PUT':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'warning';
       case 'PATCH':
-        return 'bg-orange-100 text-orange-800';
+        return 'secondary';
       case 'DELETE':
-        return 'bg-red-100 text-red-800';
+        return 'destructive';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'default';
     }
   };
 
-  const getStatusColor = (status?: number) => {
-    if (!status) return 'bg-gray-100 text-gray-800';
-    if (status >= 200 && status < 300) return 'bg-green-100 text-green-800';
-    if (status >= 300 && status < 400) return 'bg-blue-100 text-blue-800';
-    if (status >= 400 && status < 500) return 'bg-yellow-100 text-yellow-800';
-    if (status >= 500) return 'bg-red-100 text-red-800';
-    return 'bg-gray-100 text-gray-800';
+  const getStatusVariant = (
+    status?: number,
+  ): 'success' | 'info' | 'warning' | 'destructive' | 'default' => {
+    if (!status) return 'default';
+    if (status >= 200 && status < 300) return 'success';
+    if (status >= 300 && status < 400) return 'info';
+    if (status >= 400 && status < 500) return 'warning';
+    if (status >= 500) return 'destructive';
+    return 'default';
   };
 
   const formatDuration = (ms: number) => {
@@ -112,265 +132,247 @@ export default function HttpClient() {
     return url.substring(0, maxLength) + '...';
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-xl">Loading HTTP requests...</div>
-      </div>
-    );
-  }
-
   return (
-    <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">HTTP Client</h1>
-        <p className="text-gray-600">Monitor outgoing HTTP requests</p>
+    <div className="space-y-6 p-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold">HTTP Client</h1>
+        <p className="mt-2 text-muted-foreground">Monitor outgoing HTTP requests</p>
       </div>
 
       {/* Statistics Cards */}
-      {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-sm text-gray-600">Total Requests</div>
-            <div className="text-2xl font-bold">{stats.totalRequests}</div>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-sm text-gray-600">Successful</div>
-            <div className="text-2xl font-bold text-green-600">{stats.successfulRequests}</div>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-sm text-gray-600">Failed</div>
-            <div className="text-2xl font-bold text-red-600">{stats.failedRequests}</div>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow">
-            <div className="text-sm text-gray-600">Avg Duration</div>
-            <div className="text-2xl font-bold text-blue-600">
-              {formatDuration(stats.avgDuration)}
-            </div>
-          </div>
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Skeleton className="h-24" />
+          <Skeleton className="h-24" />
+          <Skeleton className="h-24" />
+          <Skeleton className="h-24" />
         </div>
+      ) : (
+        stats && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardDescription>Total Requests</CardDescription>
+                <CardTitle className="text-3xl">{stats.totalRequests}</CardTitle>
+              </CardHeader>
+            </Card>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardDescription>Successful</CardDescription>
+                <CardTitle className="text-3xl text-green-600">
+                  {stats.successfulRequests}
+                </CardTitle>
+              </CardHeader>
+            </Card>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardDescription>Failed</CardDescription>
+                <CardTitle className="text-3xl text-red-600">{stats.failedRequests}</CardTitle>
+              </CardHeader>
+            </Card>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardDescription>Avg Duration</CardDescription>
+                <CardTitle className="text-3xl text-blue-600">
+                  {formatDuration(stats.avgDuration)}
+                </CardTitle>
+              </CardHeader>
+            </Card>
+          </div>
+        )
       )}
 
       {/* Filters */}
-      <div className="bg-white p-4 rounded-lg shadow mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Method</label>
-            <select
-              className="w-full border rounded px-3 py-2"
-              value={filter.method}
-              onChange={(e) => setFilter({ ...filter, method: e.target.value, page: 1 })}
-            >
-              <option value="">All Methods</option>
-              <option value="GET">GET</option>
-              <option value="POST">POST</option>
-              <option value="PUT">PUT</option>
-              <option value="PATCH">PATCH</option>
-              <option value="DELETE">DELETE</option>
-            </select>
+      <Card>
+        <CardContent className="pt-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">Method</label>
+              <select
+                className="flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                value={filter.method}
+                onChange={(e) => setFilter({ ...filter, method: e.target.value, page: 1 })}
+              >
+                <option value="">All Methods</option>
+                <option value="GET">GET</option>
+                <option value="POST">POST</option>
+                <option value="PUT">PUT</option>
+                <option value="PATCH">PATCH</option>
+                <option value="DELETE">DELETE</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">URL</label>
+              <Input
+                type="text"
+                placeholder="Filter by URL..."
+                value={filter.url}
+                onChange={(e) => setFilter({ ...filter, url: e.target.value, page: 1 })}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Status</label>
+              <Input
+                type="number"
+                placeholder="e.g., 200"
+                value={filter.responseStatus}
+                onChange={(e) => setFilter({ ...filter, responseStatus: e.target.value, page: 1 })}
+              />
+            </div>
+            <div className="flex items-end">
+              <Button
+                variant="outline"
+                onClick={() =>
+                  setFilter({ method: '', url: '', responseStatus: '', page: 1, limit: 50 })
+                }
+              >
+                Clear Filters
+              </Button>
+            </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">URL</label>
-            <input
-              type="text"
-              className="w-full border rounded px-3 py-2"
-              placeholder="Filter by URL..."
-              value={filter.url}
-              onChange={(e) => setFilter({ ...filter, url: e.target.value, page: 1 })}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Status</label>
-            <input
-              type="number"
-              className="w-full border rounded px-3 py-2"
-              placeholder="e.g., 200"
-              value={filter.responseStatus}
-              onChange={(e) => setFilter({ ...filter, responseStatus: e.target.value, page: 1 })}
-            />
-          </div>
-          <div className="flex items-end">
-            <button
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-              onClick={() =>
-                setFilter({ method: '', url: '', responseStatus: '', page: 1, limit: 50 })
-              }
-            >
-              Clear Filters
-            </button>
-          </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Requests Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Method
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                URL
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Status
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Duration
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Time
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {requests.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
-                  No HTTP requests found
-                </td>
-              </tr>
-            ) : (
-              requests.map((request) => (
-                <tr
-                  key={request.id}
-                  className="hover:bg-gray-50 cursor-pointer"
-                  onClick={() => setSelectedRequest(request)}
-                >
-                  <td className="px-6 py-4">
-                    <span
-                      className={`px-2 py-1 text-xs font-semibold rounded ${getMethodColor(
-                        request.method,
-                      )}`}
+      <Card>
+        <CardContent className="p-0">
+          {loading ? (
+            <div className="p-6 space-y-4">
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+          ) : requests.length === 0 ? (
+            <EmptyState
+              icon={<IconWorld size={48} />}
+              title="No HTTP requests found"
+              description="There are no outgoing HTTP requests to display."
+            />
+          ) : (
+            <>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Method</TableHead>
+                    <TableHead>URL</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Duration</TableHead>
+                    <TableHead>Time</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {requests.map((request) => (
+                    <TableRow
+                      key={request.id}
+                      className="cursor-pointer"
+                      onClick={() => setSelectedRequest(request)}
                     >
-                      {request.method}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm text-gray-900" title={request.url}>
-                      {truncateUrl(request.url)}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    {request.error ? (
-                      <span className="px-2 py-1 text-xs font-semibold rounded bg-red-100 text-red-800">
-                        ERROR
-                      </span>
-                    ) : (
-                      <span
-                        className={`px-2 py-1 text-xs font-semibold rounded ${getStatusColor(
-                          request.responseStatus,
-                        )}`}
-                      >
-                        {request.responseStatus || 'N/A'}
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-900">
-                    {formatDuration(request.duration)}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
-                    {formatDate(request.createdAt)}
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+                      <TableCell>
+                        <Badge variant={getMethodVariant(request.method)}>{request.method}</Badge>
+                      </TableCell>
+                      <TableCell className="max-w-md truncate" title={request.url}>
+                        {truncateUrl(request.url)}
+                      </TableCell>
+                      <TableCell>
+                        {request.error ? (
+                          <Badge variant="destructive">ERROR</Badge>
+                        ) : (
+                          <Badge variant={getStatusVariant(request.responseStatus)}>
+                            {request.responseStatus || 'N/A'}
+                          </Badge>
+                        )}
+                      </TableCell>
+                      <TableCell>{formatDuration(request.duration)}</TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {formatDate(request.createdAt)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
 
-      {/* Pagination */}
-      <div className="mt-4 flex justify-between items-center">
-        <button
-          className="bg-gray-200 px-4 py-2 rounded disabled:opacity-50"
-          disabled={filter.page === 1}
-          onClick={() => setFilter({ ...filter, page: filter.page - 1 })}
-        >
-          Previous
-        </button>
-        <span className="text-sm text-gray-600">Page {filter.page}</span>
-        <button
-          className="bg-gray-200 px-4 py-2 rounded disabled:opacity-50"
-          disabled={requests.length < filter.limit}
-          onClick={() => setFilter({ ...filter, page: filter.page + 1 })}
-        >
-          Next
-        </button>
-      </div>
-
-      {/* Request Detail Modal */}
-      {selectedRequest && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-          onClick={() => setSelectedRequest(null)}
-        >
-          <div
-            className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="p-6">
-              <div className="flex justify-between items-start mb-4">
-                <h2 className="text-2xl font-bold">Request Details</h2>
-                <button
-                  className="text-gray-500 hover:text-gray-700"
-                  onClick={() => setSelectedRequest(null)}
+              {/* Pagination */}
+              <div className="flex items-center justify-between border-t px-6 py-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={filter.page === 1}
+                  onClick={() => setFilter({ ...filter, page: filter.page - 1 })}
                 >
-                  ✕
-                </button>
+                  Previous
+                </Button>
+                <span className="text-sm text-muted-foreground">Page {filter.page}</span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={requests.length < filter.limit}
+                  onClick={() => setFilter({ ...filter, page: filter.page + 1 })}
+                >
+                  Next
+                </Button>
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Request Detail Dialog */}
+      <Dialog open={!!selectedRequest} onOpenChange={() => setSelectedRequest(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Request Details</DialogTitle>
+          </DialogHeader>
+
+          {selectedRequest && (
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-semibold mb-2">Request</h3>
+                <div className="bg-muted p-4 rounded-md">
+                  <div className="mb-2 flex items-center gap-2">
+                    <Badge variant={getMethodVariant(selectedRequest.method)}>
+                      {selectedRequest.method}
+                    </Badge>
+                    <span className="text-sm">{selectedRequest.url}</span>
+                  </div>
+                  {selectedRequest.requestBody && (
+                    <pre className="text-xs overflow-x-auto mt-2 bg-background p-2 rounded">
+                      {JSON.stringify(selectedRequest.requestBody, null, 2)}
+                    </pre>
+                  )}
+                </div>
               </div>
 
-              <div className="space-y-4">
-                <div>
-                  <h3 className="font-semibold mb-2">Request</h3>
-                  <div className="bg-gray-50 p-3 rounded">
-                    <div className="mb-2">
-                      <span
-                        className={`px-2 py-1 text-xs font-semibold rounded ${getMethodColor(selectedRequest.method)}`}
-                      >
-                        {selectedRequest.method}
-                      </span>
-                      <span className="ml-2 text-sm">{selectedRequest.url}</span>
-                    </div>
-                    {selectedRequest.requestBody && (
-                      <pre className="text-xs overflow-x-auto mt-2">
-                        {JSON.stringify(selectedRequest.requestBody, null, 2)}
-                      </pre>
-                    )}
+              <div>
+                <h3 className="font-semibold mb-2">Response</h3>
+                <div className="bg-muted p-4 rounded-md">
+                  <div className="mb-2 flex items-center gap-4">
+                    <span className="text-sm">Status:</span>
+                    <Badge variant={getStatusVariant(selectedRequest.responseStatus)}>
+                      {selectedRequest.responseStatus || 'N/A'}
+                    </Badge>
+                    <span className="text-sm">
+                      Duration: {formatDuration(selectedRequest.duration)}
+                    </span>
                   </div>
-                </div>
-
-                <div>
-                  <h3 className="font-semibold mb-2">Response</h3>
-                  <div className="bg-gray-50 p-3 rounded">
-                    <div className="mb-2">
-                      Status:{' '}
-                      <span
-                        className={`px-2 py-1 text-xs font-semibold rounded ${getStatusColor(selectedRequest.responseStatus)}`}
-                      >
-                        {selectedRequest.responseStatus || 'N/A'}
-                      </span>
-                      <span className="ml-4">
-                        Duration: {formatDuration(selectedRequest.duration)}
-                      </span>
+                  {selectedRequest.error && (
+                    <div className="text-destructive text-sm mb-2">
+                      Error: {selectedRequest.error}
                     </div>
-                    {selectedRequest.error && (
-                      <div className="text-red-600 text-sm mb-2">
-                        Error: {selectedRequest.error}
-                      </div>
-                    )}
-                    {selectedRequest.responseBody && (
-                      <pre className="text-xs overflow-x-auto mt-2">
-                        {JSON.stringify(selectedRequest.responseBody, null, 2)}
-                      </pre>
-                    )}
-                  </div>
+                  )}
+                  {selectedRequest.responseBody && (
+                    <pre className="text-xs overflow-x-auto mt-2 bg-background p-2 rounded">
+                      {JSON.stringify(selectedRequest.responseBody, null, 2)}
+                    </pre>
+                  )}
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

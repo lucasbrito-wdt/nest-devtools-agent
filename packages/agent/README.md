@@ -16,6 +16,10 @@ O `nest-devtools-agent` é uma biblioteca de instrumentação para aplicações 
 - ✅ **Exceções** — stacktraces completos com contexto
 - ✅ **Logs** — agregação e busca de logs da aplicação
 - ✅ **Performance** — métricas de latência e throughput
+- ✅ **Redis** — operações Redis (ioredis e node-redis) com comandos, duração e erros
+- ✅ **HTTP Client** — requisições HTTP de saída (Axios, Fetch, HttpService)
+- ✅ **Schedule/Cron** — jobs agendados e execuções
+- ✅ **Sessões** — tracking de sessões de usuário
 
 Inspirado no [Laravel Telescope](https://laravel.com/docs/telescope), mas feito especificamente para NestJS.
 
@@ -76,6 +80,9 @@ O agent agora está capturando automaticamente:
 - Todas as requisições HTTP
 - Todas as exceções não tratadas
 - Todos os logs da aplicação
+- Operações Redis (se configurado)
+- Requisições HTTP de saída (se configurado)
+- Jobs agendados (se configurado)
 
 ---
 
@@ -389,9 +396,14 @@ export class AppModule {}
 ## 📚 Documentação Completa
 
 - [📦 Guia de Instalação Detalhado](./INSTALLATION.md) - Instalação passo a passo com troubleshooting
-- [📖 Exemplos de Uso](./USAGE_EXAMPLE.md) - 10+ exemplos práticos de configuração
+- [📖 Exemplos de Uso](./USAGE_EXAMPLE.md) - 12+ exemplos práticos incluindo Redis, HTTP Client, Schedule e mais
 - [🔧 Troubleshooting](./README.md#-troubleshooting) - Soluções para problemas comuns
 - [🔒 Guia de Segurança](./README.md#-segurança) - Boas práticas de segurança
+
+### 📌 Guias Específicos
+
+- **Redis Tracking**: Veja [Exemplo 12](./USAGE_EXAMPLE.md#-exemplo-12-tracking-redis---operações-redis) no guia de exemplos
+- **HTTP Client Tracking**: Veja [Exemplo 11](./USAGE_EXAMPLE.md#-exemplo-11-tracking-http-client-axios-fetch-httpservice) no guia de exemplos
 
 ---
 
