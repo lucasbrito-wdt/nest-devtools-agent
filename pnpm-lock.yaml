@@ -31,8 +31,8 @@ importers:
         specifier: ^11.1.0
         version: 11.1.8(@nestjs/common@11.1.8)(@nestjs/platform-express@11.1.8)(@nestjs/websockets@11.1.8)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       '@prisma/client':
-        specifier: ^5.22.0
-        version: 5.22.0(prisma@5.22.0)
+        specifier: ^6.18.0
+        version: 6.18.0(prisma@5.22.0)(typescript@5.9.3)
       '@types/express':
         specifier: ^4.17.21
         version: 4.17.24
@@ -85,8 +85,8 @@ importers:
         specifier: ^11.1.0
         version: 11.1.8(@nestjs/common@11.1.8)(@nestjs/core@11.1.8)(@nestjs/platform-socket.io@11.1.8)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       '@prisma/client':
-        specifier: ^5.22.0
-        version: 5.22.0(prisma@5.22.0)
+        specifier: ^6.18.0
+        version: 6.18.0(prisma@5.22.0)(typescript@5.9.3)
       axios:
         specifier: ^1.6.5
         version: 1.13.0
@@ -98,7 +98,7 @@ importers:
         version: 0.14.2
       nest-devtools-agent:
         specifier: ^0.1.8
-        version: 0.1.9(@nestjs/common@11.1.8)(@nestjs/core@11.1.8)(@prisma/client@5.22.0)(bull@4.16.5)(express@4.21.2)(reflect-metadata@0.2.2)(rxjs@7.8.2)(typeorm@0.3.27)
+        version: 0.1.9(@nestjs/common@11.1.8)(@nestjs/core@11.1.8)(@prisma/client@6.18.0)(bull@4.16.5)(express@4.21.2)(reflect-metadata@0.2.2)(rxjs@7.8.2)(typeorm@0.3.27)
       nest-devtools-shared:
         specifier: workspace:*
         version: link:../shared
@@ -1891,17 +1891,21 @@ packages:
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
     dev: true
 
-  /@prisma/client@5.22.0(prisma@5.22.0):
-    resolution: {integrity: sha512-M0SVXfyHnQREBKxCgyo7sffrKttwE6R8PMq330MIUF0pTwjUhLbW84pFDlf06B27XyCR++VtjugEnIHdr07SVA==}
-    engines: {node: '>=16.13'}
+  /@prisma/client@6.18.0(prisma@5.22.0)(typescript@5.9.3):
+    resolution: {integrity: sha512-jnL2I9gDnPnw4A+4h5SuNn8Gc+1mL1Z79U/3I9eE2gbxJG1oSA+62ByPW4xkeDgwE0fqMzzpAZ7IHxYnLZ4iQA==}
+    engines: {node: '>=18.18'}
     requiresBuild: true
     peerDependencies:
       prisma: '*'
+      typescript: '>=5.1.0'
     peerDependenciesMeta:
       prisma:
         optional: true
+      typescript:
+        optional: true
     dependencies:
       prisma: 5.22.0
+      typescript: 5.9.3
 
   /@prisma/debug@5.22.0:
     resolution: {integrity: sha512-AUt44v3YJeggO2ZU5BkXI7M4hu9BF2zzH2iF2V5pyXT/lRTyWiElZ7It+bRH1EshoMRxHgpYg4VB6rCM+mG5jQ==}
@@ -6357,7 +6361,7 @@ packages:
     resolution: {integrity: sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==}
     dev: true
 
-  /nest-devtools-agent@0.1.9(@nestjs/common@11.1.8)(@nestjs/core@11.1.8)(@prisma/client@5.22.0)(bull@4.16.5)(express@4.21.2)(reflect-metadata@0.2.2)(rxjs@7.8.2)(typeorm@0.3.27):
+  /nest-devtools-agent@0.1.9(@nestjs/common@11.1.8)(@nestjs/core@11.1.8)(@prisma/client@6.18.0)(bull@4.16.5)(express@4.21.2)(reflect-metadata@0.2.2)(rxjs@7.8.2)(typeorm@0.3.27):
     resolution: {integrity: sha512-KwL7zf+l2zvJ29f+WegAbdvkkkQAYzEQVndxbpRP8XIrFhHwQXV14nlkned1qUmhMTbRmaLPhR4hmUJyD+2SNw==}
     peerDependencies:
       '@nestjs/common': ^10.0.0 || ^11.0.0
@@ -6371,7 +6375,7 @@ packages:
     dependencies:
       '@nestjs/common': 11.1.8(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       '@nestjs/core': 11.1.8(@nestjs/common@11.1.8)(@nestjs/platform-express@11.1.8)(@nestjs/websockets@11.1.8)(reflect-metadata@0.2.2)(rxjs@7.8.2)
-      '@prisma/client': 5.22.0(prisma@5.22.0)
+      '@prisma/client': 6.18.0(prisma@5.22.0)(typescript@5.9.3)
       axios: 1.13.0
       bull: 4.16.5
       express: 4.21.2
