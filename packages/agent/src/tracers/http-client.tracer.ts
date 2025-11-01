@@ -11,6 +11,16 @@ import axios, {
 } from 'axios';
 
 /**
+ * Tipos do Fetch API para ambientes Node.js
+ * Compatível com undici-types
+ */
+type HeadersInitCompat =
+  | string[][]
+  | Record<string, string | string[]>
+  | Record<string, string | readonly string[]>
+  | Headers;
+
+/**
  * Referências originais para restore
  */
 type OriginalFunction = (...args: any[]) => any;
@@ -19,7 +29,7 @@ const originalFetch = global.fetch;
 
 /**
  * Tracer para capturar requisições HTTP de saída (HTTP Client)
- * 
+ *
  * Suporta:
  * - Axios (instância global e instâncias criadas dinamicamente)
  * - HttpService do NestJS (via detecção automática do axios interno)
@@ -89,18 +99,16 @@ export class HttpClientTracer implements OnModuleInit, OnModuleDestroy {
   private setupAxiosInstanceInterceptor(): void {
     // Monkey patch axios.create para interceptar novas instâncias automaticamente
     const self = this;
-    
-    (axios.create as any) = function (
-      config?: AxiosRequestConfig,
-    ): AxiosInstance {
+
+    (axios.create as any) = function (config?: AxiosRequestConfig): AxiosInstance {
       const instance = originalAxiosCreate.call(axios, config);
-      
+
       // Verifica se já foi interceptada
       if (!self.interceptedAxiosInstances.has(instance)) {
         self.interceptAxiosInstance(instance);
         self.interceptedAxiosInstances.add(instance);
       }
-      
+
       return instance;
     };
 
@@ -113,7 +121,7 @@ export class HttpClientTracer implements OnModuleInit, OnModuleDestroy {
    */
   interceptAxiosInstance(axiosInstance: AxiosInstance): void {
     if (!this.devtoolsService.shouldCaptureHttpClient()) return;
-    
+
     if (this.interceptedAxiosInstances.has(axiosInstance)) {
       this.logger.debug('⚠️  Instância Axios já foi interceptada');
       return;
@@ -167,13 +175,17 @@ export class HttpClientTracer implements OnModuleInit, OnModuleDestroy {
     const self = this;
     const originalFetch = global.fetch;
 
-    global.fetch = function (input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+    global.fetch = function (
+      input: Parameters<typeof fetch>[0],
+      init?: Parameters<typeof fetch>[1],
+    ): Promise<Response> {
       if (!self.devtoolsService.shouldCaptureHttpClient()) {
         return originalFetch(input, init);
       }
 
       const startTime = Date.now();
-      const url = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
+      const url =
+        typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url;
       const method = (init?.method || 'GET').toUpperCase();
       const headers = self.convertHeadersToRecord(init?.headers);
 
@@ -230,7 +242,7 @@ export class HttpClientTracer implements OnModuleInit, OnModuleDestroy {
   /**
    * Converte Headers para Record
    */
-  private convertHeadersToRecord(headers?: HeadersInit): Record<string, string | string[]> {
+  private convertHeadersToRecord(headers?: HeadersInitCompat): Record<string, string | string[]> {
     if (!headers) return {};
 
     if (headers instanceof Headers) {

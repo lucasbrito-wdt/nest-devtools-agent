@@ -1,6 +1,6 @@
 {
   "name": "nest-devtools-agent",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "description": "Agent de instrumentação NestJS para DevTools Telescope - rastreie requisições, exceções e logs em tempo real",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -16,7 +16,7 @@
     "dev": "tsc --watch",
     "clean": "rm -rf dist",
     "typecheck": "tsc --noEmit",
-    "prepublishOnly": "bun run build"
+    "prepublishOnly": "pnpm run build"
   },
   "keywords": [
     "nestjs",
